@@ -1,12 +1,12 @@
 # Pack Manifest Reference
 
-`pack.toml` is the human-authored manifest for an app-skills feature pack.
+`pack.toml` is the human-authored manifest for an anvil feature pack.
 A pack is a declarative unit of product capability: it can add files,
 dependencies, env vars, skills, and board tasks, but it cannot run arbitrary
 install code.
 
 Manifests are TOML. The installer parses them with `smol-toml`, validates them
-with the shared Zod schemas in `packages/pack-schema`, rejects unknown top-level
+with the shared Zod schemas in `packages/anvil-schema`, rejects unknown top-level
 fields, and rejects shell-hook fields before normal validation.
 
 ## Required Fields
@@ -148,7 +148,7 @@ Re-running the pack must not duplicate the block.
 Use it for `package.json`, `tsconfig.json`, and tool config JSON.
 
 `template` renders a file with Handlebars-style variables from
-`app-skills.config.json`.
+`anvil.config.json`.
 Use it when output needs the app name, template name, or scaffold variables.
 
 ## Skills

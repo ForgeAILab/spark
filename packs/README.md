@@ -1,6 +1,6 @@
 # Packs
 
-A **pack** is a self-contained unit of capability — auth, db, payments, UI, AI SDK, email, deploy target, … — that the `app-skills` CLI can install into a scaffolded project. Packs are TOML-manifested, declarative (no shell hooks), and capability-resolved.
+A **pack** is a self-contained unit of capability — auth, db, payments, UI, AI SDK, email, deploy target, … — that the `anvil` CLI can install into a scaffolded project. Packs are TOML-manifested, declarative (no shell hooks), and capability-resolved.
 
 ## Directory layout
 
@@ -14,7 +14,7 @@ packs/<name>/
 
 ## `pack.toml`
 
-See [`docs/pack-spec.md`](../docs/pack-spec.md) for the full schema. The Zod source of truth is `packages/pack-schema/src/pack.ts`.
+See [`docs/pack-spec.md`](../docs/pack-spec.md) for the full schema. The Zod source of truth is `packages/anvil-schema/src/pack.ts`.
 
 A minimum-viable pack:
 
@@ -51,9 +51,9 @@ file = "tasks.yaml"
 | Mode | Behavior |
 |---|---|
 | `create` | Fails if the destination already exists |
-| `append` | Idempotent; uses `# >>> app-skills:<pack> >>>` / `# <<<` markers |
+| `append` | Idempotent; uses `# >>> anvil:<pack> >>>` / `# <<<` markers |
 | `merge-json` | Deep-merges into an existing JSON file with deterministic key order |
-| `template` | Handlebars-style substitution from `app-skills.config.json` (e.g. `{{appName}}`) |
+| `template` | Handlebars-style substitution from `anvil.config.json` (e.g. `{{appName}}`) |
 
 ## Capability enums (closed)
 
@@ -84,7 +84,7 @@ The two enums are separate and never overlap. Adding a new value requires a regi
 Then fill in the generated `packs/realtime-supabase/pack.toml`. Validate with:
 
 ```bash
-bun -e "import {parsePackToml} from './packages/pack-schema/src/parse.ts'; import {readFileSync} from 'node:fs'; const r = parsePackToml(readFileSync('packs/realtime-supabase/pack.toml','utf8')); console.log(r.ok ? 'OK' : r.error);"
+bun -e "import {parsePackToml} from './packages/anvil-schema/src/parse.ts'; import {readFileSync} from 'node:fs'; const r = parsePackToml(readFileSync('packs/realtime-supabase/pack.toml','utf8')); console.log(r.ok ? 'OK' : r.error);"
 ```
 
 See `packs/example/pack.toml` for a manifest that exercises every field.

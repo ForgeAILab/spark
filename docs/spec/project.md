@@ -1,6 +1,6 @@
 # Project Overview
 
-`app-skills` is a board-driven AI MVP pipeline: a minimal AI-ready scaffold plus a composable feature-pack registry. Founders start with `create-app-skills`, get a bare Next.js + TypeScript app already wired with `AGENTS.md`, `CLAUDE.md`, `.ai/` artifacts, and `.claude/` / `.codex/` skill packs, then add capabilities (auth, db, payments, email, UI, etc.) by installing **packs** through a small Rust CLI.
+`anvil` is a board-driven AI MVP pipeline: a minimal AI-ready scaffold plus a composable feature-pack registry. Founders start with `create-anvil`, get a bare Next.js + TypeScript app already wired with `AGENTS.md`, `CLAUDE.md`, `.ai/` artifacts, and `.claude/` / `.codex/` skill packs, then add capabilities (auth, db, payments, email, UI, etc.) by installing **packs** through a small Rust CLI.
 
 The system mirrors the operating model documented in `docs/deep-research-pipeline.md` (planner / implementer / evaluator) and the scaffold thinking in `docs/deep-research-scaffold.md`, but rejects the batteries-included template approach in favor of pick-what-you-need composition.
 

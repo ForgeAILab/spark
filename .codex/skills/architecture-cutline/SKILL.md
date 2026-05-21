@@ -71,7 +71,7 @@ For each, one line on WHY this choice over the obvious alternative.
   - none
 
 ```sh
-app-skills add <pack-1> <pack-2>
+anvil add <pack-1> <pack-2>
 ```
 
 ## Repo structure

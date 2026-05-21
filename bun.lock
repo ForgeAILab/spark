@@ -5,14 +5,14 @@
     "": {
       "name": "app-skills-monorepo",
     },
-    "packages/cli": {
-      "name": "@app-skills/cli",
+    "packages/anvil": {
+      "name": "@forgeailab/anvil",
       "bin": {
-        "app-skills": "./src/cli.ts",
+        "anvil": "./src/cli.ts",
       },
       "dependencies": {
-        "@app-skills/pack-schema": "workspace:*",
         "@clack/prompts": "latest",
+        "@forgeailab/anvil-schema": "workspace:*",
         "citty": "latest",
         "picocolors": "latest",
         "smol-toml": "latest",
@@ -22,24 +22,8 @@
         "typescript": "latest",
       },
     },
-    "packages/create-app-skills": {
-      "name": "create-app-skills",
-      "bin": {
-        "create-app-skills": "./src/cli.ts",
-      },
-      "dependencies": {
-        "@app-skills/pack-schema": "workspace:*",
-        "@clack/prompts": "latest",
-        "citty": "latest",
-        "picocolors": "latest",
-      },
-      "devDependencies": {
-        "bun-types": "latest",
-        "typescript": "latest",
-      },
-    },
-    "packages/pack-schema": {
-      "name": "@app-skills/pack-schema",
+    "packages/anvil-schema": {
+      "name": "@forgeailab/anvil-schema",
       "dependencies": {
         "smol-toml": "latest",
         "zod": "latest",
@@ -49,23 +33,39 @@
         "typescript": "latest",
       },
     },
+    "packages/create-anvil": {
+      "name": "@forgeailab/create-anvil",
+      "bin": {
+        "create-anvil": "./src/cli.ts",
+      },
+      "dependencies": {
+        "@clack/prompts": "latest",
+        "@forgeailab/anvil-schema": "workspace:*",
+        "citty": "latest",
+        "picocolors": "latest",
+      },
+      "devDependencies": {
+        "bun-types": "latest",
+        "typescript": "latest",
+      },
+    },
   },
   "packages": {
-    "@app-skills/cli": ["@app-skills/cli@workspace:packages/cli"],
-
-    "@app-skills/pack-schema": ["@app-skills/pack-schema@workspace:packages/pack-schema"],
-
     "@clack/core": ["@clack/core@1.3.1", "", { "dependencies": { "fast-wrap-ansi": "^0.2.0", "sisteransi": "^1.0.5" } }, "sha512-fT1qHVGAag4IEkrupZ6lRRbNCs1vS9P01KB/sG8zKgvUztbYtFBtQpjSITNwooDZ83tpsPzP0mRNs1/KVszCRA=="],
 
     "@clack/prompts": ["@clack/prompts@1.4.0", "", { "dependencies": { "@clack/core": "1.3.1", "fast-string-width": "^3.0.2", "fast-wrap-ansi": "^0.2.0", "sisteransi": "^1.0.5" } }, "sha512-S0My7XPGIgpRWMDG8uRqalbgT+a6FmCUdOW+HaIOVVpUPHOb7RrpvjTjiODadKp06fsrVDJZlIzc6yCTp4AnxA=="],
+
+    "@forgeailab/anvil": ["@forgeailab/anvil@workspace:packages/anvil"],
+
+    "@forgeailab/anvil-schema": ["@forgeailab/anvil-schema@workspace:packages/anvil-schema"],
+
+    "@forgeailab/create-anvil": ["@forgeailab/create-anvil@workspace:packages/create-anvil"],
 
     "@types/node": ["@types/node@25.9.1", "", { "dependencies": { "undici-types": ">=7.24.0 <7.24.7" } }, "sha512-xfrlY7UD5rMJk3ZVJP8BNzS28J36YJg+xp+LPXV1TdWxr8uMH5A860QNxYDGQe/ylDSgjxE52Q9VnO7p75tJxg=="],
 
     "bun-types": ["bun-types@1.3.14", "", { "dependencies": { "@types/node": "*" } }, "sha512-4N0ig0fEomHt5R0KCFWjovxow98rIoRwKolrYdCcknNwMekCXRnWEUvgu5soYV8QXtVsrUD8B95MBOZGPvr6KQ=="],
 
     "citty": ["citty@0.2.2", "", {}, "sha512-+6vJA3L98yv+IdfKGZHBNiGW5KHn22e/JwID0Strsz8h4S/csAu/OuICwxrg44k5MRiZHWIo8XXuJgQTriRP4w=="],
-
-    "create-app-skills": ["create-app-skills@workspace:packages/create-app-skills"],
 
     "fast-string-truncated-width": ["fast-string-truncated-width@3.0.3", "", {}, "sha512-0jjjIEL6+0jag3l2XWWizO64/aZVtpiGE3t0Zgqxv0DPuxiMjvB3M24fCyhZUO4KomJQPj3LTSUnDP3GpdwC0g=="],
 

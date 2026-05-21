@@ -1,0 +1,22 @@
+{
+  "name": "@forgeailab/anvil",
+  "type": "module",
+  "bin": {
+    "anvil": "./src/cli.ts"
+  },
+  "scripts": {
+    "test": "bun test",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@forgeailab/anvil-schema": "workspace:*",
+    "@clack/prompts": "latest",
+    "citty": "latest",
+    "picocolors": "latest",
+    "smol-toml": "latest"
+  },
+  "devDependencies": {
+    "bun-types": "latest",
+    "typescript": "latest"
+  }
+}

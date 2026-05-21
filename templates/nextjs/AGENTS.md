@@ -89,7 +89,7 @@ Claude Code skills live in `.claude/skills/`. The same operations on Codex shoul
 
 ## Packs
 
-Feature packs are installed with the `app-skills` CLI.
+Feature packs are installed with the `anvil` CLI.
 Use `pack-resolve` to choose the scaffold and pack set, `pack-add` to dry-run
 and install declarative pack changes, then `sync-board` to reconcile `.ai/board.md`
 with the installed capabilities and current repository state.

@@ -54,7 +54,7 @@ mode = "merge-json"
 from = "package.patch.json"
 to = "package.json"
 
-# Template mode renders Handlebars-style variables from app-skills.config.json.
+# Template mode renders Handlebars-style variables from anvil.config.json.
 [[files]]
 mode = "template"
 from = "lib/example-client.ts.hbs"

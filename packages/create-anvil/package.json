@@ -1,0 +1,17 @@
+{
+  "name": "@forgeailab/create-anvil",
+  "type": "module",
+  "bin": {
+    "create-anvil": "./src/cli.ts"
+  },
+  "dependencies": {
+    "@forgeailab/anvil-schema": "workspace:*",
+    "@clack/prompts": "latest",
+    "citty": "latest",
+    "picocolors": "latest"
+  },
+  "devDependencies": {
+    "bun-types": "latest",
+    "typescript": "latest"
+  }
+}

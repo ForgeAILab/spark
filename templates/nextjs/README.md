@@ -1,6 +1,6 @@
-# Next.js App Skills Template
+# Next.js Anvil Template
 
-This is the minimal Next.js 15 + TypeScript scaffold used by `create-app-skills`.
+This is the minimal Next.js 15 + TypeScript scaffold used by `create-anvil`.
 
 ## Development
 
@@ -16,5 +16,5 @@ bun dev
 Read `AGENTS.md`, fill in the `.ai/` planning files, and keep `.ai/board.md` current before implementing. Add capabilities only when the board calls for them:
 
 ```sh
-app-skills add <pack>
+anvil add <pack>
 ```

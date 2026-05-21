@@ -24,7 +24,7 @@ Read these (required):
 - `.ai/architecture.md`
 - `.ai/board.md`
 - `.ai/decision-log.md` if it exists
-- `.app-skills/state.json` if it exists
+- `.anvil/state.json` if it exists
 - `packs/*/pack.toml` if pack state exists and the registry is available
 
 Sample reality:
@@ -39,7 +39,7 @@ Sample reality:
 - Treat the spec's non-goals list as a checklist of things that should NOT be present in code. Violations are creep, not features.
 - Recommend cuts, not additions. The default fix is "remove or defer," not "build more."
 - Distinguish **drift** (planned scope grew quietly) from **discovery** (new task properly added to the board). Discovery is fine; silent drift is not.
-- For pack-level drift, inspect `.app-skills/state.json` when present. For each installed pack, determine its provided capabilities from state or from `packs/<name>/pack.toml`; if none of those capabilities are referenced in `.ai/product-spec.md` or `.ai/architecture.md`, flag it as drift.
+- For pack-level drift, inspect `.anvil/state.json` when present. For each installed pack, determine its provided capabilities from state or from `packs/<name>/pack.toml`; if none of those capabilities are referenced in `.ai/product-spec.md` or `.ai/architecture.md`, flag it as drift.
 - The pack-level drift recommendation is exactly: **review or revert the pack-install commit via git**. Do not suggest a CLI removal command; v1 has no pack uninstall flow.
 
 ## Checklist

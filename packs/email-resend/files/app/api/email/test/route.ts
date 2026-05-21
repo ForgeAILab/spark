@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  if (request.headers.get("x-app-skills-dev-email") !== "true") {
+  if (request.headers.get("x-anvil-dev-email") !== "true") {
     return NextResponse.json({ error: "Dev email flag is required" }, { status: 403 });
   }
 

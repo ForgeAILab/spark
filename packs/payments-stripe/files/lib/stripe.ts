@@ -12,7 +12,7 @@ function requireEnv(name: string): string {
 
 export const stripe = new Stripe(requireEnv("STRIPE_SECRET_KEY"), {
   appInfo: {
-    name: "app-skills payments-stripe",
+    name: "anvil payments-stripe",
   },
 });
 

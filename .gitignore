@@ -25,9 +25,9 @@ coverage/
 **/.next/
 **/out/
 
-# Local app-skills state files of the monorepo itself (state files in scaffolded
+# Local anvil state files of the monorepo itself (state files in scaffolded
 # projects are committed; this is for any throwaway under the repo root).
-.app-skills/
+.anvil/
 
 # Claude Code runtime artifacts (skills/ stays tracked; these are local-only)
 .claude/scheduled_tasks.lock

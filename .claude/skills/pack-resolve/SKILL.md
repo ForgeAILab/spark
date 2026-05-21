@@ -28,20 +28,20 @@ Read these if present:
 - `templates/*/template.toml`
 - `packs/*/pack.toml`
 - `presets/*.toml`
-- `app-skills.config.json`
+- `anvil.config.json`
 
 If the spec or architecture is missing, stop and tell the user to run `/mvp-spec` and `/architecture-cutline` first.
 
 ## Rules
 
-- Do not run `bunx create-app-skills`, `app-skills add`, or `app-skills preset`. This is a planning skill only.
+- Do not run `bunx create-anvil`, `anvil add`, or `anvil preset`. This is a planning skill only.
 - Resolve from the registry, not from memory. Pack names must come from `packs/*/pack.toml`; templates must come from `templates/*/template.toml`.
 - Prefer the smallest pack set that satisfies the spec and architecture. Do not install "usual SaaS" packs unless the capability is actually required.
 - Group packs by manifest `category`, and map each pack to the capability tags it provides or satisfies.
 - Respect `requires`, `conflicts`, `compatible_scaffolds`, and `requires_runtime` when recommending a set.
 - If a needed capability has no v1 pack, name the gap explicitly and suggest `/new-pack`. Do not invent a pack name or include the missing capability in the command.
 - If the best-fit template has `status = "planned"`, still recommend it as the destination, write `planned, not yet implemented`, suggest `nextjs` as the interim alternative, and make the final command use the executable interim path.
-- If a preset exactly matches the recommended fresh-project pack set, the final command may be `bunx create-app-skills <name> --template <t> --preset <p>`. Otherwise, or when resolving for an existing project, the final command must be `app-skills add <pack...>` using only real pack names from the registry.
+- If a preset exactly matches the recommended fresh-project pack set, the final command may be `bunx create-anvil <name> --template <t> --preset <p>`. Otherwise, or when resolving for an existing project, the final command must be `anvil add <pack...>` using only real pack names from the registry.
 - The final answer must end with exactly one fenced `sh` command block and no text after it.
 
 ## Capability hints
