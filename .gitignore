@@ -1,0 +1,35 @@
+node_modules/
+**/node_modules/
+
+# Bun
+.bun/
+
+# OS / editor
+.DS_Store
+*.log
+.vscode/
+.idea/
+
+# Env
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Build
+dist/
+build/
+coverage/
+
+# Test artifacts
+**/.next/
+**/out/
+
+# Local app-skills state files of the monorepo itself (state files in scaffolded
+# projects are committed; this is for any throwaway under the repo root).
+.app-skills/
+
+# Claude Code runtime artifacts (skills/ stays tracked; these are local-only)
+.claude/scheduled_tasks.lock
+.claude/skills.zip
+.claude/projects/

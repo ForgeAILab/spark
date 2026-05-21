@@ -1,0 +1,9 @@
+epic: AI
+tasks:
+  - id: AI-101
+    title: Add usage tracking + cost guardrails
+    status: Clarifying
+    acceptance:
+      - OpenAI requests record model, token usage, and user or workspace context.
+      - The endpoint enforces a documented per-user or per-workspace usage limit.
+      - Over-limit requests return a clear non-200 response without calling OpenAI.

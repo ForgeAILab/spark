@@ -1,0 +1,4 @@
+name = "docs-site"
+description = "Documentation site (placeholder -- activates once astro-starlight template ships)."
+compatible_scaffolds = ["astro-starlight"]
+packs = []

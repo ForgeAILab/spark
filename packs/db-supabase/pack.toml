@@ -1,0 +1,32 @@
+name = "db-supabase"
+version = "1.0.0"
+category = "db"
+description = "Supabase browser and server clients for Next.js."
+provides = ["db"]
+requires = []
+conflicts = ["db"]
+requires_runtime = ["server"]
+compatible_scaffolds = ["nextjs"]
+
+[dependencies]
+runtime = ["@supabase/supabase-js", "@supabase/ssr"]
+
+[env]
+required = ["NEXT_PUBLIC_SUPABASE_URL", "NEXT_PUBLIC_SUPABASE_ANON_KEY"]
+optional = ["SUPABASE_SERVICE_ROLE_KEY"]
+
+[[files]]
+mode = "create"
+from = "lib/supabase/server.ts"
+to = "lib/supabase/server.ts"
+
+[[files]]
+mode = "create"
+from = "lib/supabase/client.ts"
+to = "lib/supabase/client.ts"
+
+[skills]
+copy = ["skills/supabase-patterns"]
+
+[tasks]
+file = "tasks.yaml"

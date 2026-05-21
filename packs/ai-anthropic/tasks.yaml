@@ -1,0 +1,9 @@
+epic: AI
+
+tasks:
+  - id: AI-001
+    title: Add cost guardrails (token caps, rate limits)
+    status: Clarifying
+    acceptance:
+      - AI requests have server-side max token caps.
+      - Repeated requests are rate limited before calling Anthropic.

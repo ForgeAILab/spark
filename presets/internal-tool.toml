@@ -1,0 +1,4 @@
+name = "internal-tool"
+description = "Internal admin tool -- Supabase auth, shadcn UI, local docker for dev."
+compatible_scaffolds = ["nextjs"]
+packs = ["db-supabase", "auth-supabase", "ui-shadcn", "docker-compose-dev"]

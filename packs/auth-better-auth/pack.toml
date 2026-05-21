@@ -1,0 +1,33 @@
+name = "auth-better-auth"
+version = "1.0.0"
+category = "auth"
+description = "Better Auth route handler, auth instance, and login page for Next.js."
+provides = ["auth"]
+requires = ["db"]
+conflicts = ["auth"]
+requires_runtime = ["server"]
+compatible_scaffolds = ["nextjs"]
+
+[dependencies]
+runtime = ["better-auth"]
+
+[env]
+required = ["BETTER_AUTH_SECRET", "BETTER_AUTH_URL"]
+
+[[files]]
+mode = "create"
+from = "lib/auth.ts"
+to = "lib/auth.ts"
+
+[[files]]
+mode = "create"
+from = "app/api/auth/[...all]/route.ts"
+to = "app/api/auth/[...all]/route.ts"
+
+[[files]]
+mode = "create"
+from = "app/(auth)/login/page.tsx"
+to = "app/(auth)/login/page.tsx"
+
+[tasks]
+file = "tasks.yaml"

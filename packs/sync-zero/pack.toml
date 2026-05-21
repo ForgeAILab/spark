@@ -1,0 +1,43 @@
+name = "sync-zero"
+version = "1.0.0"
+category = "infra"
+description = "Rocicorp Zero client-first sync setup for a Postgres-backed app."
+provides = ["sync"]
+requires = ["db"]
+conflicts = ["sync"]
+requires_runtime = ["server"]
+compatible_scaffolds = ["nextjs"]
+
+[dependencies]
+runtime = ["@rocicorp/zero"]
+dev = ["@rocicorp/zero-cache"]
+
+[env]
+required = ["ZERO_AUTH_SECRET", "ZERO_UPSTREAM_DB"]
+optional = []
+
+[[files]]
+mode = "create"
+from = "zero.config.ts"
+to = "zero.config.ts"
+
+[[files]]
+mode = "create"
+from = "lib/zero/schema.ts"
+to = "lib/zero/schema.ts"
+
+[[files]]
+mode = "create"
+from = "lib/zero/client.ts"
+to = "lib/zero/client.ts"
+
+[[files]]
+mode = "create"
+from = "components/ZeroProvider.tsx"
+to = "components/ZeroProvider.tsx"
+
+[skills]
+copy = ["skills/zero-patterns"]
+
+[tasks]
+file = "tasks.yaml"

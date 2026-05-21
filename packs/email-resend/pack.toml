@@ -1,0 +1,34 @@
+name = "email-resend"
+version = "1.0.0"
+category = "email"
+description = "Resend client wrapper, React Email welcome template, and dev test route."
+provides = ["email"]
+requires = []
+conflicts = []
+requires_runtime = ["server"]
+compatible_scaffolds = ["nextjs"]
+
+[dependencies]
+runtime = ["resend", "react-email", "@react-email/components"]
+
+[env]
+required = ["RESEND_API_KEY"]
+optional = ["RESEND_FROM"]
+
+[[files]]
+mode = "create"
+from = "lib/email.ts"
+to = "lib/email.ts"
+
+[[files]]
+mode = "create"
+from = "emails/welcome.tsx"
+to = "emails/welcome.tsx"
+
+[[files]]
+mode = "create"
+from = "app/api/email/test/route.ts"
+to = "app/api/email/test/route.ts"
+
+[tasks]
+file = "tasks.yaml"

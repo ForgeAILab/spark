@@ -1,0 +1,4 @@
+name = "lean-saas"
+description = "Lean SaaS -- no Supabase. SQLite + Better Auth + shadcn + Vercel."
+compatible_scaffolds = ["nextjs"]
+packs = ["db-sqlite", "auth-better-auth", "ui-shadcn", "deploy-vercel"]

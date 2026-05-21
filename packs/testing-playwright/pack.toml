@@ -1,0 +1,25 @@
+name = "testing-playwright"
+version = "1.0.0"
+category = "testing"
+description = "Playwright end-to-end test setup for the Next.js scaffold."
+provides = ["e2e"]
+requires = []
+conflicts = []
+requires_runtime = ["server"]
+compatible_scaffolds = ["nextjs"]
+
+[dependencies]
+dev = ["@playwright/test"]
+
+[[files]]
+mode = "create"
+from = "playwright.config.ts"
+to = "playwright.config.ts"
+
+[[files]]
+mode = "create"
+from = "e2e/example.spec.ts"
+to = "e2e/example.spec.ts"
+
+[tasks]
+file = "tasks.yaml"

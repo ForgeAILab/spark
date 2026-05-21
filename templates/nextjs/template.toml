@@ -1,0 +1,4 @@
+name = "nextjs"
+status = "stable"
+provides = ["server", "static", "react"]
+description = "Next.js 15 App Router scaffold for TypeScript web apps."

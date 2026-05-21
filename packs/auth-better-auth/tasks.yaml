@@ -1,0 +1,10 @@
+epic: Auth
+tasks:
+  - id: AUTH-101
+    title: Wire auth instance to active db adapter
+    acceptance:
+      - Better Auth persists users, sessions, and accounts through the active db adapter
+  - id: AUTH-102
+    title: Configure OAuth providers (Google/GitHub)
+    acceptance:
+      - Google and GitHub OAuth providers can complete a sign-in flow

@@ -1,0 +1,25 @@
+name = "docker-compose-dev"
+version = "1.0.0"
+category = "infra"
+description = "Local Postgres and Redis runtime for development with Docker Compose."
+provides = ["local-runtime"]
+requires = []
+conflicts = []
+requires_runtime = []
+compatible_scaffolds = []
+
+[env]
+optional = ["POSTGRES_PORT", "REDIS_PORT"]
+
+[[files]]
+mode = "create"
+from = "docker-compose.yml"
+to = "docker-compose.yml"
+
+[[files]]
+mode = "create"
+from = ".env.docker.example"
+to = ".env.docker.example"
+
+[tasks]
+file = "tasks.yaml"

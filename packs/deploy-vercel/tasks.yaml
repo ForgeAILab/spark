@@ -1,0 +1,14 @@
+epic: Deploy
+tasks:
+  - id: DEPLOY-001
+    title: Configure environment variables in Vercel dashboard
+    status: Clarifying
+    acceptance:
+      - Required pack environment variables are present in the Vercel project.
+      - Preview and production values are documented when they differ.
+  - id: DEPLOY-002
+    title: Set up preview deploys for pull requests
+    status: Clarifying
+    acceptance:
+      - Pull requests create Vercel preview deployments.
+      - Preview deployments use non-production credentials where applicable.

@@ -1,0 +1,10 @@
+epic: Auth
+tasks:
+  - id: AUTH-001
+    title: Configure OAuth provider in Supabase dashboard
+    acceptance:
+      - Supabase OAuth provider completes sign-in through /auth/callback
+  - id: AUTH-002
+    title: Add protected route example
+    acceptance:
+      - Anonymous users are redirected away from the protected route example

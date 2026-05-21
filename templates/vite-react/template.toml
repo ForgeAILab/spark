@@ -1,0 +1,4 @@
+name = "vite-react"
+status = "planned"
+provides = ["static", "react"]
+description = "Planned Vite React scaffold for client-side web apps."

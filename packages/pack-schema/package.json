@@ -1,0 +1,13 @@
+{
+  "name": "@app-skills/pack-schema",
+  "type": "module",
+  "exports": "./src/index.ts",
+  "dependencies": {
+    "smol-toml": "latest",
+    "zod": "latest"
+  },
+  "devDependencies": {
+    "bun-types": "latest",
+    "typescript": "latest"
+  }
+}

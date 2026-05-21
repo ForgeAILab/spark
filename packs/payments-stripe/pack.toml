@@ -1,0 +1,45 @@
+name = "payments-stripe"
+version = "1.0.0"
+category = "payments"
+description = "Stripe Checkout, customer portal, and webhook handlers for subscriptions."
+provides = ["payments"]
+requires = ["db", "auth"]
+conflicts = ["payments"]
+requires_runtime = ["server"]
+compatible_scaffolds = ["nextjs"]
+
+[dependencies]
+runtime = ["stripe", "@stripe/stripe-js"]
+
+[env]
+required = [
+  "STRIPE_SECRET_KEY",
+  "STRIPE_WEBHOOK_SECRET",
+  "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY",
+]
+
+[[files]]
+mode = "create"
+from = "lib/stripe.ts"
+to = "lib/stripe.ts"
+
+[[files]]
+mode = "create"
+from = "app/api/checkout/route.ts"
+to = "app/api/checkout/route.ts"
+
+[[files]]
+mode = "create"
+from = "app/api/webhooks/stripe/route.ts"
+to = "app/api/webhooks/stripe/route.ts"
+
+[[files]]
+mode = "create"
+from = "app/api/billing-portal/route.ts"
+to = "app/api/billing-portal/route.ts"
+
+[skills]
+copy = ["skills/stripe-patterns"]
+
+[tasks]
+file = "tasks.yaml"

@@ -1,0 +1,15 @@
+epic: Analytics
+tasks:
+  - id: ANALYTICS-001
+    title: Wire posthog provider into app root
+    status: Clarifying
+    acceptance:
+      - The app root wraps client routes with PostHogProvider.
+      - Page views are captured intentionally, either by router events or a documented manual call.
+  - id: ANALYTICS-002
+    title: Add consent banner
+    status: Clarifying
+    acceptance:
+      - Users can accept or decline analytics before tracking starts.
+      - The consent choice persists across reloads.
+      - PostHog capture is disabled when consent is declined.

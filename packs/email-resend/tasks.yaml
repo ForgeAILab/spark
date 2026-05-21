@@ -1,0 +1,9 @@
+epic: Email
+
+tasks:
+  - id: EMAIL-001
+    title: Verify sender domain in Resend dashboard
+    status: Clarifying
+    acceptance:
+      - Resend sender domain is verified for the production domain.
+      - RESEND_FROM uses the verified sender domain.

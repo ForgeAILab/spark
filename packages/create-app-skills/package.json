@@ -1,0 +1,17 @@
+{
+  "name": "create-app-skills",
+  "type": "module",
+  "bin": {
+    "create-app-skills": "./src/cli.ts"
+  },
+  "dependencies": {
+    "@app-skills/pack-schema": "workspace:*",
+    "@clack/prompts": "latest",
+    "citty": "latest",
+    "picocolors": "latest"
+  },
+  "devDependencies": {
+    "bun-types": "latest",
+    "typescript": "latest"
+  }
+}

@@ -1,0 +1,6 @@
+epic: UI
+tasks:
+  - id: UI-001
+    title: Build first dashboard page
+    acceptance:
+      - First dashboard page uses the installed UI primitives for a real app workflow

@@ -1,0 +1,6 @@
+epic: Database
+tasks:
+  - id: DB-001
+    title: Run initial migration
+    acceptance:
+      - Schema applied to local sqlite file

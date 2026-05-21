@@ -1,0 +1,56 @@
+name = "ui-shadcn"
+version = "1.0.0"
+category = "ui"
+description = "Shadcn-style UI primitives for Next.js dashboards."
+provides = ["ui-kit"]
+requires = []
+conflicts = ["ui-kit"]
+requires_runtime = ["react"]
+compatible_scaffolds = ["nextjs"]
+
+[dependencies]
+runtime = [
+  "tailwindcss",
+  "@radix-ui/react-slot",
+  "class-variance-authority",
+  "clsx",
+  "tailwind-merge",
+  "lucide-react",
+]
+dev = ["@tailwindcss/postcss", "postcss"]
+
+[[files]]
+mode = "create"
+from = "postcss.config.mjs"
+to = "postcss.config.mjs"
+
+[[files]]
+mode = "create"
+from = "tailwind.config.ts"
+to = "tailwind.config.ts"
+
+[[files]]
+mode = "create"
+from = "lib/utils.ts"
+to = "lib/utils.ts"
+
+[[files]]
+mode = "create"
+from = "components/ui/button.tsx"
+to = "components/ui/button.tsx"
+
+[[files]]
+mode = "create"
+from = "components/ui/card.tsx"
+to = "components/ui/card.tsx"
+
+[[files]]
+mode = "append"
+from = "app/globals.css"
+to = "app/globals.css"
+
+[skills]
+copy = ["skills/shadcn-dashboard-patterns"]
+
+[tasks]
+file = "tasks.yaml"

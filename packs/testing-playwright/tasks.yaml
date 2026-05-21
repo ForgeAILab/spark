@@ -1,0 +1,9 @@
+epic: Testing
+
+tasks:
+  - id: E2E-001
+    title: Add a smoke test for the first user-facing flow
+    status: Clarifying
+    acceptance:
+      - The first user-facing flow has a Playwright smoke test.
+      - The test runs against the local dev server through Playwright config.

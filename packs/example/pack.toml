@@ -1,0 +1,69 @@
+# Documentation-only example pack manifest.
+# Real installable pack names must match /^[a-z][a-z0-9-]*$/.
+name = "example"
+
+# Semver version for this pack.
+version = "1.0.0"
+
+# Catalog grouping. This example demonstrates a database capability.
+category = "db"
+
+# One-line human summary shown by future catalog commands.
+description = "Example database pack covering every manifest field."
+
+# Capabilities this pack adds to the project.
+provides = ["db"]
+
+# Capabilities that must already exist or be installed in the same plan.
+requires = []
+
+# Capabilities that cannot coexist with this pack.
+conflicts = ["db"]
+
+# Template capabilities required from the active scaffold.
+requires_runtime = ["server"]
+
+# Named scaffold restriction. Empty or missing means no named restriction.
+compatible_scaffolds = ["nextjs"]
+
+# Runtime and development npm dependencies to install with Bun.
+[dependencies]
+runtime = ["example-db@^1.0.0"]
+dev = ["example-db-cli@^1.0.0"]
+
+# Environment variables used by this pack.
+[env]
+required = ["EXAMPLE_DATABASE_URL"]
+optional = ["EXAMPLE_DATABASE_POOL_SIZE"]
+
+# Create mode writes a new file and refuses to overwrite an existing target.
+[[files]]
+mode = "create"
+from = "lib/example-db.ts"
+to = "lib/example-db.ts"
+
+# Append mode inserts a marked block once and stays idempotent on re-run.
+[[files]]
+mode = "append"
+from = "env.example"
+to = ".env.example"
+
+# merge-json mode deep-merges JSON with deterministic key ordering.
+[[files]]
+mode = "merge-json"
+from = "package.patch.json"
+to = "package.json"
+
+# Template mode renders Handlebars-style variables from app-skills.config.json.
+[[files]]
+mode = "template"
+from = "lib/example-client.ts.hbs"
+to = "lib/example-client.ts"
+
+# Skills copied into .claude/skills and mirrored into .codex/skills.
+[skills]
+copy = ["skills/example-db-patterns"]
+
+# Board tasks seeded into .ai/board.md during installation.
+[tasks]
+file = "tasks.yaml"

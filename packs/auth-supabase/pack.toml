@@ -1,0 +1,35 @@
+name = "auth-supabase"
+version = "1.0.0"
+category = "auth"
+description = "Supabase Auth routes, login page, and session middleware for Next.js."
+provides = ["auth"]
+requires = ["db"]
+conflicts = ["auth"]
+requires_runtime = ["server"]
+compatible_scaffolds = ["nextjs"]
+
+# NOTE: This pack is meaningfully compatible only when db-supabase is the installed db provider.
+
+[dependencies]
+runtime = ["@supabase/supabase-js", "@supabase/ssr"]
+
+[env]
+required = ["NEXT_PUBLIC_SUPABASE_URL", "NEXT_PUBLIC_SUPABASE_ANON_KEY"]
+
+[[files]]
+mode = "create"
+from = "app/auth/callback/route.ts"
+to = "app/auth/callback/route.ts"
+
+[[files]]
+mode = "create"
+from = "app/(auth)/login/page.tsx"
+to = "app/(auth)/login/page.tsx"
+
+[[files]]
+mode = "create"
+from = "middleware.ts"
+to = "middleware.ts"
+
+[tasks]
+file = "tasks.yaml"

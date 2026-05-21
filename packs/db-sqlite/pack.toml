@@ -1,0 +1,34 @@
+name = "db-sqlite"
+version = "1.0.0"
+category = "db"
+description = "SQLite database setup with Drizzle ORM and Bun."
+provides = ["db"]
+requires = []
+conflicts = ["db"]
+requires_runtime = ["server"]
+compatible_scaffolds = ["nextjs"]
+
+[dependencies]
+runtime = ["drizzle-orm"]
+dev = ["drizzle-kit"]
+
+[env]
+required = ["DATABASE_URL"]
+
+[[files]]
+mode = "create"
+from = "lib/db.ts"
+to = "lib/db.ts"
+
+[[files]]
+mode = "create"
+from = "lib/schema.ts"
+to = "lib/schema.ts"
+
+[[files]]
+mode = "create"
+from = "drizzle.config.ts"
+to = "drizzle.config.ts"
+
+[tasks]
+file = "tasks.yaml"

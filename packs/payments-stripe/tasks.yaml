@@ -1,0 +1,16 @@
+epic: Payments
+
+tasks:
+  - id: PAY-001
+    title: Configure products + prices in Stripe dashboard
+    status: Clarifying
+    acceptance:
+      - Stripe dashboard has at least one active subscription product and recurring price.
+      - The selected price ID is available to the checkout flow.
+
+  - id: PAY-002
+    title: Test webhook signing locally with stripe listen
+    status: Clarifying
+    acceptance:
+      - Local webhook forwarding reaches app/api/webhooks/stripe.
+      - A signed test event is accepted and unsigned payloads are rejected.

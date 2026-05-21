@@ -1,0 +1,4 @@
+name = "one"
+status = "planned"
+provides = ["server", "static", "react", "native"]
+description = "Planned One framework scaffold for full-stack web and native apps."

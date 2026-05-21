@@ -1,0 +1,16 @@
+epic: Sync
+tasks:
+  - id: ZERO-001
+    title: Define initial schema in lib/zero/schema.ts
+    status: Clarifying
+    acceptance:
+      - The Zero schema matches the first database tables that need client-first reads.
+      - Every synced table has an explicit primary key and only includes fields needed by the client.
+      - Schema changes are deployed in Zero-safe expand or contract order.
+  - id: ZERO-002
+    title: Run zero-cache locally
+    status: Clarifying
+    acceptance:
+      - zero-cache starts with ZERO_UPSTREAM_DB pointed at a logical-replication-enabled Postgres database.
+      - Local app query and mutate endpoints are reachable from zero-cache.
+      - The development workflow documents how to reset the local SQLite replica.

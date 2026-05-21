@@ -1,0 +1,4 @@
+name = "astro-starlight"
+status = "planned"
+provides = ["static", "mdx-content"]
+description = "Planned Astro Starlight scaffold for documentation sites."

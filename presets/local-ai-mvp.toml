@@ -1,0 +1,4 @@
+name = "local-ai-mvp"
+description = "Local-first AI MVP -- SQLite + Claude + shadcn on Next.js, with Playwright tests."
+compatible_scaffolds = ["nextjs"]
+packs = ["db-sqlite", "ai-anthropic", "ui-shadcn", "testing-playwright"]

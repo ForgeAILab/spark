@@ -1,0 +1,30 @@
+name = "ai-openai"
+version = "1.0.0"
+category = "ai"
+description = "OpenAI SDK client wrapper and streaming chat endpoint."
+provides = ["ai-sdk"]
+requires = []
+conflicts = []
+requires_runtime = ["server"]
+compatible_scaffolds = []
+
+[dependencies]
+runtime = ["openai"]
+dev = []
+
+[env]
+required = ["OPENAI_API_KEY"]
+optional = []
+
+[[files]]
+mode = "create"
+from = "lib/openai.ts"
+to = "lib/openai.ts"
+
+[[files]]
+mode = "create"
+from = "app/api/ai-openai/route.ts"
+to = "app/api/ai-openai/route.ts"
+
+[tasks]
+file = "tasks.yaml"

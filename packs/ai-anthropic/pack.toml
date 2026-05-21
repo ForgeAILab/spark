@@ -1,0 +1,31 @@
+name = "ai-anthropic"
+version = "1.0.0"
+category = "ai"
+description = "Anthropic SDK client and streaming chat endpoint."
+provides = ["ai-sdk"]
+requires = []
+conflicts = []
+requires_runtime = ["server"]
+compatible_scaffolds = []
+
+[dependencies]
+runtime = ["@anthropic-ai/sdk"]
+
+[env]
+required = ["ANTHROPIC_API_KEY"]
+
+[[files]]
+mode = "create"
+from = "lib/anthropic.ts"
+to = "lib/anthropic.ts"
+
+[[files]]
+mode = "create"
+from = "app/api/ai/route.ts"
+to = "app/api/ai/route.ts"
+
+[skills]
+copy = ["skills/ai-feature-patterns"]
+
+[tasks]
+file = "tasks.yaml"

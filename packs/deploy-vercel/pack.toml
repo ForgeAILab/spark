@@ -1,0 +1,30 @@
+name = "deploy-vercel"
+version = "1.0.0"
+category = "deploy"
+description = "Vercel deployment target for Next.js apps."
+provides = ["deploy-target"]
+requires = []
+conflicts = []
+requires_runtime = []
+compatible_scaffolds = ["nextjs"]
+
+[dependencies]
+runtime = []
+dev = []
+
+[env]
+required = []
+optional = ["VERCEL_PROJECT_ID", "VERCEL_ORG_ID"]
+
+[[files]]
+mode = "create"
+from = "vercel.json"
+to = "vercel.json"
+
+[[files]]
+mode = "create"
+from = "docs/deploy.md"
+to = "docs/deploy.md"
+
+[tasks]
+file = "tasks.yaml"

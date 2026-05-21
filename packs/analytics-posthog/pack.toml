@@ -1,0 +1,35 @@
+name = "analytics-posthog"
+version = "1.0.0"
+category = "analytics"
+description = "PostHog browser and server analytics helpers."
+provides = ["analytics"]
+requires = []
+conflicts = []
+requires_runtime = ["server"]
+compatible_scaffolds = []
+
+[dependencies]
+runtime = ["posthog-js", "posthog-node"]
+dev = []
+
+[env]
+required = ["NEXT_PUBLIC_POSTHOG_KEY"]
+optional = ["NEXT_PUBLIC_POSTHOG_HOST"]
+
+[[files]]
+mode = "create"
+from = "lib/posthog/client.ts"
+to = "lib/posthog/client.ts"
+
+[[files]]
+mode = "create"
+from = "lib/posthog/server.ts"
+to = "lib/posthog/server.ts"
+
+[[files]]
+mode = "create"
+from = "components/PostHogProvider.tsx"
+to = "components/PostHogProvider.tsx"
+
+[tasks]
+file = "tasks.yaml"

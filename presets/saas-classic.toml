@@ -1,0 +1,4 @@
+name = "saas-classic"
+description = "Classic SaaS stack -- Supabase + Stripe + Resend on Next.js."
+compatible_scaffolds = ["nextjs"]
+packs = ["db-supabase", "auth-supabase", "payments-stripe", "email-resend", "ui-shadcn", "deploy-vercel"]

@@ -1,0 +1,4 @@
+name = "astro"
+status = "planned"
+provides = ["server", "static", "mdx-content"]
+description = "Planned Astro scaffold for content sites with partial hydration."

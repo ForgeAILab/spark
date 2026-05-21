@@ -1,0 +1,9 @@
+epic: Infrastructure
+
+tasks:
+  - id: INFRA-001
+    title: Run docker compose up -d and verify Postgres reachable on port 5432
+    status: Clarifying
+    acceptance:
+      - docker compose up -d starts Postgres and Redis containers.
+      - Postgres accepts connections on the configured local port.
