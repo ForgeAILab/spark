@@ -1,8 +1,8 @@
 import { readFileSync, statSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 
-const monorepoRootError =
-  'Must be run from inside the spark monorepo or set SPARK_ROOT env var pointing to it';
+const catalogRootError =
+  'Catalog directories (templates/, packs/) not found. Set SPARK_ROOT to point at the spark monorepo, or install via the published @forgeailab/spark npm package.';
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -32,6 +32,15 @@ function hasWorkspacePackageJson(dir: string): boolean {
   }
 }
 
+// A catalog root is any directory containing the `templates/` and `packs/`
+// folders we need. Two cases produce one:
+//   1) The monorepo root (dev). Also has a `package.json` with `workspaces`.
+//   2) The published @forgeailab/spark package directory (npm install case).
+//      The publish script bundles templates/ and packs/ into the tarball.
+function isCatalogRoot(dir: string): boolean {
+  return isDirectory(join(dir, 'templates')) && isDirectory(join(dir, 'packs'));
+}
+
 function isMonorepoRoot(dir: string): boolean {
   return hasWorkspacePackageJson(dir) && isDirectory(join(dir, 'templates'));
 }
@@ -42,15 +51,24 @@ export function findMonorepoRoot(startDir: string = import.meta.dir): string {
     return resolve(override);
   }
 
+  // Published-package case: this file lives at
+  // <package>/src/io/paths.ts -> walk up two dirs to <package>/ which the
+  // publish script populates with templates/ and packs/.
+  const packageRoot = resolve(import.meta.dir, '..', '..');
+  if (isCatalogRoot(packageRoot)) {
+    return packageRoot;
+  }
+
+  // Dev / monorepo case: walk up from cwd or src looking for the monorepo.
   let current = resolve(startDir);
   while (true) {
-    if (isMonorepoRoot(current)) {
+    if (isMonorepoRoot(current) || isCatalogRoot(current)) {
       return current;
     }
 
     const parent = dirname(current);
     if (parent === current) {
-      throw new Error(monorepoRootError);
+      throw new Error(catalogRootError);
     }
     current = parent;
   }

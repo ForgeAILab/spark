@@ -1,4 +1,4 @@
-import { createAuthHandler } from '@forgeailab/spark-auth-better-auth';
+import { toNextJsHandler } from 'better-auth/next-js';
 import { auth } from '@/lib/auth';
 
-export const { GET, POST } = createAuthHandler(auth);
+export const { GET, POST } = toNextJsHandler(auth);

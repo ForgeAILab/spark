@@ -6,7 +6,7 @@ import {
   parseSkillFrontmatter,
   serializeSkillFrontmatter,
   toCodexFrontmatter,
-} from "@forgeailab/spark-skill-utils";
+} from "../packages/spark/src/internal/skill-utils.ts";
 
 type SkillOutput = {
   name: string;

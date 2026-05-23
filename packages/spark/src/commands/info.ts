@@ -3,7 +3,6 @@ import pc from 'picocolors';
 import { readConfig, type AppSkillsConfig } from '../config.ts';
 import { readRegistry, type Registry } from '../io/registry.ts';
 import { installedPackNames, readState } from '../io/state.ts';
-import { formatResolvedRuntimeHelper } from '../runtime-package.ts';
 
 type InfoOutput = Pick<Console, 'log'>;
 
@@ -50,13 +49,7 @@ export async function runInfo(
   output.log(pc.bold(`${manifest.name}@${manifest.version}`));
   output.log(manifest.description ?? '');
   output.log(`status: ${installed ? 'installed' : 'available'}`);
-  output.log(`Install mode: ${manifest.runtime_package ? 'hybrid' : 'copy'}`);
-  if (manifest.runtime_package) {
-    const resolved = await formatResolvedRuntimeHelper(projectRoot, manifest.runtime_package);
-    output.log(
-      `Runtime helper: ${manifest.runtime_package.package} (range ${manifest.runtime_package.version}, resolved ${resolved})`,
-    );
-  }
+  output.log('Install mode: copy');
   output.log(`category: ${manifest.category}`);
   output.log(`provides: ${formatList(manifest.provides)}`);
   output.log(`requires: ${formatList(manifest.requires)}`);

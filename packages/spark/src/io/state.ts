@@ -1,6 +1,6 @@
 import { join } from 'node:path';
 import { StateFileSchema, type StateFile, type StateInstalledPack } from '@forgeailab/spark-schema';
-export { readState, writeState, withState } from '@forgeailab/spark-state';
+export { readState, writeState, withState } from '../internal/state';
 
 export function emptyState(): StateFile {
   return StateFileSchema.parse({

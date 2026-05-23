@@ -3,7 +3,7 @@ import {
   parseSkillFrontmatter,
   serializeSkillFrontmatter,
   toCodexFrontmatter,
-} from '../src/index.ts';
+} from '../../src/internal/skill-utils.ts';
 
 const newPackFixture = `---
 name: new-pack

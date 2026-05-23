@@ -2,7 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import { mkdir, mkdtemp, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { readState, writeState } from '../src/index.ts';
+import { readState, writeState } from '../../src/internal/state.ts';
 import type { StateFile } from '@forgeailab/spark-schema';
 
 async function tempProject(): Promise<string> {

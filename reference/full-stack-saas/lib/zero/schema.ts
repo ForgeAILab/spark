@@ -1,5 +1,12 @@
-import { ANYONE_CAN, definePermissions } from '@rocicorp/zero';
-import { defineZeroSchema, number, string, table } from '@forgeailab/spark-sync-zero';
+import {
+  ANYONE_CAN,
+  createBuilder,
+  createSchema,
+  definePermissions,
+  number,
+  string,
+  table,
+} from '@rocicorp/zero';
 import type { AuthData } from './mutators';
 
 const users = table('user')
@@ -23,9 +30,10 @@ const posts = table('posts')
   })
   .primaryKey('id');
 
-export const { schema, zql } = defineZeroSchema({
+export const schema = createSchema({
   tables: [users, posts],
 });
+export const zql = createBuilder(schema);
 
 export type Schema = typeof schema;
 

@@ -8,7 +8,7 @@
 // With --tag, commits the bump and creates a `v<version>` git tag (you still
 // `git push --follow-tags` yourself).
 
-import { readFileSync, writeFileSync, readdirSync, statSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 
@@ -28,15 +28,6 @@ const targets: string[] = [
   join(root, 'packages/spark/package.json'),
   join(root, 'packages/create-spark/package.json'),
 ];
-
-for (const entry of readdirSync(join(root, 'libs'))) {
-  const pkgJson = join(root, 'libs', entry, 'package.json');
-  try {
-    if (statSync(pkgJson).isFile()) targets.push(pkgJson);
-  } catch {
-    /* skip non-package entries */
-  }
-}
 
 let changed = 0;
 for (const path of targets) {

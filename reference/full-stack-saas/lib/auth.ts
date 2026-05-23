@@ -1,7 +1,46 @@
 import { drizzleAdapter } from '@better-auth/drizzle-adapter';
-import { createAuth as createBetterAuth } from '@forgeailab/spark-auth-better-auth';
+import { betterAuth } from 'better-auth';
 import { db } from '@/lib/db';
 import * as schema from '@/lib/db/schema';
+
+type BetterAuthOptions = Parameters<typeof betterAuth>[0];
+
+export type AuthInstance = ReturnType<typeof betterAuth>;
+
+export type CreateBetterAuthOptions = {
+  adapter: BetterAuthOptions['database'];
+  basePath?: BetterAuthOptions['basePath'];
+  plugins?: BetterAuthOptions['plugins'];
+  emailAndPassword?: BetterAuthOptions['emailAndPassword'];
+  socialProviders?: BetterAuthOptions['socialProviders'];
+  secret?: BetterAuthOptions['secret'];
+  baseURL?: BetterAuthOptions['baseURL'];
+  trustedOrigins?: string[];
+};
+
+export function createBetterAuth({
+  adapter,
+  basePath,
+  plugins,
+  emailAndPassword,
+  socialProviders,
+  secret,
+  baseURL,
+  trustedOrigins,
+}: CreateBetterAuthOptions) {
+  const authOptions: BetterAuthOptions = {
+    database: adapter,
+    basePath,
+    plugins,
+    emailAndPassword,
+    socialProviders,
+    secret,
+    baseURL,
+    trustedOrigins: trustedOrigins ?? (typeof baseURL === 'string' ? [baseURL] : undefined),
+  };
+
+  return betterAuth(authOptions);
+}
 
 // Mirrors the `auth-better-auth-pg` pack template, with two production-grade
 // additions enabled: real schema aliases (we own the schema in this repo) and

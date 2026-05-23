@@ -2,7 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { BoardTaskStatus, readBoard, seedTasks, updateStatus } from '../src/index.ts';
+import { BoardTaskStatus, readBoard, seedTasks, updateStatus } from '../../src/internal/board.ts';
 
 async function tempProject(): Promise<string> {
   const projectRoot = await mkdtemp(join(tmpdir(), 'spark-board-'));

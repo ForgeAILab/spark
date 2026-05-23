@@ -2,8 +2,6 @@ import { z } from 'zod';
 import { PackCapability, TemplateCapability } from './capabilities.ts';
 
 const packNamePattern = /^[a-z][a-z0-9-]*$/;
-const npmPackageNamePattern =
-  /^(?=.{1,214}$)(?:@[a-z0-9][a-z0-9._-]*\/)?[a-z0-9][a-z0-9._-]*$/;
 const semverPattern =
   /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/;
 
@@ -68,15 +66,6 @@ export const PackTasksSchema = z
   })
   .strict();
 
-const RuntimePackageBlockSchema = z
-  .object({
-    package: z.string().regex(npmPackageNamePattern, {
-      message: 'Runtime package names must be valid npm package names',
-    }),
-    version: z.string().min(1),
-  })
-  .strict();
-
 export const PackManifestSchema = z
   .object({
     name: PackName,
@@ -93,9 +82,7 @@ export const PackManifestSchema = z
     files: z.array(PackFileOperationSchema).optional(),
     skills: PackSkillsSchema.optional(),
     tasks: PackTasksSchema.optional(),
-    runtime_package: RuntimePackageBlockSchema.optional(),
   })
   .strict();
 
-export type RuntimePackageBlock = z.infer<typeof RuntimePackageBlockSchema>;
 export type PackManifest = z.infer<typeof PackManifestSchema>;

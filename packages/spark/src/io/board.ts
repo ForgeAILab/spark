@@ -3,20 +3,20 @@ import { join, resolve, sep } from 'node:path';
 import {
   BoardTaskStatus,
   seedTasks as seedPackageTasks,
-} from '@forgeailab/spark-board';
+} from '../internal/board';
 
 export {
   BoardTaskStatus,
   readBoard,
   seedTasks,
   updateStatus,
-} from '@forgeailab/spark-board';
+} from '../internal/board';
 export type {
   Board,
   BoardEpic,
   BoardTask as ParsedBoardTask,
   SeedTask,
-} from '@forgeailab/spark-board';
+} from '../internal/board';
 
 export type BoardTask = {
   id: string;

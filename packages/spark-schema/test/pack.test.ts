@@ -1,5 +1,4 @@
 import { describe, expect, test } from 'bun:test';
-import { PackManifestSchema, type RuntimePackageBlock } from '../src/pack.ts';
 import { parsePackToml } from '../src/parse.ts';
 
 const validFullManifest = `
@@ -48,16 +47,6 @@ copy = ["skills/stripe-patterns"]
 file = "tasks.yaml"
 `;
 
-const validManifestObject = {
-  name: 'payments-stripe',
-  version: '1.0.0',
-  category: 'payments',
-  provides: ['payments'],
-  requires: [],
-  conflicts: [],
-  requires_runtime: ['server'],
-};
-
 describe('parsePackToml', () => {
   test('valid full manifest parses', () => {
     const result = parsePackToml(validFullManifest);
@@ -73,74 +62,6 @@ describe('parsePackToml', () => {
       ]);
       expect(result.data.compatible_scaffolds).toEqual(['nextjs']);
     }
-  });
-
-  test('hybrid manifest with runtime_package parses', () => {
-    const result = parsePackToml(`
-name = "local-runtime-nextjs"
-version = "1.0.0"
-category = "infra"
-description = "Next.js runtime adapter."
-provides = ["local-runtime"]
-requires = []
-conflicts = []
-requires_runtime = ["server"]
-
-[runtime_package]
-package = "@spark/runtime-nextjs"
-version = "^1.0.0"
-`);
-
-    expect(result.ok).toBe(true);
-    if (result.ok) {
-      const runtimePackage: RuntimePackageBlock | undefined = result.data.runtime_package;
-      const packageName: string | undefined = result.data.runtime_package?.package;
-
-      expect(runtimePackage?.package).toBe(packageName);
-      expect(packageName).toBe('@spark/runtime-nextjs');
-    }
-  });
-
-  test('runtime_package is optional', () => {
-    const result = parsePackToml(`
-name = "payments-stripe"
-version = "1.0.0"
-category = "payments"
-provides = ["payments"]
-requires = []
-conflicts = []
-requires_runtime = ["server"]
-`);
-
-    expect(result.ok).toBe(true);
-    if (result.ok) {
-      expect(result.data.runtime_package).toBeUndefined();
-    }
-  });
-
-  test('runtime_package package name must be valid npm package name', () => {
-    const result = PackManifestSchema.safeParse({
-      ...validManifestObject,
-      runtime_package: {
-        package: 'not a valid name!',
-        version: '^1.0.0',
-      },
-    });
-
-    expect(result.success).toBe(false);
-  });
-
-  test('runtime_package rejects unknown keys', () => {
-    const result = PackManifestSchema.safeParse({
-      ...validManifestObject,
-      runtime_package: {
-        package: '@spark/runtime-nextjs',
-        version: '^1.0.0',
-        foo: 'bar',
-      },
-    });
-
-    expect(result.success).toBe(false);
   });
 
   test('missing required field rejected', () => {

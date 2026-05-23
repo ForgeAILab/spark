@@ -36,13 +36,6 @@ Print everything the install would do — files touched, env vars added, deps in
 spark info payments-stripe
 ```
 
-For **hybrid** packs (those with a `[runtime_package]` block in their manifest), `info` also prints:
-
-- `Install mode: hybrid` (vs `copy` for the rest)
-- `Runtime helper: <package> (range <X>, resolved <Y>)` — the npm name + manifest version range + the version currently installed in the project's `package.json` (or `not installed`).
-
-For copy packs `info` prints `Install mode: copy` and omits the helper line.
-
 ### `add <pack...> [--dry-run]`
 
 Resolve the requested packs against the registry + installed set + active scaffold, then apply. Idempotent: running it twice with the same args is a no-op.
@@ -58,13 +51,6 @@ The resolver enforces:
 - **Exclusivity.** Capabilities classified exclusive (`db`, `auth`, `payments`, `ui-kit`, `sync`) reject double-installs. Non-exclusive caps (`ai-sdk`, `analytics`, `email`, `blob-storage`, `e2e`, `deploy-target`, `local-runtime`) coexist.
 - **Scaffold compatibility.** A pack with `compatible_scaffolds = ["nextjs"]` refuses to install on a `vite-react` project.
 
-**Hybrid pack install.** When a pack declares `[runtime_package]`, the CLI adds the helper package to the same `bun add` batch as the pack's explicit runtime deps. Two resolution modes:
-
-- **Dev mode** — `SPARK_ROOT` is set and `${SPARK_ROOT}/libs/<helper>/` exists. The helper is linked via `file:` to the workspace path. Used by the reference app and `/tmp/spark-validate` smoke installs.
-- **Published mode** — otherwise. The helper is installed by `<npm-name>@<range>` from the manifest's `[runtime_package].version`.
-
-Either way the pack's `[dependencies].runtime` array MUST NOT also list the helper — the CLI handles it implicitly (see Decision 6 in the runtime-packages design doc).
-
 ### `preset <name>`
 
 Apply a named bundle from `presets/<name>.toml`. Refuses if the active scaffold is not in the preset's `compatible_scaffolds`.
@@ -75,7 +61,7 @@ spark preset lean-saas
 
 ### `check`
 
-Audit `.spark/state.json` against the filesystem. Reports missing files, missing env vars in `.env.local`, deleted seeded tasks. For each installed **hybrid** pack, also verifies the helper package is still listed in the consumer's `package.json` (under `dependencies` or `devDependencies`) — surfaces a `drift: helper packages` section when a helper has been removed manually. **Does not repair.**
+Audit `.spark/state.json` against the filesystem. Reports missing files, missing env vars in `.env.local`, and deleted seeded tasks. **Does not repair.**
 
 ```bash
 spark check

@@ -2,11 +2,10 @@ import { readFile, stat } from 'node:fs/promises';
 import { join } from 'node:path';
 import { defineCommand } from 'citty';
 import pc from 'picocolors';
-import { readConfig, type AppSkillsConfig } from '../config.ts';
+import type { AppSkillsConfig } from '../config.ts';
 import { missingBoardTasks } from '../io/board.ts';
-import { readRegistry, type Registry } from '../io/registry.ts';
+import type { Registry } from '../io/registry.ts';
 import { readState } from '../io/state.ts';
-import { installedRuntimeHelperSpecifier } from '../runtime-package.ts';
 
 type CheckOutput = Pick<Console, 'log' | 'error'>;
 
@@ -14,7 +13,6 @@ export type DriftReport = {
   missingFiles: string[];
   missingEnv: string[];
   missingTasks: string[];
-  missingHelpers: string[];
 };
 
 export type CheckOptions = {
@@ -56,13 +54,9 @@ async function readEnvLocal(projectRoot: string): Promise<string> {
 export async function runCheck(
   projectRoot = process.cwd(),
   output: CheckOutput = console,
-  options: CheckOptions = {},
+  _options: CheckOptions = {},
 ): Promise<DriftReport> {
-  const [, registry, state] = await Promise.all([
-    options.config ? Promise.resolve(options.config) : readConfig(projectRoot),
-    options.registry ? Promise.resolve(options.registry) : readRegistry(projectRoot),
-    readState(projectRoot),
-  ]);
+  const state = await readState(projectRoot);
   const recordedFiles = [
     ...new Set(state.installed_packs.flatMap((pack) => pack.files)),
   ].sort();
@@ -79,33 +73,17 @@ export async function runCheck(
   const envLocal = await readEnvLocal(projectRoot);
   const missingEnv = recordedEnv.filter((key) => !hasEnvVar(envLocal, key));
   const missingTasks = await missingBoardTasks(projectRoot, recordedTasks);
-  const missingHelpers: string[] = [];
-
-  for (const pack of state.installed_packs) {
-    const runtimePackage = registry.packs.get(pack.name)?.manifest.runtime_package;
-    if (!runtimePackage) {
-      continue;
-    }
-
-    if (!(await installedRuntimeHelperSpecifier(projectRoot, runtimePackage))) {
-      missingHelpers.push(
-        `${pack.name}: helper package ${runtimePackage.package} missing from package.json`,
-      );
-    }
-  }
 
   if (
     missingFiles.length === 0 &&
     missingEnv.length === 0 &&
-    missingTasks.length === 0 &&
-    missingHelpers.length === 0
+    missingTasks.length === 0
   ) {
     output.log(pc.green('OK: spark state matches the project filesystem.'));
     return {
       missingFiles,
       missingEnv,
       missingTasks,
-      missingHelpers,
     };
   }
 
@@ -132,18 +110,10 @@ export async function runCheck(
     }
   }
 
-  if (missingHelpers.length > 0) {
-    output.error('drift: helper packages');
-    for (const helper of missingHelpers) {
-      output.error(`  ${helper}`);
-    }
-  }
-
   return {
     missingFiles,
     missingEnv,
     missingTasks,
-    missingHelpers,
   };
 }
 
@@ -157,8 +127,7 @@ export const checkCommand = defineCommand({
     if (
       report.missingFiles.length > 0 ||
       report.missingEnv.length > 0 ||
-      report.missingTasks.length > 0 ||
-      report.missingHelpers.length > 0
+      report.missingTasks.length > 0
     ) {
       process.exitCode = 1;
     }

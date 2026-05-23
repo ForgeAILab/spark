@@ -8,10 +8,6 @@ conflicts = ["sync"]
 requires_runtime = ["server"]
 compatible_scaffolds = ["nextjs"]
 
-[runtime_package]
-package = "@forgeailab/spark-sync-zero"
-version = "^0.1"
-
 [dependencies]
 runtime = ["@rocicorp/zero"]
 

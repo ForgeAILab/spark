@@ -1,7 +1,7 @@
 import { beforeAll, expect, test } from 'bun:test';
 import { memoryAdapter } from 'better-auth/adapters/memory';
-import { createAuth, getSession } from '@forgeailab/spark-auth-better-auth';
 import type Stripe from 'stripe';
+import { createBetterAuth } from '../lib/auth';
 import type { AnthropicClientLike } from '../lib/anthropic';
 import type { StripeClientLike } from '../lib/stripe';
 
@@ -28,7 +28,7 @@ function setReferenceEnv() {
 }
 
 function createMemoryAuth() {
-  return createAuth({
+  return createBetterAuth({
     adapter: memoryAdapter({
       user: [],
       session: [],
@@ -63,7 +63,9 @@ test('getSession returns null for an unauthenticated request', async () => {
   setReferenceEnv();
   const auth = createMemoryAuth();
 
-  const session = await getSession(auth, new Request('http://localhost:3000'));
+  const session = await auth.api.getSession({
+    headers: new Request('http://localhost:3000').headers,
+  });
 
   expect(session).toBeNull();
 });
@@ -90,7 +92,7 @@ test('Stripe createCheckoutSession returns a URL with a mocked SDK', async () =>
       },
     },
     webhooks: {
-      constructEvent: () =>
+      constructEventAsync: async () =>
         ({
           id: 'evt_test_reference',
           type: 'checkout.session.completed',

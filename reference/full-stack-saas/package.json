@@ -24,10 +24,6 @@
   "dependencies": {
     "@anthropic-ai/sdk": "latest",
     "@better-auth/drizzle-adapter": "latest",
-    "@forgeailab/spark-anthropic": "workspace:*",
-    "@forgeailab/spark-auth-better-auth": "workspace:*",
-    "@forgeailab/spark-stripe-helpers": "workspace:*",
-    "@forgeailab/spark-sync-zero": "workspace:*",
     "@radix-ui/react-slot": "latest",
     "@rocicorp/zero": "latest",
     "@tailwindcss/postcss": "^4",

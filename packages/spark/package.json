@@ -1,6 +1,6 @@
 {
   "name": "@forgeailab/spark",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "CLI for managing feature packs in an spark-scaffolded project.",
   "type": "module",
   "publishConfig": {
@@ -19,9 +19,6 @@
   },
   "dependencies": {
     "@forgeailab/spark-schema": "workspace:*",
-    "@forgeailab/spark-state": "workspace:*",
-    "@forgeailab/spark-skill-utils": "workspace:*",
-    "@forgeailab/spark-board": "workspace:*",
     "@clack/prompts": "latest",
     "citty": "latest",
     "picocolors": "latest",

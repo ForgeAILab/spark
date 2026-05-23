@@ -4,7 +4,7 @@ import {
   parseSkillFrontmatter,
   serializeSkillFrontmatter,
   toCodexFrontmatter,
-} from '@forgeailab/spark-skill-utils';
+} from '../internal/skill-utils';
 
 type SkillCopyRecord = {
   claudeFiles: string[];

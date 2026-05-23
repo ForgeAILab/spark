@@ -1,6 +1,6 @@
 {
   "name": "@forgeailab/spark-schema",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Shared Zod schemas + TOML parsers for spark pack and template manifests.",
   "type": "module",
   "publishConfig": {

@@ -8,12 +8,8 @@ conflicts = ["payments"]
 requires_runtime = ["server"]
 compatible_scaffolds = ["nextjs"]
 
-[runtime_package]
-package = "@forgeailab/spark-stripe-helpers"
-version = "^0.1"
-
 [dependencies]
-runtime = ["@stripe/stripe-js"]
+runtime = ["@stripe/stripe-js", "stripe"]
 
 [env]
 required = [

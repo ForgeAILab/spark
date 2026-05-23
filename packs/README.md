@@ -91,32 +91,30 @@ See `packs/example/pack.toml` for a manifest that exercises every field.
 
 ## v1 catalog
 
-Each pack is either **copy** (ships file trees the user owns) or **hybrid** (ships thin wiring + imports runtime logic from a versioned `@forgeailab/spark-*` helper under `libs/`). The mode is inferred from the presence of a `[runtime_package]` block in the manifest.
-
-| Pack | Category | Mode | Runtime helper |
-|---|---|---|---|
-| `auth-better-auth` | auth | **hybrid** | `@forgeailab/spark-auth-better-auth` (SQLite) |
-| `auth-better-auth-pg` | auth | **hybrid** | `@forgeailab/spark-auth-better-auth` (Postgres) |
-| `auth-supabase` | auth | copy | — |
-| `db-sqlite` | db | copy | — |
-| `db-postgres` | db | copy | — |
-| `db-supabase` | db | copy | — |
-| `sync-zero` | infra | **hybrid** | `@forgeailab/spark-sync-zero` |
-| `payments-stripe` | payments | **hybrid** | `@forgeailab/spark-stripe-helpers` |
-| `ai-anthropic` | ai | **hybrid** | `@forgeailab/spark-anthropic` |
-| `ai-openai` | ai | copy | — |
-| `ui-shadcn` | ui | copy | — |
-| `email-resend` | email | copy | — |
-| `analytics-posthog` | analytics | copy | — |
-| `docker-compose-dev` | infra | copy | — |
-| `testing-playwright` | testing | copy | — |
-| `deploy-vercel` | deploy | copy | — |
+| Pack | Category |
+|---|---|
+| `auth-better-auth` | auth |
+| `auth-better-auth-pg` | auth |
+| `auth-supabase` | auth |
+| `db-sqlite` | db |
+| `db-postgres` | db |
+| `db-supabase` | db |
+| `sync-zero` | infra |
+| `payments-stripe` | payments |
+| `ai-anthropic` | ai |
+| `ai-openai` | ai |
+| `ui-shadcn` | ui |
+| `email-resend` | email |
+| `analytics-posthog` | analytics |
+| `docker-compose-dev` | infra |
+| `testing-playwright` | testing |
+| `deploy-vercel` | deploy |
 
 ### Picking a db + auth pair
 
-`auth-better-auth` and `auth-better-auth-pg` share the same runtime helper
-(`@forgeailab/spark-auth-better-auth`) — they differ only in the `provider:`
-their generated `lib/auth.ts` template hands to `drizzleAdapter`. Pair them:
+`auth-better-auth` and `auth-better-auth-pg` share the same Better Auth factory
+code in their generated `lib/auth.ts` templates — they differ only in the
+`provider:` handed to `drizzleAdapter`. Pair them:
 
 - `db-sqlite` + `auth-better-auth` — fastest path, single file db, no infra.
 - `db-postgres` + `auth-better-auth-pg` — production-shaped, **required for `sync-zero`** (Zero needs Postgres logical replication).
@@ -127,6 +125,6 @@ installing both. Mixing wrong pairs (e.g. `db-sqlite` + `auth-better-auth-pg`)
 typechecks but fails at runtime — the drizzle adapter will reject sqlite tables
 with `provider: 'pg'`.
 
-The hybrid packs were authored against [`reference/full-stack-saas/`](../reference/full-stack-saas/) — the canonical integration showing all four helpers working together. When debugging a hybrid pack, start there.
+The copy-mode packs were authored against [`reference/full-stack-saas/`](../reference/full-stack-saas/) — the canonical integration showing the copied templates working together. When debugging one of these packs, start there.
 
 See the root `README.md` for the catalog summary.

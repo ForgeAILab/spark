@@ -32,9 +32,9 @@ coverage/
 # Local dev data (sqlite files, replica files, etc.) under any package.
 **/.data/
 
-# Local anvil state files of the monorepo itself (state files in scaffolded
+# Local spark state files of the monorepo itself (state files in scaffolded
 # projects are committed; this is for any throwaway under the repo root).
-.anvil/
+.spark/
 
 # Claude Code runtime artifacts (skills/ stays tracked; these are local-only)
 .claude/scheduled_tasks.lock

@@ -17,7 +17,6 @@ import { readRegistry, type Registry } from '../io/registry.ts';
 import { addInstalledPack, installedPackNames, readState, writeState } from '../io/state.ts';
 import { seedBoardTasks } from '../io/board.ts';
 import { copyPackSkills } from '../io/skills.ts';
-import { assertRuntimeHelperNotRedeclared, resolveRuntimeHelper } from '../runtime-package.ts';
 
 type AddOutput = Pick<Console, 'log' | 'error'>;
 
@@ -66,20 +65,8 @@ function formatResolverError(error: ResolverError): string {
   return `Unknown pack: ${error.pack}`;
 }
 
-async function packRuntimeDependencies(plan: InstallPlan): Promise<string[]> {
-  const dependencies: string[] = [];
-
-  for (const pack of plan.packs) {
-    assertRuntimeHelperNotRedeclared(pack.name, pack.manifest);
-    dependencies.push(...(pack.manifest.dependencies?.runtime ?? []));
-
-    const helper = await resolveRuntimeHelper(pack.manifest);
-    if (helper) {
-      dependencies.push(helper);
-    }
-  }
-
-  return dependencies;
+function packRuntimeDependencies(plan: InstallPlan): string[] {
+  return plan.packs.flatMap((pack) => pack.manifest.dependencies?.runtime ?? []);
 }
 
 function packDevDependencies(plan: InstallPlan): string[] {
@@ -235,7 +222,7 @@ export async function runAdd(requestedPacks: readonly string[], options: AddOpti
     };
   }
 
-  const runtimeDependencies = await packRuntimeDependencies(plan);
+  const runtimeDependencies = packRuntimeDependencies(plan);
   const devDependencies = packDevDependencies(plan);
 
   if (options.dryRun) {

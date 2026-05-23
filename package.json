@@ -2,7 +2,7 @@
   "name": "spark-monorepo",
   "private": true,
   "packageManager": "bun@1.3.18",
-  "workspaces": ["packages/*", "libs/*", "reference/*"],
+  "workspaces": ["packages/*", "reference/*"],
   "scripts": {
     "test": "bun test packages libs scripts",
     "check:skills": "bun run scripts/sync-skills.ts --check",
@@ -10,7 +10,5 @@
     "format": "bunx oxfmt .",
     "release": "bun run scripts/bump-version.ts"
   },
-  "devDependencies": {
-    "@forgeailab/spark-skill-utils": "workspace:*"
-  }
+  "devDependencies": {}
 }
