@@ -6,7 +6,7 @@ import {
   parseSkillFrontmatter,
   serializeSkillFrontmatter,
   toCodexFrontmatter,
-} from "@forgeailab/anvil-skill-utils";
+} from "@forgeailab/spark-skill-utils";
 
 type SkillOutput = {
   name: string;

@@ -1,0 +1,27 @@
+{
+  "name": "@forgeailab/create-spark",
+  "version": "0.1.0",
+  "description": "Interactive scaffolder for spark projects with guided pack picker.",
+  "type": "module",
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "src",
+    "README.md"
+  ],
+  "bin": {
+    "create-spark": "./src/cli.ts"
+  },
+  "dependencies": {
+    "@forgeailab/spark": "workspace:*",
+    "@forgeailab/spark-schema": "workspace:*",
+    "@clack/prompts": "latest",
+    "citty": "latest",
+    "picocolors": "latest"
+  },
+  "devDependencies": {
+    "bun-types": "latest",
+    "typescript": "latest"
+  }
+}

@@ -3,7 +3,7 @@ import {
   createCheckoutSession as createStripeCheckoutSession,
   createBillingPortalSession as createStripeBillingPortalSession,
   verifyWebhookSignature as verifyStripeWebhookSignature,
-} from '@forgeailab/anvil-stripe-helpers';
+} from '@forgeailab/spark-stripe-helpers';
 
 function requireEnv(name: string): string {
   const value = process.env[name];
@@ -14,7 +14,7 @@ function requireEnv(name: string): string {
 }
 
 export const stripe = createStripeClient(requireEnv('STRIPE_SECRET_KEY'), {
-  appInfo: { name: 'anvil payments-stripe' },
+  appInfo: { name: 'spark payments-stripe' },
 });
 
 export function getStripePublishableKey(): string {

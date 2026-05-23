@@ -1,12 +1,12 @@
 # Pack Manifest Reference
 
-`pack.toml` is the human-authored manifest for an anvil feature pack.
+`pack.toml` is the human-authored manifest for an spark feature pack.
 A pack is a declarative unit of product capability: it can add files,
 dependencies, env vars, skills, and board tasks, but it cannot run arbitrary
 install code.
 
 Manifests are TOML. The installer parses them with `smol-toml`, validates them
-with the shared Zod schemas in `packages/anvil-schema`, rejects unknown top-level
+with the shared Zod schemas in `packages/spark-schema`, rejects unknown top-level
 fields, and rejects shell-hook fields before normal validation.
 
 ## Required Fields
@@ -115,7 +115,7 @@ manifest — there is no `mode` field.
   env wiring) where the user benefits from being able to read and edit
   files directly.
 - **`hybrid`**: the pack declares an optional `[runtime_package]` block
-  pointing at a versioned npm helper published from `libs/anvil-<name>/`.
+  pointing at a versioned npm helper published from `libs/spark-<name>/`.
   The CLI implicitly installs the helper alongside the pack's other runtime
   dependencies. The pack's `[[files]]` are trimmed to thin wiring
   (config, route handlers, type re-exports, example UI). Substantive logic
@@ -129,7 +129,7 @@ table. Otherwise it is `copy`.
 
 ```toml
 [runtime_package]
-package = "@forgeailab/anvil-auth-better-auth"
+package = "@forgeailab/spark-auth-better-auth"
 version = "^0.1"
 ```
 
@@ -140,21 +140,21 @@ The pack's `[dependencies].runtime` array MUST NOT also list the helper
 package — the CLI adds it implicitly. Transitive deps of the helper
 (`better-auth`, `stripe`, etc.) live in the helper's own `package.json`.
 
-When the CLI runs inside the anvil monorepo (`ANVIL_ROOT` set and
+When the CLI runs inside the spark monorepo (`SPARK_ROOT` set and
 `libs/<helper-dir>/` present), it links the helper as a `file:` dep instead
 of an npm version range. Published consumers get the version range from
 `[runtime_package].version`.
 
 ## Directory layout
 
-The anvil monorepo has three top-level workspace directories:
+The spark monorepo has three top-level workspace directories:
 
 - `packages/` — platform tooling: the CLI, the initializer, the shared
   schema package.
-- `libs/` — runtime libraries published under `@forgeailab/anvil-*`. Hybrid
+- `libs/` — runtime libraries published under `@forgeailab/spark-*`. Hybrid
   packs reference these via `[runtime_package]`; internal tools (CLI,
-  `create-anvil`) consume the workflow primitives (`anvil-board`,
-  `anvil-skill-utils`, `anvil-state`).
+  `create-spark`) consume the workflow primitives (`spark-board`,
+  `spark-skill-utils`, `spark-state`).
 - `packs/` — pack manifests + the file trees that copy into consumer
   projects.
 
@@ -208,7 +208,7 @@ Re-running the pack must not duplicate the block.
 Use it for `package.json`, `tsconfig.json`, and tool config JSON.
 
 `template` renders a file with Handlebars-style variables from
-`anvil.config.json`.
+`spark.config.json`.
 Use it when output needs the app name, template name, or scaffold variables.
 
 ## Skills

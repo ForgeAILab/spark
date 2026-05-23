@@ -1,10 +1,10 @@
-# anvil
+# spark
 
-anvil is a project of [ForgeAILab](https://github.com/ForgeAILab).
+spark is a project of [ForgeAILab](https://github.com/ForgeAILab).
 
 A minimal AI-ready scaffold plus a composable feature-pack registry for technical founders building MVPs with AI agents.
 
-`anvil` gives you two things:
+`spark` gives you two things:
 
 1. A **minimal Next.js scaffold** preloaded with a board-driven workflow (`AGENTS.md`, `.ai/`, `.claude/skills/`, `.codex/skills/`). No auth, no db, no UI library out of the box — just the workflow.
 2. A **composable feature-pack registry** (auth, db, payments, UI, AI SDKs, email, deploy, …) you bolt on as needed. Picks are explicit; nothing is force-installed.
@@ -12,21 +12,21 @@ A minimal AI-ready scaffold plus a composable feature-pack registry for technica
 ## Quickstart
 
 ```bash
-bunx create-anvil my-app --template nextjs --preset lean-saas
+bunx create-spark my-app --template nextjs --preset lean-saas
 cd my-app
 bun dev
 ```
 
-That scaffolds Next.js 15 + TypeScript, then installs `db-sqlite`, `auth-better-auth`, `ui-shadcn`, and `deploy-vercel` on top. From there your `.ai/board.md` is the source of truth, and `anvil add <pack>` is how you extend.
+That scaffolds Next.js 15 + TypeScript, then installs `db-sqlite`, `auth-better-auth`, `ui-shadcn`, and `deploy-vercel` on top. From there your `.ai/board.md` is the source of truth, and `spark add <pack>` is how you extend.
 
 ## What's in the monorepo
 
 | Path | What |
 |---|---|
-| `packages/anvil/` | `anvil` CLI — `list`, `info`, `check`, `add`, `preset` |
-| `packages/create-anvil/` | `create-anvil` initializer |
-| `packages/anvil-schema/` | Shared Zod schemas for `pack.toml`, `template.toml`, `preset.toml`, `state.json` |
-| `libs/` | Workspace libraries published under `@forgeailab/anvil-*`. Workflow primitives (`anvil-board`, `anvil-skill-utils`, `anvil-state`) used internally by the CLI, plus pack runtime helpers (`anvil-auth-better-auth`, `anvil-sync-zero`, `anvil-stripe-helpers`, `anvil-anthropic`) imported by hybrid packs |
+| `packages/spark/` | `spark` CLI — `list`, `info`, `check`, `add`, `preset` |
+| `packages/create-spark/` | `create-spark` initializer |
+| `packages/spark-schema/` | Shared Zod schemas for `pack.toml`, `template.toml`, `preset.toml`, `state.json` |
+| `libs/` | Workspace libraries published under `@forgeailab/spark-*`. Workflow primitives (`spark-board`, `spark-skill-utils`, `spark-state`) used internally by the CLI, plus pack runtime helpers (`spark-auth-better-auth`, `spark-sync-zero`, `spark-stripe-helpers`, `spark-anthropic`) imported by hybrid packs |
 | `templates/` | Base scaffolds. v1 ships `nextjs`; `astro`, `astro-starlight`, `vite-react`, `one` are registered for compatibility, base files land in follow-ups |
 | `packs/` | The pack catalog. See [`packs/README.md`](packs/README.md) |
 | `presets/` | Named pack bundles (`saas-classic`, `lean-saas`, `local-ai-mvp`, `internal-tool`, `docs-site`) |
@@ -44,7 +44,7 @@ That scaffolds Next.js 15 + TypeScript, then installs `db-sqlite`, `auth-better-
 
 ## Why not a batteries-included template?
 
-Lovable-style templates ship every feature; you delete what you don't use. Bare scaffolds give you nothing; you wire everything from scratch. `anvil` is the third path: a minimal scaffold + a composable catalog of capability packs. You pick the stack you actually need.
+Lovable-style templates ship every feature; you delete what you don't use. Bare scaffolds give you nothing; you wire everything from scratch. `spark` is the third path: a minimal scaffold + a composable catalog of capability packs. You pick the stack you actually need.
 
 ## Status
 

@@ -18,7 +18,7 @@ A pack SHALL be a directory containing a `pack.toml` manifest, an optional `file
 - `[[files]]` — array of file operations, each with `mode`, `from`, `to`
 - `[skills]` — optional table with a `copy` array of skill folder paths
 - `[tasks]` — optional table with a `file` field pointing to a `tasks.yaml`
-- `[runtime_package]` — **OPTIONAL** table with `package` (full npm name, e.g. `"@forgeailab/anvil-auth-better-auth"`) and `version` (semver range). Presence of this block classifies the pack as **hybrid**; absence classifies it as **copy** (the default).
+- `[runtime_package]` — **OPTIONAL** table with `package` (full npm name, e.g. `"@forgeailab/spark-auth-better-auth"`) and `version` (semver range). Presence of this block classifies the pack as **hybrid**; absence classifies it as **copy** (the default).
 
 The manifest MUST NOT contain any `post_install` field or any other mechanism for executing arbitrary shell commands. Installs are declarative. The two install modes — `copy` and `hybrid` — are inferred from `[runtime_package]` presence; no separate `mode` field exists in the manifest.
 
@@ -30,7 +30,7 @@ The manifest MUST NOT contain any `post_install` field or any other mechanism fo
 
 #### Scenario: Valid hybrid-mode manifest parses
 
-- **WHEN** the CLI parses a `pack.toml` declaring all required fields plus `[runtime_package] package = "@forgeailab/anvil-auth-better-auth"`, `version = "^0.1"`
+- **WHEN** the CLI parses a `pack.toml` declaring all required fields plus `[runtime_package] package = "@forgeailab/spark-auth-better-auth"`, `version = "^0.1"`
 - **THEN** the manifest is accepted as valid
 - **AND** the resolver classifies the pack as `hybrid`
 - **AND** the helper package is treated as an implicit member of `[dependencies].runtime` at install time
@@ -75,13 +75,13 @@ A pack with a `[runtime_package]` block is **hybrid**: its copied `[[files]]` MU
 
 #### Scenario: Hybrid pack file content stays within the wiring boundary
 
-- **WHEN** a pack declares `[runtime_package] package = "@forgeailab/anvil-auth-better-auth"`
+- **WHEN** a pack declares `[runtime_package] package = "@forgeailab/spark-auth-better-auth"`
 - **THEN** every file in `packs/<name>/files/` is either a thin route handler that imports from the helper, a configuration file, an example UI component, or a types re-export
 - **AND** no file re-implements logic that the helper exports (e.g. session validation, OAuth callback parsing)
 
 #### Scenario: Helper transitive dependencies are not redeclared
 
-- **WHEN** a pack declares `[runtime_package] package = "@forgeailab/anvil-auth-better-auth"`
-- **AND** `@forgeailab/anvil-auth-better-auth` already depends on `better-auth` in its own `package.json`
+- **WHEN** a pack declares `[runtime_package] package = "@forgeailab/spark-auth-better-auth"`
+- **AND** `@forgeailab/spark-auth-better-auth` already depends on `better-auth` in its own `package.json`
 - **THEN** the pack manifest's `[dependencies].runtime` MUST NOT list `better-auth`
 - **AND** transitive deps are resolved by bun/npm at install time

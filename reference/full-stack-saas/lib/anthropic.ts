@@ -1,4 +1,4 @@
-import { createAnthropicClient, streamResponse } from '@forgeailab/anvil-anthropic';
+import { createAnthropicClient, streamResponse } from '@forgeailab/spark-anthropic';
 
 export const anthropic = createAnthropicClient(process.env.ANTHROPIC_API_KEY!);
 

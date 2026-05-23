@@ -19,15 +19,15 @@
     "stack:down": "docker compose down",
     "stack:logs": "docker compose logs -f --tail=100",
     "stack:reset": "docker compose down -v",
-    "zero:permissions": "bunx zero-deploy-permissions --schema-path=./lib/zero/schema.ts --upstream-db=postgres://anvil:anvil@localhost:5432/anvil"
+    "zero:permissions": "bunx zero-deploy-permissions --schema-path=./lib/zero/schema.ts --upstream-db=postgres://spark:spark@localhost:5432/spark"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "latest",
     "@better-auth/drizzle-adapter": "latest",
-    "@forgeailab/anvil-anthropic": "workspace:*",
-    "@forgeailab/anvil-auth-better-auth": "workspace:*",
-    "@forgeailab/anvil-stripe-helpers": "workspace:*",
-    "@forgeailab/anvil-sync-zero": "workspace:*",
+    "@forgeailab/spark-anthropic": "workspace:*",
+    "@forgeailab/spark-auth-better-auth": "workspace:*",
+    "@forgeailab/spark-stripe-helpers": "workspace:*",
+    "@forgeailab/spark-sync-zero": "workspace:*",
     "@radix-ui/react-slot": "latest",
     "@rocicorp/zero": "latest",
     "@tailwindcss/postcss": "^4",

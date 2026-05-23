@@ -1,5 +1,5 @@
 import type Anthropic from '@anthropic-ai/sdk';
-import { createAnthropicClient, streamResponse } from '@forgeailab/anvil-anthropic';
+import { createAnthropicClient, streamResponse } from '@forgeailab/spark-anthropic';
 
 function requireEnv(name: string): string {
   const value = process.env[name];

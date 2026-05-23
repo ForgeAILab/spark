@@ -1,7 +1,7 @@
 import {
   getSession as getAuthSession,
   requireSession as requireAuthSession,
-} from '@forgeailab/anvil-auth-better-auth';
+} from '@forgeailab/spark-auth-better-auth';
 import { auth } from '@/lib/auth';
 
 export type Session = Awaited<ReturnType<typeof auth.api.getSession>>;

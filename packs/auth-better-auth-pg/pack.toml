@@ -9,7 +9,7 @@ requires_runtime = ["server"]
 compatible_scaffolds = ["nextjs"]
 
 [runtime_package]
-package = "@forgeailab/anvil-auth-better-auth"
+package = "@forgeailab/spark-auth-better-auth"
 version = "^0.1"
 
 [dependencies]

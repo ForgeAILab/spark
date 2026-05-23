@@ -1,7 +1,7 @@
 'use client';
 
-import { createZeroClient as createAnvilZeroClient } from '@forgeailab/anvil-sync-zero';
-import type { ZeroOptions } from '@forgeailab/anvil-sync-zero';
+import { createZeroClient as createSparkZeroClient } from '@forgeailab/spark-sync-zero';
+import type { ZeroOptions } from '@forgeailab/spark-sync-zero';
 import { schema } from '@/lib/zero/schema';
 import { createMutators, type AuthData, type Mutators } from '@/lib/zero/mutators';
 
@@ -25,5 +25,5 @@ export function createZeroOptions(options: ZeroClientOptions = {}): AppZeroOptio
 }
 
 export function createZeroClient(options: AppZeroOptions = createZeroOptions()) {
-  return createAnvilZeroClient(options as unknown as ZeroOptions);
+  return createSparkZeroClient(options as unknown as ZeroOptions);
 }

@@ -4,7 +4,7 @@ import {
   createCheckoutSession as createStripeCheckoutSession,
   createStripeClient,
   verifyWebhookSignature as verifyStripeWebhookSignature,
-} from '@forgeailab/anvil-stripe-helpers';
+} from '@forgeailab/spark-stripe-helpers';
 
 const DEFAULT_STRIPE_SECRET_KEY = 'sk_test_reference';
 

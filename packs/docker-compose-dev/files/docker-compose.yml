@@ -1,4 +1,4 @@
-# Anvil-managed Docker Compose root.
+# Spark-managed Docker Compose root.
 #
 # Each infra-providing pack appends an entry below. Service definitions live
 # in compose/*.yml fragments. Run with `docker compose up -d` — Compose 2.20+

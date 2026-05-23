@@ -9,7 +9,7 @@ test.describe('public landing', () => {
     await page.goto('/');
 
     await expect(
-      page.getByRole('heading', { name: /anvil reference app/i }),
+      page.getByRole('heading', { name: /spark reference app/i }),
     ).toBeVisible();
     await expect(page.getByText(/proves the hybrid pack stack composes/i)).toBeVisible();
 

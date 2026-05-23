@@ -16,10 +16,10 @@ export default async function Home() {
           Forge AI Lab reference
         </p>
         <h1 className="text-4xl font-semibold leading-tight sm:text-6xl">
-          Anvil reference app
+          Spark reference app
         </h1>
         <p className="max-w-xl text-base leading-7 text-muted-foreground sm:text-lg">
-          The anvil reference app — proves the hybrid pack stack composes.
+          The spark reference app — proves the hybrid pack stack composes.
         </p>
         <div className="flex flex-wrap items-center justify-center gap-3">
           <Button asChild size="lg">

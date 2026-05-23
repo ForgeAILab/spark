@@ -1,4 +1,4 @@
-/* # >>> anvil:ui-shadcn >>> */
+/* # >>> spark:ui-shadcn >>> */
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -53,4 +53,4 @@
     @apply bg-background text-foreground;
   }
 }
-/* # <<< anvil:ui-shadcn <<< */
+/* # <<< spark:ui-shadcn <<< */

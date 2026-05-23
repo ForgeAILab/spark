@@ -9,7 +9,7 @@ requires_runtime = ["server"]
 compatible_scaffolds = ["nextjs"]
 
 [runtime_package]
-package = "@forgeailab/anvil-sync-zero"
+package = "@forgeailab/spark-sync-zero"
 version = "^0.1"
 
 [dependencies]

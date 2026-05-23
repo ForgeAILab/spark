@@ -73,7 +73,7 @@ For each, one line on WHY this choice over the obvious alternative.
   - none
 
 ```sh
-anvil add <pack-1> <pack-2>
+spark add <pack-1> <pack-2>
 ```
 
 ## Repo structure

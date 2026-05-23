@@ -1,4 +1,4 @@
-import { defineZeroSchema, number, string, table } from '@forgeailab/anvil-sync-zero';
+import { defineZeroSchema, number, string, table } from '@forgeailab/spark-sync-zero';
 
 // Example schema. Replace with your app's tables.
 const users = table('user')

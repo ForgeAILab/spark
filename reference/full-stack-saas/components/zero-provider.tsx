@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useState, type ReactNode } from 'react';
-import { ZeroProvider as AnvilZeroProvider } from '@forgeailab/anvil-sync-zero';
-import type { ZeroOptions } from '@forgeailab/anvil-sync-zero';
+import { ZeroProvider as SparkZeroProvider } from '@forgeailab/spark-sync-zero';
+import type { ZeroOptions } from '@forgeailab/spark-sync-zero';
 import { createZeroOptions } from '@/lib/zero/client';
 import type { AuthData } from '@/lib/zero/mutators';
 
@@ -53,11 +53,11 @@ export function ZeroProvider({ authData, children }: ZeroProviderProps) {
   );
 
   return (
-    <AnvilZeroProvider
+    <SparkZeroProvider
       key={token ?? 'anon'}
       {...(zeroOptions as unknown as ZeroOptions)}
     >
       {children}
-    </AnvilZeroProvider>
+    </SparkZeroProvider>
   );
 }

@@ -1,0 +1,23 @@
+{
+  "name": "@forgeailab/spark-state",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "sideEffects": false,
+  "dependencies": {
+    "@forgeailab/spark-schema": "workspace:*",
+    "zod": "latest"
+  },
+  "devDependencies": {
+    "bun-types": "latest",
+    "typescript": "latest"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "src",
+    "README.md"
+  ]
+}

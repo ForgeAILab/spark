@@ -1,0 +1,34 @@
+{
+  "name": "@forgeailab/spark",
+  "version": "0.1.0",
+  "description": "CLI for managing feature packs in an spark-scaffolded project.",
+  "type": "module",
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "src",
+    "README.md"
+  ],
+  "bin": {
+    "spark": "./src/cli.ts"
+  },
+  "scripts": {
+    "test": "bun test",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@forgeailab/spark-schema": "workspace:*",
+    "@forgeailab/spark-state": "workspace:*",
+    "@forgeailab/spark-skill-utils": "workspace:*",
+    "@forgeailab/spark-board": "workspace:*",
+    "@clack/prompts": "latest",
+    "citty": "latest",
+    "picocolors": "latest",
+    "smol-toml": "latest"
+  },
+  "devDependencies": {
+    "bun-types": "latest",
+    "typescript": "latest"
+  }
+}

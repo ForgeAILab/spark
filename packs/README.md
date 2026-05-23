@@ -1,6 +1,6 @@
 # Packs
 
-A **pack** is a self-contained unit of capability — auth, db, payments, UI, AI SDK, email, deploy target, … — that the `anvil` CLI can install into a scaffolded project. Packs are TOML-manifested, declarative (no shell hooks), and capability-resolved.
+A **pack** is a self-contained unit of capability — auth, db, payments, UI, AI SDK, email, deploy target, … — that the `spark` CLI can install into a scaffolded project. Packs are TOML-manifested, declarative (no shell hooks), and capability-resolved.
 
 ## Directory layout
 
@@ -14,7 +14,7 @@ packs/<name>/
 
 ## `pack.toml`
 
-See [`docs/pack-spec.md`](../docs/pack-spec.md) for the full schema. The Zod source of truth is `packages/anvil-schema/src/pack.ts`.
+See [`docs/pack-spec.md`](../docs/pack-spec.md) for the full schema. The Zod source of truth is `packages/spark-schema/src/pack.ts`.
 
 A minimum-viable pack:
 
@@ -51,9 +51,9 @@ file = "tasks.yaml"
 | Mode | Behavior |
 |---|---|
 | `create` | Fails if the destination already exists |
-| `append` | Idempotent; uses `# >>> anvil:<pack> >>>` / `# <<<` markers |
+| `append` | Idempotent; uses `# >>> spark:<pack> >>>` / `# <<<` markers |
 | `merge-json` | Deep-merges into an existing JSON file with deterministic key order |
-| `template` | Handlebars-style substitution from `anvil.config.json` (e.g. `{{appName}}`) |
+| `template` | Handlebars-style substitution from `spark.config.json` (e.g. `{{appName}}`) |
 
 ## Capability enums (closed)
 
@@ -84,26 +84,26 @@ The two enums are separate and never overlap. Adding a new value requires a regi
 Then fill in the generated `packs/realtime-supabase/pack.toml`. Validate with:
 
 ```bash
-bun -e "import {parsePackToml} from './packages/anvil-schema/src/parse.ts'; import {readFileSync} from 'node:fs'; const r = parsePackToml(readFileSync('packs/realtime-supabase/pack.toml','utf8')); console.log(r.ok ? 'OK' : r.error);"
+bun -e "import {parsePackToml} from './packages/spark-schema/src/parse.ts'; import {readFileSync} from 'node:fs'; const r = parsePackToml(readFileSync('packs/realtime-supabase/pack.toml','utf8')); console.log(r.ok ? 'OK' : r.error);"
 ```
 
 See `packs/example/pack.toml` for a manifest that exercises every field.
 
 ## v1 catalog
 
-Each pack is either **copy** (ships file trees the user owns) or **hybrid** (ships thin wiring + imports runtime logic from a versioned `@forgeailab/anvil-*` helper under `libs/`). The mode is inferred from the presence of a `[runtime_package]` block in the manifest.
+Each pack is either **copy** (ships file trees the user owns) or **hybrid** (ships thin wiring + imports runtime logic from a versioned `@forgeailab/spark-*` helper under `libs/`). The mode is inferred from the presence of a `[runtime_package]` block in the manifest.
 
 | Pack | Category | Mode | Runtime helper |
 |---|---|---|---|
-| `auth-better-auth` | auth | **hybrid** | `@forgeailab/anvil-auth-better-auth` (SQLite) |
-| `auth-better-auth-pg` | auth | **hybrid** | `@forgeailab/anvil-auth-better-auth` (Postgres) |
+| `auth-better-auth` | auth | **hybrid** | `@forgeailab/spark-auth-better-auth` (SQLite) |
+| `auth-better-auth-pg` | auth | **hybrid** | `@forgeailab/spark-auth-better-auth` (Postgres) |
 | `auth-supabase` | auth | copy | — |
 | `db-sqlite` | db | copy | — |
 | `db-postgres` | db | copy | — |
 | `db-supabase` | db | copy | — |
-| `sync-zero` | infra | **hybrid** | `@forgeailab/anvil-sync-zero` |
-| `payments-stripe` | payments | **hybrid** | `@forgeailab/anvil-stripe-helpers` |
-| `ai-anthropic` | ai | **hybrid** | `@forgeailab/anvil-anthropic` |
+| `sync-zero` | infra | **hybrid** | `@forgeailab/spark-sync-zero` |
+| `payments-stripe` | payments | **hybrid** | `@forgeailab/spark-stripe-helpers` |
+| `ai-anthropic` | ai | **hybrid** | `@forgeailab/spark-anthropic` |
 | `ai-openai` | ai | copy | — |
 | `ui-shadcn` | ui | copy | — |
 | `email-resend` | email | copy | — |
@@ -115,7 +115,7 @@ Each pack is either **copy** (ships file trees the user owns) or **hybrid** (shi
 ### Picking a db + auth pair
 
 `auth-better-auth` and `auth-better-auth-pg` share the same runtime helper
-(`@forgeailab/anvil-auth-better-auth`) — they differ only in the `provider:`
+(`@forgeailab/spark-auth-better-auth`) — they differ only in the `provider:`
 their generated `lib/auth.ts` template hands to `drizzleAdapter`. Pair them:
 
 - `db-sqlite` + `auth-better-auth` — fastest path, single file db, no infra.

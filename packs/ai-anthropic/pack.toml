@@ -9,7 +9,7 @@ requires_runtime = ["server"]
 compatible_scaffolds = []
 
 [runtime_package]
-package = "@forgeailab/anvil-anthropic"
+package = "@forgeailab/spark-anthropic"
 version = "^0.1"
 
 [env]

@@ -1,6 +1,6 @@
 ---
 name: zero-patterns
-description: Use when implementing Rocicorp Zero client-first sync, schema changes, queries, mutators, or zero-cache setup in an anvil project.
+description: Use when implementing Rocicorp Zero client-first sync, schema changes, queries, mutators, or zero-cache setup in an spark project.
 ---
 
 # Zero Patterns

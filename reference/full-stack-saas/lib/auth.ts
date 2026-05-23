@@ -1,5 +1,5 @@
 import { drizzleAdapter } from '@better-auth/drizzle-adapter';
-import { createAuth as createBetterAuth } from '@forgeailab/anvil-auth-better-auth';
+import { createAuth as createBetterAuth } from '@forgeailab/spark-auth-better-auth';
 import { db } from '@/lib/db';
 import * as schema from '@/lib/db/schema';
 

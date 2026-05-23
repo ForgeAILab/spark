@@ -5,7 +5,7 @@ export default function PublicLanding() {
     <main className="min-h-screen flex items-center justify-center bg-gradient-to-b from-slate-50 to-slate-100 px-6 py-16">
       <section className="w-full max-w-xl text-center">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
-          Anvil
+          Spark
         </p>
         <h1 className="mt-3 text-4xl font-semibold tracking-tight text-slate-900 sm:text-5xl">
           {'{{appName}}'}

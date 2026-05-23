@@ -3,8 +3,8 @@ import type { ReactNode } from 'react';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Anvil App',
-  description: 'Minimal Next.js scaffold for anvil projects.',
+  title: 'Spark App',
+  description: 'Minimal Next.js scaffold for spark projects.',
 };
 
 export default function RootLayout({

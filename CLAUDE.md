@@ -14,9 +14,9 @@ AI SDKs, and related workflow skills.
 
 ## Package Layout
 
-- `packages/anvil` hosts the future `anvil` pack CLI.
-- `packages/create-anvil` hosts the future initializer.
-- `packages/anvil-schema` hosts shared TOML schemas and parser helpers.
+- `packages/spark` hosts the future `spark` pack CLI.
+- `packages/create-spark` hosts the future initializer.
+- `packages/spark-schema` hosts shared TOML schemas and parser helpers.
 
 Only implement packages that are in the currently approved task scope.
 

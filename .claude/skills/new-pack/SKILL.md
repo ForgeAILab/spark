@@ -1,6 +1,6 @@
 ---
 name: new-pack
-description: Scaffold a new local feature-pack directory under `packs/` with a minimal manifest, empty files and skills directories, and an empty task stub. Prompts for install mode (`copy` or `hybrid`); a `hybrid` pack additionally scaffolds a companion `libs/anvil-<name>/` workspace package and writes a `[runtime_package]` block into the new manifest. Use when a needed capability has no v1 pack.
+description: Scaffold a new local feature-pack directory under `packs/` with a minimal manifest, empty files and skills directories, and an empty task stub. Prompts for install mode (`copy` or `hybrid`); a `hybrid` pack additionally scaffolds a companion `libs/spark-<name>/` workspace package and writes a `[runtime_package]` block into the new manifest. Use when a needed capability has no v1 pack.
 allowed-tools:
   - Read
   - Write
@@ -28,7 +28,7 @@ Required from the user:
 If any of these values is missing, ask for it before writing files. When asking for `mode`, explain the difference:
 
 - `copy` — pack ships its full runtime logic as files copied into the consumer project. The user owns the code in place. This is the right default for stable framework glue (config files, route handlers, env wiring).
-- `hybrid` — pack ships only thin wiring files and imports its runtime logic from a versioned npm helper package `@forgeailab/anvil-<name>` published from `libs/anvil-<name>/`. Choose this when the logic is the same across every consumer project and bug fixes should land in one place.
+- `hybrid` — pack ships only thin wiring files and imports its runtime logic from a versioned npm helper package `@forgeailab/spark-<name>` published from `libs/spark-<name>/`. Choose this when the logic is the same across every consumer project and bug fixes should land in one place.
 
 ## Valid categories
 
@@ -55,12 +55,12 @@ If any of these values is missing, ask for it before writing files. When asking 
   - `packs/<name>/files/`
   - `packs/<name>/skills/`
   - `packs/<name>/tasks.yaml`
-- Additionally in `hybrid` mode, validate that `libs/anvil-<name>/` does not already exist, then create the companion workspace package:
-  - `libs/anvil-<name>/package.json`
-  - `libs/anvil-<name>/tsconfig.json`
-  - `libs/anvil-<name>/src/index.ts`
-  - `libs/anvil-<name>/test/index.test.ts`
-  - `libs/anvil-<name>/README.md`
+- Additionally in `hybrid` mode, validate that `libs/spark-<name>/` does not already exist, then create the companion workspace package:
+  - `libs/spark-<name>/package.json`
+  - `libs/spark-<name>/tsconfig.json`
+  - `libs/spark-<name>/src/index.ts`
+  - `libs/spark-<name>/test/index.test.ts`
+  - `libs/spark-<name>/README.md`
 - `tasks.yaml` must be an empty stub file.
 - Leave `provides`, `requires`, and `conflicts` empty. Do not guess capability tags.
 - The pack's `[dependencies].runtime` MUST NOT redeclare the helper package — the CLI adds it implicitly from `[runtime_package]`.
@@ -93,17 +93,17 @@ requires = []
 conflicts = []
 
 [runtime_package]
-package = "@forgeailab/anvil-<name>"
+package = "@forgeailab/spark-<name>"
 version = "^0.1"
 ```
 
-## `libs/anvil-<name>/` skeleton — `hybrid` mode only
+## `libs/spark-<name>/` skeleton — `hybrid` mode only
 
 `package.json`:
 
 ```json
 {
-  "name": "@forgeailab/anvil-<name>",
+  "name": "@forgeailab/spark-<name>",
   "version": "0.1.0",
   "type": "module",
   "main": "./src/index.ts",
@@ -145,12 +145,12 @@ After creating the skeleton, return:
   - `packs/<name>/skills/`
   - `packs/<name>/tasks.yaml`
   <!-- hybrid mode only -->
-  - `libs/anvil-<name>/package.json`
-  - `libs/anvil-<name>/tsconfig.json`
-  - `libs/anvil-<name>/src/index.ts`
-  - `libs/anvil-<name>/test/index.test.ts`
-  - `libs/anvil-<name>/README.md`
+  - `libs/spark-<name>/package.json`
+  - `libs/spark-<name>/tsconfig.json`
+  - `libs/spark-<name>/src/index.ts`
+  - `libs/spark-<name>/test/index.test.ts`
+  - `libs/spark-<name>/README.md`
 
 Next: fill in `provides`, `requires`, files, tasks, and any pack-shipped skills before installing it.
-In hybrid mode, also implement the runtime helper under `libs/anvil-<name>/src/` and re-run `bun install`.
+In hybrid mode, also implement the runtime helper under `libs/spark-<name>/src/` and re-run `bun install`.
 ```

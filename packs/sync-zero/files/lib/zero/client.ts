@@ -1,7 +1,7 @@
 'use client';
 
-import { createZeroClient as createAnvilZeroClient } from '@forgeailab/anvil-sync-zero';
-import type { ZeroOptions } from '@forgeailab/anvil-sync-zero';
+import { createZeroClient as createSparkZeroClient } from '@forgeailab/spark-sync-zero';
+import type { ZeroOptions } from '@forgeailab/spark-sync-zero';
 import { schema } from './schema';
 
 const DEFAULT_ZERO_URL = 'http://localhost:4848';
@@ -14,5 +14,5 @@ export function createZeroOptions(): ZeroOptions {
 }
 
 export function createZeroClient(options: ZeroOptions = createZeroOptions()) {
-  return createAnvilZeroClient(options);
+  return createSparkZeroClient(options);
 }

@@ -1,0 +1,24 @@
+{
+  "name": "@forgeailab/spark-schema",
+  "version": "0.1.0",
+  "description": "Shared Zod schemas + TOML parsers for spark pack and template manifests.",
+  "type": "module",
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "src",
+    "README.md"
+  ],
+  "exports": "./src/index.ts",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "dependencies": {
+    "smol-toml": "latest",
+    "zod": "latest"
+  },
+  "devDependencies": {
+    "bun-types": "latest",
+    "typescript": "latest"
+  }
+}

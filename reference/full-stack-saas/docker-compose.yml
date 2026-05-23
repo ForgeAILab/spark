@@ -1,7 +1,7 @@
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: anvil-ref-postgres
+    container_name: spark-ref-postgres
     command:
       - postgres
       - -c
@@ -11,27 +11,27 @@ services:
       - -c
       - max_replication_slots=10
     environment:
-      POSTGRES_USER: anvil
-      POSTGRES_PASSWORD: anvil
-      POSTGRES_DB: anvil
+      POSTGRES_USER: spark
+      POSTGRES_PASSWORD: spark
+      POSTGRES_DB: spark
     ports:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./docker/postgres-init:/docker-entrypoint-initdb.d:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U anvil -d anvil"]
+      test: ["CMD-SHELL", "pg_isready -U spark -d spark"]
       interval: 2s
       timeout: 5s
       retries: 30
 
   zero-cache:
     image: rocicorp/zero:latest
-    container_name: anvil-ref-zero
+    container_name: spark-ref-zero
     environment:
-      ZERO_UPSTREAM_DB: postgres://anvil:anvil@postgres:5432/anvil
-      ZERO_CVR_DB: postgres://anvil:anvil@postgres:5432/anvil_cvr
-      ZERO_CHANGE_DB: postgres://anvil:anvil@postgres:5432/anvil_change
+      ZERO_UPSTREAM_DB: postgres://spark:spark@postgres:5432/spark
+      ZERO_CVR_DB: postgres://spark:spark@postgres:5432/spark_cvr
+      ZERO_CHANGE_DB: postgres://spark:spark@postgres:5432/spark_change
       ZERO_REPLICA_FILE: /zero/replica.db
       ZERO_AUTH_SECRET: zero-reference-secret-change-me
       ZERO_ADMIN_PASSWORD: zero-reference-admin-change-me

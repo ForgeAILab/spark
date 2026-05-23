@@ -1,6 +1,6 @@
-# Next.js Anvil Template
+# Next.js Spark Template
 
-This is the minimal Next.js 15 + TypeScript scaffold used by `create-anvil`.
+This is the minimal Next.js 15 + TypeScript scaffold used by `create-spark`.
 
 ## Development
 
@@ -16,5 +16,5 @@ bun dev
 Read `AGENTS.md`, fill in the `.ai/` planning files, and keep `.ai/board.md` current before implementing. Add capabilities only when the board calls for them:
 
 ```sh
-anvil add <pack>
+spark add <pack>
 ```

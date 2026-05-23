@@ -1,12 +1,12 @@
 import { beforeAll, expect, test } from 'bun:test';
 import { memoryAdapter } from 'better-auth/adapters/memory';
-import { createAuth, getSession } from '@forgeailab/anvil-auth-better-auth';
+import { createAuth, getSession } from '@forgeailab/spark-auth-better-auth';
 import type Stripe from 'stripe';
 import type { AnthropicClientLike } from '../lib/anthropic';
 import type { StripeClientLike } from '../lib/stripe';
 
 const envDefaults = {
-  DATABASE_URL: 'postgres://anvil:anvil@localhost:5432/anvil',
+  DATABASE_URL: 'postgres://spark:spark@localhost:5432/spark',
   BETTER_AUTH_SECRET: 'reference-dev-secret-change-me-reference-dev-secret-change-me',
   BETTER_AUTH_URL: 'http://localhost:3000',
   GITHUB_CLIENT_ID: 'github-client-id',

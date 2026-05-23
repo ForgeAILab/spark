@@ -23,7 +23,7 @@ export default async function AppLayout({
         <header className="border-b border-border bg-background/60 backdrop-blur">
           <div className="mx-auto flex w-full max-w-4xl items-center justify-between px-6 py-4">
             <Link className="text-sm font-semibold tracking-tight" href="/home">
-              Anvil reference
+              Spark reference
             </Link>
             <div className="text-xs text-muted-foreground" data-testid="user-menu-placeholder">
               {session?.user.email ?? 'Guest'}

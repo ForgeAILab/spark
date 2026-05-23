@@ -1,3 +1,3 @@
 'use client';
 
-export { ZeroProvider } from '@forgeailab/anvil-sync-zero';
+export { ZeroProvider } from '@forgeailab/spark-sync-zero';

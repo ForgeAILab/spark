@@ -1,5 +1,5 @@
 import { ANYONE_CAN, definePermissions } from '@rocicorp/zero';
-import { defineZeroSchema, number, string, table } from '@forgeailab/anvil-sync-zero';
+import { defineZeroSchema, number, string, table } from '@forgeailab/spark-sync-zero';
 import type { AuthData } from './mutators';
 
 const users = table('user')

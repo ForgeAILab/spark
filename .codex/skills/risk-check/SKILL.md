@@ -22,7 +22,7 @@ Read these (required):
 - `.ai/architecture.md`
 - `.ai/board.md`
 - `.ai/decision-log.md` if it exists
-- `.anvil/state.json` if it exists
+- `.spark/state.json` if it exists
 - `packs/*/pack.toml` if pack state exists and the registry is available
 
 Sample reality:
@@ -37,7 +37,7 @@ Sample reality:
 - Treat the spec's non-goals list as a checklist of things that should NOT be present in code. Violations are creep, not features.
 - Recommend cuts, not additions. The default fix is "remove or defer," not "build more."
 - Distinguish **drift** (planned scope grew quietly) from **discovery** (new task properly added to the board). Discovery is fine; silent drift is not.
-- For pack-level drift, inspect `.anvil/state.json` when present. For each installed pack, determine its provided capabilities from state or from `packs/<name>/pack.toml`; if none of those capabilities are referenced in `.ai/product-spec.md` or `.ai/architecture.md`, flag it as drift.
+- For pack-level drift, inspect `.spark/state.json` when present. For each installed pack, determine its provided capabilities from state or from `packs/<name>/pack.toml`; if none of those capabilities are referenced in `.ai/product-spec.md` or `.ai/architecture.md`, flag it as drift.
 - The pack-level drift recommendation is exactly: **review or revert the pack-install commit via git**. Do not suggest a CLI removal command; v1 has no pack uninstall flow.
 - For each installed pack whose manifest declares `[runtime_package]` (hybrid pack), inspect the consumer project's `package.json` (`dependencies` + `devDependencies`) for the named helper. Compare the installed version against the latest published version on the npm registry (use `bun pm view <pkg> version` or `npm view <pkg> version` via Bash). If the installed version is more than two minor versions behind the latest, flag it under "Stale helper". A `file:` specifier counts as "local dev link" and is NOT stale.
 

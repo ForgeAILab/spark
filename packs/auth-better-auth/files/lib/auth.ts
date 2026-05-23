@@ -1,4 +1,4 @@
-import { createAuth as createBetterAuth } from '@forgeailab/anvil-auth-better-auth';
+import { createAuth as createBetterAuth } from '@forgeailab/spark-auth-better-auth';
 
 // Wire your database adapter here. Example (drizzle + sqlite):
 //

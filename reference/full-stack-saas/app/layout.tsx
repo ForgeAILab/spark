@@ -3,8 +3,8 @@ import type { ReactNode } from 'react';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Anvil Reference App',
-  description: 'The anvil reference app — proves the hybrid pack stack composes.',
+  title: 'Spark Reference App',
+  description: 'The spark reference app — proves the hybrid pack stack composes.',
 };
 
 export default function RootLayout({
