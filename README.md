@@ -62,3 +62,26 @@ Out of scope for v1: a remote pack registry, `remove`/`update` subcommands, pack
 - New packs: `/new-pack <name> category=<cat>` scaffolds the directory; fill in `pack.toml`. See `docs/pack-spec.md`.
 - New templates: see `templates/README.md`.
 - Spec workflow: see `docs/spec/AGENTS.md`.
+
+## Releasing
+
+All 10 publishable packages (`@forgeailab/spark-*`, `@forgeailab/spark`, `@forgeailab/create-spark`) ship together at a single locked version. CI publishes — humans only bump + tag.
+
+**One-time setup**: create an npm automation token at <https://www.npmjs.com/settings/~/tokens/granular-access-tokens> with publish access for `@forgeailab/*`, then add it as `NPM_TOKEN` at <https://github.com/ForgeAILab/spark/settings/secrets/actions>.
+
+**Cutting a release:**
+
+```bash
+bun run release 0.1.1 --tag       # bumps all 10 package.json files + commits + tags
+git push --follow-tags             # CI takes over from here
+```
+
+The `release` workflow (`.github/workflows/release.yml`) runs on any `v*` tag push: it installs deps, runs `bun test`, asserts every package.json matches the tag, then publishes in topological order (`spark-schema` → libs → `spark` → `create-spark`). Already-published versions are skipped, so re-runs after a partial failure are safe.
+
+To review the bump before tagging:
+
+```bash
+bun run release 0.1.1
+# inspect git status, then:
+git commit -am 'release v0.1.1' && git tag v0.1.1 && git push --follow-tags
+```
