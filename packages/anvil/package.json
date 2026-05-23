@@ -1,6 +1,15 @@
 {
   "name": "@forgeailab/anvil",
+  "version": "0.1.0",
+  "description": "CLI for managing feature packs in an anvil-scaffolded project.",
   "type": "module",
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "src",
+    "README.md"
+  ],
   "bin": {
     "anvil": "./src/cli.ts"
   },

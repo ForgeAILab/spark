@@ -17,5 +17,12 @@
     "bun-types": "latest",
     "react": "^19",
     "typescript": "latest"
-  }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "src",
+    "README.md"
+  ]
 }

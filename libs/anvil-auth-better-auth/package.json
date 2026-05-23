@@ -16,5 +16,12 @@
   "devDependencies": {
     "bun-types": "latest",
     "typescript": "latest"
-  }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "src",
+    "README.md"
+  ]
 }

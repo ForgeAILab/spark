@@ -1,6 +1,15 @@
 {
   "name": "@forgeailab/create-anvil",
+  "version": "0.1.0",
+  "description": "Interactive scaffolder for anvil projects with guided pack picker.",
   "type": "module",
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "src",
+    "README.md"
+  ],
   "bin": {
     "create-anvil": "./src/cli.ts"
   },
