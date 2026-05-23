@@ -2,6 +2,11 @@ import { mkdtemp, mkdir, readdir, readFile, rm, writeFile } from "node:fs/promis
 import { existsSync } from "node:fs";
 import { join, relative, resolve, sep } from "node:path";
 import { tmpdir } from "node:os";
+import {
+  parseSkillFrontmatter,
+  serializeSkillFrontmatter,
+  toCodexFrontmatter,
+} from "@forgeailab/anvil-skill-utils";
 
 type SkillOutput = {
   name: string;
@@ -24,80 +29,16 @@ type TreeEntry = {
   content?: string;
 };
 
-const requiredFrontmatterKeys = ["name", "description"] as const;
-const codexFrontmatterKeys = ["name", "description", "model"] as const;
-
-export function splitFrontmatter(markdown: string): { frontmatter: string; body: string } {
-  const normalized = markdown.replace(/\r\n/g, "\n");
-  const lines = normalized.split("\n");
-
-  if (lines[0] !== "---") {
-    throw new Error("SKILL.md must start with YAML frontmatter");
-  }
-
-  const closingIndex = lines.findIndex((line, index) => index > 0 && line === "---");
-  if (closingIndex === -1) {
-    throw new Error("SKILL.md frontmatter is missing a closing --- delimiter");
-  }
-
-  return {
-    frontmatter: lines.slice(1, closingIndex).join("\n"),
-    body: lines.slice(closingIndex + 1).join("\n"),
-  };
-}
-
-export function parseFrontmatterBlocks(frontmatter: string): Map<string, string[]> {
-  const blocks = new Map<string, string[]>();
-  let currentKey: string | undefined;
-
-  for (const line of frontmatter.split("\n")) {
-    const match = /^([A-Za-z][A-Za-z0-9_-]*):(.*)$/.exec(line);
-
-    if (match) {
-      currentKey = match[1];
-      if (blocks.has(currentKey)) {
-        throw new Error(`Duplicate frontmatter key: ${currentKey}`);
-      }
-      blocks.set(currentKey, [`${currentKey}:${match[2]}`]);
-      continue;
-    }
-
-    if (!currentKey) {
-      if (line.trim() === "" || line.trim().startsWith("#")) {
-        continue;
-      }
-      throw new Error(`Unexpected frontmatter line before a key: ${line}`);
-    }
-
-    blocks.get(currentKey)?.push(line);
-  }
-
-  for (const key of requiredFrontmatterKeys) {
-    if (!blocks.has(key)) {
-      throw new Error(`Missing required frontmatter key: ${key}`);
-    }
-  }
-
-  return blocks;
-}
-
 export function transformSkillMarkdown(markdown: string, skillName: string): string {
-  const { frontmatter, body } = splitFrontmatter(markdown);
-  const blocks = parseFrontmatterBlocks(frontmatter);
-  const outputFrontmatter: string[] = [];
+  const { frontmatter, body } = parseSkillFrontmatter(markdown);
+  const codexFrontmatter = toCodexFrontmatter(frontmatter);
+  const outputFrontmatter = serializeSkillFrontmatter(codexFrontmatter, {
+    trailingComments: [
+      `# Generated from .claude/skills/${skillName}/SKILL.md — DO NOT EDIT directly`,
+    ],
+  });
 
-  for (const key of codexFrontmatterKeys) {
-    const block = blocks.get(key);
-    if (block) {
-      outputFrontmatter.push(...block);
-    }
-  }
-
-  outputFrontmatter.push(
-    `# Generated from .claude/skills/${skillName}/SKILL.md — DO NOT EDIT directly`,
-  );
-
-  return `---\n${outputFrontmatter.join("\n")}\n---\n${body}`;
+  return `---\n${outputFrontmatter}\n---\n${body}`;
 }
 
 async function collectSkillOutputs(root: string): Promise<SkillOutput[]> {

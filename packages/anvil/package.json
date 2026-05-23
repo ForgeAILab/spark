@@ -10,6 +10,9 @@
   },
   "dependencies": {
     "@forgeailab/anvil-schema": "workspace:*",
+    "@forgeailab/anvil-state": "workspace:*",
+    "@forgeailab/anvil-skill-utils": "workspace:*",
+    "@forgeailab/anvil-board": "workspace:*",
     "@clack/prompts": "latest",
     "citty": "latest",
     "picocolors": "latest",

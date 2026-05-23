@@ -3,11 +3,25 @@
 import { access, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { cancel, confirm, intro, isCancel, outro, select, text } from '@clack/prompts';
+import { runAdd } from '@forgeailab/anvil/src/commands/add.ts';
 import { defineCommand, runMain } from 'citty';
 import pc from 'picocolors';
 import { copyTemplate } from './copy.ts';
+import { loadPackRegistry } from './pack-registry.ts';
 import { findMonorepoRoot } from './paths.ts';
+import {
+  filterAuthByDb,
+  filterSyncByDb,
+  groupByCategory,
+  orderedForCategory,
+  parsePacksFlag,
+  recommendedFor,
+  type DbPick,
+  type GroupedPacks,
+  type PickerCategory,
+} from './picker.ts';
 import { applyPreset } from './preset.ts';
+import { promptCategory, promptConfirmPlan, promptMultiCategory } from './prompts.ts';
 import { loadTemplateRegistry, type TemplateMetadata } from './registry.ts';
 import { syncSkills } from './skills.ts';
 
@@ -17,6 +31,9 @@ type CreateAppArgs = {
   appName?: unknown;
   template?: unknown;
   preset?: unknown;
+  packs?: unknown;
+  noPacks?: unknown;
+  'no-packs'?: unknown;
   yes?: unknown;
 };
 
@@ -39,6 +56,10 @@ function asOptionalString(value: unknown): string | undefined {
   return trimmed.length > 0 ? trimmed : undefined;
 }
 
+function asBoolean(value: unknown): boolean {
+  return value === true;
+}
+
 function abortIfCancel<T>(value: T | symbol): T {
   if (isCancel(value)) {
     cancel('Operation cancelled.');
@@ -46,6 +67,14 @@ function abortIfCancel<T>(value: T | symbol): T {
   }
 
   return value;
+}
+
+function isPacksFlagProvided(rawArgs: CreateAppArgs): boolean {
+  return rawArgs.packs !== undefined;
+}
+
+function isNoPacks(rawArgs: CreateAppArgs): boolean {
+  return asBoolean(rawArgs.noPacks) || asBoolean(rawArgs['no-packs']);
 }
 
 async function exists(path: string): Promise<boolean> {
@@ -129,6 +158,109 @@ function findTemplate(templates: TemplateMetadata[], templateName: string): Temp
   throw new Error(`Unknown template "${templateName}". Registered templates: ${registered}`);
 }
 
+function addPick(picks: string[], pick: string | undefined): void {
+  if (pick !== undefined) {
+    picks.push(pick);
+  }
+}
+
+function addPicks(picks: string[], selected: readonly string[] | undefined): void {
+  if (selected !== undefined) {
+    picks.push(...selected);
+  }
+}
+
+async function collectInteractivePackPicks(groups: GroupedPacks): Promise<string[]> {
+  const picks: string[] = [];
+
+  const dbPick = (await promptCategory(
+    'db',
+    orderedForCategory('db', groups.db),
+    recommendedFor('db'),
+  )) as DbPick;
+  addPick(picks, dbPick);
+
+  if (dbPick !== undefined) {
+    const authPick = await promptCategory(
+      'auth',
+      filterAuthByDb(groups.auth, dbPick),
+      recommendedFor('auth', dbPick),
+    );
+    addPick(picks, authPick);
+
+    const syncPick = await promptCategory(
+      'sync',
+      filterSyncByDb(groups.sync, dbPick),
+      recommendedFor('sync', dbPick),
+    );
+    addPick(picks, syncPick);
+  }
+
+  addPick(
+    picks,
+    await promptCategory(
+      'ui',
+      orderedForCategory('ui', groups.ui),
+      recommendedFor('ui', dbPick),
+    ),
+  );
+  addPicks(picks, await promptMultiCategory('ai', orderedForCategory('ai', groups.ai)));
+
+  for (const category of ['email', 'analytics', 'deploy'] as const satisfies readonly PickerCategory[]) {
+    addPick(
+      picks,
+      await promptCategory(
+        category,
+        orderedForCategory(category, groups[category]),
+        recommendedFor(category, dbPick),
+      ),
+    );
+  }
+
+  addPicks(picks, await promptMultiCategory('infra', orderedForCategory('infra', groups.infra)));
+  addPicks(
+    picks,
+    await promptMultiCategory('testing', orderedForCategory('testing', groups.testing), [
+      'testing-playwright',
+    ]),
+  );
+
+  return picks;
+}
+
+function recommendedYesPicks(): string[] {
+  return ['db-sqlite', 'auth-better-auth', 'testing-playwright'];
+}
+
+async function collectPackPicks(rawArgs: CreateAppArgs, presetName: string | undefined): Promise<string[]> {
+  const yes = asBoolean(rawArgs.yes);
+  const noPacks = isNoPacks(rawArgs);
+  const packsFlagProvided = isPacksFlagProvided(rawArgs);
+
+  if (packsFlagProvided && noPacks) {
+    throw new Error('--packs cannot be combined with --no-packs.');
+  }
+
+  if (presetName !== undefined) {
+    return [];
+  }
+
+  if (noPacks) {
+    return [];
+  }
+
+  if (packsFlagProvided) {
+    return parsePacksFlag(typeof rawArgs.packs === 'string' ? rawArgs.packs : '');
+  }
+
+  if (yes) {
+    return recommendedYesPicks();
+  }
+
+  const packs = await loadPackRegistry();
+  return collectInteractivePackPicks(groupByCategory(packs));
+}
+
 async function createApp(rawArgs: CreateAppArgs): Promise<void> {
   intro(pc.cyan('create-anvil'));
 
@@ -146,8 +278,10 @@ async function createApp(rawArgs: CreateAppArgs): Promise<void> {
     throw new Error(`Target directory already exists: ${targetDir}`);
   }
 
+  const skipPresetPrompt =
+    asBoolean(rawArgs.yes) || isPacksFlagProvided(rawArgs) || isNoPacks(rawArgs);
   const presetName =
-    asOptionalString(rawArgs.preset) ?? (await promptForPreset(Boolean(rawArgs.yes)));
+    asOptionalString(rawArgs.preset) ?? (await promptForPreset(skipPresetPrompt));
   const createdAt = new Date().toISOString();
   const vars: Record<string, string> = {
     appName,
@@ -167,6 +301,16 @@ async function createApp(rawArgs: CreateAppArgs): Promise<void> {
 
   const monorepoRoot = findMonorepoRoot();
   await syncSkills(targetDir, monorepoRoot);
+
+  const packPicks = await collectPackPicks(rawArgs, presetName);
+  if (presetName === undefined && !asBoolean(rawArgs.yes)) {
+    await promptConfirmPlan(packPicks);
+  }
+  if (presetName === undefined) {
+    if (packPicks.length > 0) {
+      await runAdd(packPicks, { projectRoot: targetDir, yes: true });
+    }
+  }
 
   if (presetName !== undefined) {
     await applyPreset(targetDir, presetName, monorepoRoot);
@@ -194,6 +338,16 @@ const main = defineCommand({
     preset: {
       type: 'string',
       description: 'Preset name to apply after scaffolding.',
+      required: false,
+    },
+    packs: {
+      type: 'string',
+      description: 'Comma-separated pack names to install after scaffolding.',
+      required: false,
+    },
+    'no-packs': {
+      type: 'boolean',
+      description: 'Skip pack installation after scaffolding.',
       required: false,
     },
     yes: {

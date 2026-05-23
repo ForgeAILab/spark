@@ -1,0 +1,53 @@
+name = "db-postgres"
+version = "1.0.0"
+category = "db"
+description = "Postgres database setup with Drizzle ORM and postgres-js (Bun-compatible)."
+provides = ["db", "db-pg"]
+requires = []
+conflicts = ["db"]
+requires_runtime = ["server"]
+compatible_scaffolds = ["nextjs"]
+
+[dependencies]
+runtime = ["drizzle-orm", "postgres"]
+dev = ["drizzle-kit"]
+
+[env]
+required = ["DATABASE_URL"]
+
+[[files]]
+mode = "create"
+from = "lib/db/index.ts"
+to = "lib/db/index.ts"
+
+[[files]]
+mode = "create"
+from = "lib/db/schema.ts"
+to = "lib/db/schema.ts"
+
+[[files]]
+mode = "create"
+from = "drizzle.config.ts"
+to = "drizzle.config.ts"
+
+# Compose root + postgres fragment. Multiple packs (db-postgres, sync-zero,
+# docker-compose-dev) each ship the same root file with `create-or-skip` —
+# whichever installs first creates it, the rest no-op. Each pack then appends
+# its own include line under a marker.
+[[files]]
+mode = "create-or-skip"
+from = "docker-compose.yml"
+to = "docker-compose.yml"
+
+[[files]]
+mode = "create"
+from = "compose/postgres.yml"
+to = "compose/postgres.yml"
+
+[[files]]
+mode = "append"
+from = "docker-compose.include.yml"
+to = "docker-compose.yml"
+
+[tasks]
+file = "tasks.yaml"

@@ -5,6 +5,7 @@
     "create-anvil": "./src/cli.ts"
   },
   "dependencies": {
+    "@forgeailab/anvil": "workspace:*",
     "@forgeailab/anvil-schema": "workspace:*",
     "@clack/prompts": "latest",
     "citty": "latest",

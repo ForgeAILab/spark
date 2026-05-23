@@ -1,0 +1,17 @@
+epic: Auth
+tasks:
+  - id: AUTH-201
+    title: Add Better Auth tables to your Drizzle schema
+    acceptance:
+      - lib/db/schema.ts defines user, session, account, verification with pgTable
+      - Snake-case columns (email_verified, expires_at, user_id, etc.) match Better Auth contract
+      - `bun drizzle-kit push` applies the new tables to Postgres
+  - id: AUTH-202
+    title: Map schema exports in lib/auth.ts
+    acceptance:
+      - `createAuthDatabase()` passes drizzleAdapter the four required schema aliases
+      - `bunx tsc --noEmit` is clean
+  - id: AUTH-203
+    title: Configure OAuth providers (Google/GitHub) if needed
+    acceptance:
+      - `socialProviders` set in createAuth options with env-backed credentials

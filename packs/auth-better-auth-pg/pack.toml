@@ -1,0 +1,32 @@
+name = "auth-better-auth-pg"
+version = "1.0.0"
+category = "auth"
+description = "Better Auth wired to Postgres via Drizzle. Pairs with db-postgres or db-supabase."
+provides = ["auth"]
+requires = ["db-pg"]
+conflicts = ["auth"]
+requires_runtime = ["server"]
+compatible_scaffolds = ["nextjs"]
+
+[runtime_package]
+package = "@forgeailab/anvil-auth-better-auth"
+version = "^0.1"
+
+[dependencies]
+runtime = ["@better-auth/drizzle-adapter"]
+
+[env]
+required = ["BETTER_AUTH_SECRET", "BETTER_AUTH_URL"]
+
+[[files]]
+mode = "create"
+from = "lib/auth.ts"
+to = "lib/auth.ts"
+
+[[files]]
+mode = "create"
+from = "app/api/auth/[...all]/route.ts"
+to = "app/api/auth/[...all]/route.ts"
+
+[tasks]
+file = "tasks.yaml"

@@ -8,8 +8,9 @@ conflicts = []
 requires_runtime = ["server"]
 compatible_scaffolds = []
 
-[dependencies]
-runtime = ["@anthropic-ai/sdk"]
+[runtime_package]
+package = "@forgeailab/anvil-anthropic"
+version = "^0.1"
 
 [env]
 required = ["ANTHROPIC_API_KEY"]

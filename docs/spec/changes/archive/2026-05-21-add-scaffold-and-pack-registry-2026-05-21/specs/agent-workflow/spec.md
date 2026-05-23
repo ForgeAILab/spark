@@ -55,7 +55,7 @@ The system SHALL provide a `new-pack` skill that scaffolds a new pack directory 
 - **THEN** the skill creates `packs/realtime-supabase/pack.toml` with `name`, `version`, `category = "db"`, and empty `provides`/`requires`/`conflicts` arrays
 - **AND** creates `packs/realtime-supabase/files/`, `packs/realtime-supabase/skills/`, `packs/realtime-supabase/tasks.yaml` as empty stubs
 
-## MODIFIED Requirements
+## ADDED Requirements
 
 ### Requirement: Architecture Cutline Output Includes Pack List
 

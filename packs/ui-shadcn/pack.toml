@@ -10,24 +10,12 @@ compatible_scaffolds = ["nextjs"]
 
 [dependencies]
 runtime = [
-  "tailwindcss",
   "@radix-ui/react-slot",
   "class-variance-authority",
   "clsx",
   "tailwind-merge",
   "lucide-react",
 ]
-dev = ["@tailwindcss/postcss", "postcss"]
-
-[[files]]
-mode = "create"
-from = "postcss.config.mjs"
-to = "postcss.config.mjs"
-
-[[files]]
-mode = "create"
-from = "tailwind.config.ts"
-to = "tailwind.config.ts"
 
 [[files]]
 mode = "create"

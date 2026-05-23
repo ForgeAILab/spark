@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 export const PACK_CAPABILITY_VALUES = [
   'db',
+  'db-pg',
   'auth',
   'payments',
   'email',

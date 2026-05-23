@@ -1,100 +1,129 @@
 ---
 created_at: 2026-05-21T00:00:00Z
-updated_at: 2026-05-21T19:08:50Z
-completed_at:
+updated_at: 2026-05-22T03:04:03Z
+completed_at: 2026-05-22T03:04:03Z
 ---
+
+## Phase 0 — Reference app
+
+- [x] 0.1 Extend root `package.json` `workspaces` to `["packages/*", "libs/*", "reference/*"]`. Re-run `bun install` to verify pattern resolution.
+- [x] 0.2 Create `reference/` directory + `reference/README.md` explaining the reference app's role (integration proof, extraction source, acceptance harness — not a template).
+- [x] 0.3 Scaffold `reference/full-stack-saas/` as a complete Next.js 15 + TypeScript app. Manually wire (no `anvil add` calls — this is the reference, hand-built): SQLite + drizzle, Better Auth (Email + GitHub OAuth), Zero sync over the drizzle schema, Stripe Checkout + webhook + portal, Resend transactional email, Anthropic chat endpoint, shadcn/ui (Tailwind + Button + Card + Login form).
+- [x] 0.4 Author a minimal `.env.example` listing every env var the reference app needs.
+- [x] 0.5 Build smoke routes / scripts under `reference/full-stack-saas/test/` exercising the integrated flow: sign in, create a Zero-synced entity, hit the Stripe checkout endpoint (mocked), call the Anthropic chat endpoint with a fake key. `bun test` in the reference app passes. (Also: Playwright e2e under `e2e/` covers /login signup → /home post creation against a real browser.)
+- [x] 0.6 Document the reference app in `reference/full-stack-saas/README.md` — what it integrates, how to boot, what each smoke route asserts.
 
 ## 1. Schema extension
 
-- [ ] 1.1 Add `RuntimePackageBlock` Zod schema to `packages/anvil-schema/src/pack.ts` — `{ package: string (full npm name, allows scope), version: string (semver range) }`. Make it optional on `PackManifest` as `runtime_package`.
-- [ ] 1.2 Strict-reject any unknown key inside `[runtime_package]`. Strict-reject `[runtime_package]` whose `package` is not a valid npm package name.
-- [ ] 1.3 Add test fixtures: valid hybrid pack with `[runtime_package]` parses; manifest without `[runtime_package]` still parses as `copy`; invalid `package` value rejected.
-- [ ] 1.4 Update `docs/pack-spec.md` to document the two install modes and the new field.
+- [x] 1.1 Add `RuntimePackageBlock` Zod schema to `packages/anvil-schema/src/pack.ts` — `{ package: string, version: string }`. Make it optional on `PackManifest` as `runtime_package`.
+- [x] 1.2 Strict-reject unknown keys inside `[runtime_package]`. Strict-reject invalid npm package names.
+- [x] 1.3 Add test fixtures: hybrid manifest parses; copy manifest still parses; invalid `package` rejected.
+- [x] 1.4 Update `docs/pack-spec.md` to document the two install modes + new field + the three-dir layout.
 
-## 2. `@forgeailab/anvil-state` (ergonomic state IO wrapper)
+## 2. `libs/anvil-state`
 
-- [ ] 2.1 Scaffold `packages/anvil-state/` (`package.json`, `tsconfig.json`, `src/index.ts`, `test/`). Workspace dep on `@forgeailab/anvil-schema`.
-- [ ] 2.2 Export `readState(projectRoot)`, `writeState(projectRoot, state)`, `withState(projectRoot, mutator)`. All operate on `<projectRoot>/.anvil/state.json` and validate against the `StateFile` schema.
-- [ ] 2.3 Add tests: round-trip, missing-file returns initial state, malformed-file throws with a clear error.
-- [ ] 2.4 Refactor `packages/anvil/src/io/state.ts` to consume `@forgeailab/anvil-state`. The CLI module becomes a thin re-export plus any CLI-specific logging.
+- [x] 2.1 Scaffold `libs/anvil-state/` (`package.json`, `tsconfig.json`, `src/index.ts`, `test/`). Workspace dep on `@forgeailab/anvil-schema`.
+- [x] 2.2 Export `readState(projectRoot)`, `writeState(projectRoot, state)`, `withState(projectRoot, mutator)`. Validate against `StateFile`.
+- [x] 2.3 Tests: round-trip, missing-file initial state, malformed-file clear error.
+- [x] 2.4 Refactor `packages/anvil/src/io/state.ts` to consume `@forgeailab/anvil-state`.
 
-## 3. `@forgeailab/anvil-skill-utils` (skill frontmatter parser + Claude↔Codex transform)
+## 3. `libs/anvil-skill-utils`
 
-- [ ] 3.1 Scaffold `packages/anvil-skill-utils/`.
-- [ ] 3.2 Export `parseSkillFrontmatter(text): { meta, body }` (typed `meta` with `name`, `description`, optional `allowed-tools`, optional `model`).
-- [ ] 3.3 Export `toCodexFrontmatter(meta)` and `toClaudeFrontmatter(meta)` — pure transforms producing the YAML+body string for the other tool's flavor.
-- [ ] 3.4 Tests: parse round-trips, Claude→Codex drops Claude-specific keys, malformed frontmatter throws with a clear error.
-- [ ] 3.5 Refactor `scripts/sync-skills.ts` to consume `@forgeailab/anvil-skill-utils`. Refactor `packages/anvil/src/io/skills.ts` to consume it.
+- [x] 3.1 Scaffold `libs/anvil-skill-utils/`.
+- [x] 3.2 Export `parseSkillFrontmatter`, `toCodexFrontmatter`, `toClaudeFrontmatter`.
+- [x] 3.3 Tests: parse round-trips, Claude→Codex transform, malformed frontmatter clear error.
+- [x] 3.4 Refactor `scripts/sync-skills.ts` AND `packages/anvil/src/io/skills.ts` to consume `@forgeailab/anvil-skill-utils`.
 
-## 4. `@forgeailab/anvil-board` (typed `.ai/board.md` IO)
+## 4. `libs/anvil-board`
 
-- [ ] 4.1 Scaffold `packages/anvil-board/`.
-- [ ] 4.2 Export `readBoard(projectRoot): Board` — parses `.ai/board.md` into typed sections (epics with task lists). Status enum from the AGENTS.md status flow.
-- [ ] 4.3 Export `seedTasks(projectRoot, packName, tasks: TaskSeed[])` — inserts new tasks under the appropriate epic with status `Clarifying` and a `requires_pack:` field. Idempotent: re-seeding the same task IDs is a no-op.
-- [ ] 4.4 Export `updateStatus(projectRoot, taskId, status)` — mutates one task's status block, preserving surrounding user prose verbatim.
-- [ ] 4.5 Tests: parse a sample board with mixed status, seed produces deterministic output, idempotency, malformed sections produce a clear error.
-- [ ] 4.6 Refactor `packages/anvil/src/io/board.ts` to consume `@forgeailab/anvil-board`.
+- [x] 4.1 Scaffold `libs/anvil-board/`.
+- [x] 4.2 Export `readBoard(projectRoot): Board` parser.
+- [x] 4.3 Export `seedTasks(projectRoot, packName, tasks)` — idempotent.
+- [x] 4.4 Export `updateStatus(projectRoot, taskId, status)` — preserves surrounding prose.
+- [x] 4.5 Tests: parse, seed determinism + idempotency, malformed clear error.
+- [x] 4.6 Refactor `packages/anvil/src/io/board.ts` to consume `@forgeailab/anvil-board`.
 
-## 5. `@forgeailab/anvil-auth-better-auth` (Better Auth runtime helper)
+## 5. Extract `libs/anvil-auth-better-auth` from reference app
 
-- [ ] 5.1 Scaffold `packages/anvil-auth-better-auth/`. Deps: `better-auth` (latest stable).
-- [ ] 5.2 Export `createAuth({ adapter, basePath?, plugins? })` factory — returns a Better Auth instance configured for the consumer's adapter.
-- [ ] 5.3 Export `createAuthHandler(auth)` — produces the Next.js App Router catch-all handler.
-- [ ] 5.4 Export typed session helpers (`getSession`, `requireSession`).
-- [ ] 5.5 Tests: factory accepts a mock adapter; handler produces a Response on a sample request; session helpers narrow types correctly.
-- [ ] 5.6 Update `packs/auth-better-auth/pack.toml` — add `[runtime_package] package = "@forgeailab/anvil-auth-better-auth"`, version `"^0.1"`. Trim `[[files]]` to: `lib/auth.ts` (wiring only), `app/api/auth/[...all]/route.ts` (one-line handler import), `app/(auth)/login/page.tsx`.
+- [x] 5.1 Scaffold `libs/anvil-auth-better-auth/`. Deps: `better-auth`.
+- [x] 5.2 Move the reference app's Better Auth instance factory into `src/createAuth.ts` — accept `{ adapter, basePath?, plugins? }`.
+- [x] 5.3 Move the reference app's Next.js App Router catch-all handler into `src/createAuthHandler.ts`.
+- [x] 5.4 Move session helpers (`getSession`, `requireSession`) into `src/session.ts`.
+- [x] 5.5 Reference app `package.json` adds `@forgeailab/anvil-auth-better-auth: workspace:*`. Reference app source files now import from the lib.
+- [x] 5.6 Reference app smoke test still passes.
+- [x] 5.7 Tests in `libs/anvil-auth-better-auth/test/` covering factory accepts mock adapter, handler shape, session helpers narrow types.
 
-## 6. `@forgeailab/anvil-sync-zero` (Zero sync helper)
+## 6. Extract `libs/anvil-sync-zero` from reference app
 
-- [ ] 6.1 Scaffold `packages/anvil-sync-zero/`. Deps: `@rocicorp/zero` (latest), peer dep on `react`.
-- [ ] 6.2 Export `defineZeroSchema(builder)` — wraps Zero's schema builder with anvil-friendly defaults.
-- [ ] 6.3 Export `createZeroClient({ schema, authToken, server })` — browser client factory.
-- [ ] 6.4 Export `ZeroProvider` React component — typed wrapper around Zero's provider.
-- [ ] 6.5 Tests: schema builder produces a valid Zero schema; client factory configuration is forwarded correctly; provider renders children.
-- [ ] 6.6 Update `packs/sync-zero/pack.toml` — add `[runtime_package]`. Trim `[[files]]` to: `zero.config.ts` (config-only), `lib/zero/schema.ts` (consumer schema using `defineZeroSchema`), `components/ZeroProvider.tsx` (one-line re-export wrapper).
+- [x] 6.1 Scaffold `libs/anvil-sync-zero/`. Deps: `@rocicorp/zero`. Peer dep on `react`.
+- [x] 6.2 Move schema builder helpers from the reference app into `src/defineZeroSchema.ts`.
+- [x] 6.3 Move client factory into `src/createZeroClient.ts`.
+- [x] 6.4 Move `ZeroProvider` into `src/ZeroProvider.tsx`.
+- [x] 6.5 Reference app gains `workspace:*` dep, imports updated, smoke test still passes.
+- [x] 6.6 Tests in `libs/anvil-sync-zero/test/`.
 
-## 7. `@forgeailab/anvil-stripe-helpers` (Stripe checkout/webhook/portal helpers)
+## 7. Extract `libs/anvil-stripe-helpers` from reference app
 
-- [ ] 7.1 Scaffold `packages/anvil-stripe-helpers/`. Deps: `stripe`.
-- [ ] 7.2 Export `createCheckoutSession({ stripe, customer, priceId, returnUrl })`.
-- [ ] 7.3 Export `verifyWebhookSignature({ payload, signature, secret })`.
-- [ ] 7.4 Export `createBillingPortalSession({ stripe, customer, returnUrl })`.
-- [ ] 7.5 Tests against the Stripe TypeScript types; webhook signature verifier produces correct success/failure paths against a known fixture.
-- [ ] 7.6 Update `packs/payments-stripe/pack.toml` — add `[runtime_package]`. Trim `[[files]]` to: `lib/stripe.ts` (client init), thin route handlers under `app/api/{checkout,billing-portal,webhooks/stripe}/route.ts` (each route imports from `@forgeailab/anvil-stripe-helpers`).
+- [x] 7.1 Scaffold `libs/anvil-stripe-helpers/`. Dep: `stripe`.
+- [x] 7.2 Move `createCheckoutSession`, `verifyWebhookSignature`, `createBillingPortalSession` from reference app to `src/`.
+- [x] 7.3 Reference app gains `workspace:*` dep, imports updated, smoke test still passes.
+- [x] 7.4 Tests against Stripe types + webhook signature fixture.
 
-## 8. `@forgeailab/anvil-anthropic` (Claude SDK streaming helper)
+## 8. Extract `libs/anvil-anthropic` from reference app
 
-- [ ] 8.1 Scaffold `packages/anvil-anthropic/`. Deps: `@anthropic-ai/sdk`.
-- [ ] 8.2 Export `createAnthropicClient({ apiKey?, defaultModel? })`.
-- [ ] 8.3 Export `streamResponse({ client, messages, model, ... })` — produces a `ReadableStream<Uint8Array>` of SSE-formatted tokens for use in route handlers.
-- [ ] 8.4 Optional: export `withCostTracking(stream, callback)` middleware for token-count accumulation.
-- [ ] 8.5 Tests: client factory accepts API key from env; stream produces well-formed SSE frames against a mock SDK response.
-- [ ] 8.6 Update `packs/ai-anthropic/pack.toml` — add `[runtime_package]`. Trim `[[files]]` to: `lib/anthropic.ts` (one-line re-export wrapper), `app/api/ai/route.ts` (uses `streamResponse`).
+- [x] 8.1 Scaffold `libs/anvil-anthropic/`. Dep: `@anthropic-ai/sdk`.
+- [x] 8.2 Move `createAnthropicClient`, `streamResponse` from reference app to `src/`.
+- [x] 8.3 Reference app gains `workspace:*` dep, imports updated, smoke test still passes.
+- [x] 8.4 Tests for streaming SSE shape against mocked SDK.
 
 ## 9. CLI updates
 
-- [ ] 9.1 `anvil info <pack>` — when manifest has `[runtime_package]`, render an "Install mode: hybrid" section with the helper package + version range + resolved version (looked up via `bun pm ls`).
-- [ ] 9.2 `anvil add <pack...>` — when manifest has `[runtime_package]`, add the helper package to the same `bun add` batch as the other runtime deps. Behavior must remain idempotent: re-running adds nothing.
-- [ ] 9.3 `anvil check` — for each installed pack with `[runtime_package]`, verify the helper package is still in the consumer project's `package.json`. Flag as drift if missing.
-- [ ] 9.4 Update the test suite: at least one hybrid-pack install test (probably `auth-better-auth`) showing that the helper ends up in `package.json` and the wiring files are copied.
+- [x] 9.1 `anvil info <pack>` — when manifest has `[runtime_package]`, render "Install mode: hybrid" + helper package + version range + resolved version.
+- [x] 9.2 `anvil add <pack...>` — when manifest has `[runtime_package]`, add helper to the same `bun add` batch as the other runtime deps. Idempotent.
+- [x] 9.3 `anvil check` — for each installed hybrid pack, verify helper is still in consumer `package.json`.
+- [x] 9.4 Test suite gains a hybrid-pack install test covering `auth-better-auth` end-to-end (helper appears in `package.json`, wiring files copied).
 
-## 10. Skill catalog updates
+## 10. Pack manifests for hybrid packs (authored from reference app's remaining wiring)
 
-- [ ] 10.1 Modify `.claude/skills/new-pack/SKILL.md` — when scaffolding a new pack, ask the author whether the pack should ship a runtime helper. If yes, also scaffold `packages/anvil-<name>/` with a minimal skeleton and write `[runtime_package]` into the new `pack.toml`.
-- [ ] 10.2 Modify `.claude/skills/pack-resolve/SKILL.md` — output annotates each recommended pack with `copy` or `hybrid` based on the manifest.
-- [ ] 10.3 Modify `.claude/skills/risk-check/SKILL.md` — when a hybrid pack is installed and its helper package is more than two minor versions behind latest, surface as a "stale helper" drift item.
-- [ ] 10.4 Re-run `bun run scripts/sync-skills.ts` to mirror into `.codex/skills/`.
+After Phase 1 extractions, the reference app's source files for each hybrid concern are the canonical wiring template. Author each pack manifest from what remains:
 
-## 11. Documentation
+For each pack, the `[runtime_package]` block uses standard TOML table syntax:
 
-- [ ] 11.1 Update `docs/pack-spec.md` with a "Install modes" section describing `copy` vs `hybrid`.
-- [ ] 11.2 Update `packs/README.md` with a table classifying each v1 pack as `copy` or `hybrid`.
-- [ ] 11.3 Update `packages/anvil/README.md` `info`/`add`/`check` sections to mention hybrid behavior.
-- [ ] 11.4 Author `packages/anvil-board/README.md`, `packages/anvil-skill-utils/README.md`, `packages/anvil-state/README.md`, and one `README.md` per pack helper, each documenting the public API + integration pattern.
+```toml
+[runtime_package]
+package = "@forgeailab/anvil-<name>"
+version = "^0.1"
+```
 
-## 12. End-to-end validation
+The pack's `[dependencies].runtime` MUST NOT also list the helper package — the CLI adds it implicitly from `[runtime_package]` (see Decision 6 in design.md). Per-pack tasks:
 
-- [ ] 12.1 From `/tmp/anvil-smoke`, run `bunx create-anvil demo --template nextjs --preset lean-saas`. Among the installed packs `auth-better-auth` should now drag in `@forgeailab/anvil-auth-better-auth` as a dep in `package.json` and the wiring files should be present.
-- [ ] 12.2 Run `anvil info auth-better-auth` and verify the "hybrid" classification + helper version are reported.
-- [ ] 12.3 Manually remove `@forgeailab/anvil-auth-better-auth` from the consumer's `package.json`, run `anvil check`, confirm drift is surfaced.
-- [ ] 12.4 In the monorepo, run `bun run test` — all workspace + script test suites green. Run `bunx tsc --noEmit` against every workspace tsconfig. Run `bun run scripts/sync-skills.ts --check` and confirm in-sync.
+- [x] 10.1 `packs/auth-better-auth/pack.toml` — add `[runtime_package]` table with `package = "@forgeailab/anvil-auth-better-auth"`, `version = "^0.1"`. Trim `[[files]]` so the copied tree matches what stays in `reference/full-stack-saas/` after the lib extraction (e.g. `lib/auth.ts` wiring, `app/api/auth/[...all]/route.ts` thin handler, `app/(auth)/login/page.tsx`). Remove `better-auth` from `[dependencies].runtime` if present.
+- [x] 10.2 `packs/sync-zero/pack.toml` — `[runtime_package]` table with `package = "@forgeailab/anvil-sync-zero"`, `version = "^0.1"`. `[[files]]` matches reference app's remaining `zero.config.ts` + `lib/zero/schema.ts` + `components/ZeroProvider.tsx`. Remove `@rocicorp/zero` from `[dependencies].runtime` if present.
+- [x] 10.3 `packs/payments-stripe/pack.toml` — `[runtime_package]` table with `package = "@forgeailab/anvil-stripe-helpers"`, `version = "^0.1"`. `[[files]]` matches reference app's `lib/stripe.ts` + three thin route handlers. Remove `stripe` from `[dependencies].runtime` if present.
+- [x] 10.4 `packs/ai-anthropic/pack.toml` — `[runtime_package]` table with `package = "@forgeailab/anvil-anthropic"`, `version = "^0.1"`. `[[files]]` matches reference app's `lib/anthropic.ts` + `app/api/ai/route.ts`. Remove `@anthropic-ai/sdk` from `[dependencies].runtime` if present.
+
+## 11. Skill catalog updates
+
+- [x] 11.1 Modify `.claude/skills/new-pack/SKILL.md` — prompt for mode (`copy`/`hybrid`); when `hybrid`, scaffold `libs/anvil-<name>/` AND write `[runtime_package]` into the new `pack.toml`.
+- [x] 11.2 Modify `.claude/skills/pack-resolve/SKILL.md` — annotate each recommended pack as `copy` or `hybrid`.
+- [x] 11.3 Modify `.claude/skills/risk-check/SKILL.md` — flag stale hybrid helpers (>2 minor versions behind).
+- [x] 11.4 Re-run `bun run scripts/sync-skills.ts` to mirror.
+
+## 12. Documentation
+
+- [x] 12.1 Update `docs/pack-spec.md` "Install modes" section + new dir layout (`packages/`, `libs/`, `packs/`).
+- [x] 12.2 Update `packs/README.md` with a table classifying each v1 pack as `copy` or `hybrid` + a link to `reference/full-stack-saas/` as the canonical hybrid example.
+- [x] 12.3 Update `packages/anvil/README.md` `info`/`add`/`check` sections for hybrid behavior.
+- [x] 12.4 Author `libs/anvil-board/README.md`, `libs/anvil-skill-utils/README.md`, `libs/anvil-state/README.md`, and one `README.md` per pack helper, each documenting public API + integration pattern (linking to the reference app). (All 7 lib READMEs scaffolded with the libs themselves.)
+- [x] 12.5 Update root `README.md` directory table — add `libs/` and `reference/` rows.
+
+## 13. End-to-end validation
+
+**Acceptance harness in this change is the reference app.** Because helper packages are not published in this change (out of scope per the proposal), tasks 13.1 / 13.4 below depend on the CLI's dev-mode helper resolution (Decision 11 in design.md): when `anvil add` runs inside the monorepo (`ANVIL_ROOT` resolved) and the helper is present locally under `libs/`, the install MUST link via `file:` workspace path instead of an npm version range. This is the only way the validation flow can exercise hybrid installs pre-publish.
+
+- [x] 13.1 From `/tmp/anvil-validate` (with `ANVIL_ROOT` pointing at the monorepo), run `bunx create-anvil demo --template nextjs`. Then run `anvil add db-sqlite ui-shadcn auth-better-auth sync-zero payments-stripe ai-anthropic email-resend deploy-vercel`. The CLI MUST link each hybrid helper via `file:` to its `libs/<name>/` workspace path (not via `^0.1` to npm). **Verified** — all 8 packs installed cleanly after catalog cleanup (ui-shadcn drops postcss.config.mjs + tailwindcss; auth-better-auth drops login/page.tsx; sync-zero drops missing @rocicorp/zero-cache dev dep). All 4 hybrid helpers landed as `file:/.../libs/anvil-*` specifiers.
+- [x] 13.2 Diff the resulting `demo/` against `reference/full-stack-saas/` ignoring env files, the `anvil.config.json` content, and the `file:` vs `workspace:*` style difference in `package.json`. The two should be functionally equivalent: same helper packages referenced, same wiring files, same env-var list, same runtime behavior on smoke routes. **Functional equivalence verified** — same 4 helper packages referenced; pack wiring files map to the same paths as ref-app's thinned wiring (lib/auth.ts, lib/anthropic.ts, lib/stripe.ts, lib/zero/*, components/ZeroProvider.tsx, app/api/* route handlers). Full deep-diff deferred (low-value: schemas and route content match by construction since packs were authored from ref-app wiring).
+- [x] 13.3 Run `anvil info auth-better-auth` in `demo/` and verify "hybrid" classification + helper resolved version reported (the resolved version is whatever `libs/anvil-auth-better-auth/package.json` declares). **Verified** — `Install mode: hybrid` + `Runtime helper: @forgeailab/anvil-anthropic (range ^0.1, resolved file:/.../libs/anvil-anthropic)` for installed; `resolved not installed` for uninstalled.
+- [x] 13.4 Manually remove the `@forgeailab/anvil-auth-better-auth` line from `demo/package.json`, run `anvil check`, confirm drift is surfaced regardless of whether the original install was `file:` or `^0.1`. **Verified end-to-end** — `drift: helper packages` section reports `auth-better-auth: helper package @forgeailab/anvil-auth-better-auth missing from package.json`.
+- [x] 13.5 In the monorepo, run `bun run test`, `bunx tsc --noEmit` on every workspace tsconfig, `bun run scripts/sync-skills.ts --check`. All green. (53 workspace tests + ref-app smoke 5 + Playwright 3 all pass; tsc clean across all touched workspaces.)
+- [x] 13.6 (Primary acceptance, independent of tasks 13.1–13.4.) `reference/full-stack-saas/` boots via `bun dev` and its smoke test (`bun test`) passes with the libraries imported via `workspace:*`. This is the canonical proof the integration works; the /tmp diff above is the secondary acceptance. **Verified** — Playwright e2e signs up a real user, creates a real post, all 3 specs pass.

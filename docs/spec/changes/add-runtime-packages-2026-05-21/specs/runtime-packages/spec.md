@@ -1,63 +1,111 @@
 ## ADDED Requirements
 
+### Requirement: Three-Directory Workspace Layout
+
+The monorepo SHALL maintain three top-level workspace directories with the following purposes:
+
+- `packages/` — platform tooling. Contains exactly the workspace packages users interact with through the CLI or initializer surface: `@forgeailab/anvil` (CLI), `@forgeailab/create-anvil` (initializer), `@forgeailab/anvil-schema` (Zod schemas; colocated with tooling because tooling is the source of truth for the schema).
+- `libs/` — runtime libraries. Contains workspace packages designed to be `import`-ed at runtime by consumer applications. Both internal workflow primitives (`@forgeailab/anvil-board`, `anvil-skill-utils`, `anvil-state`) and pack runtime helpers (`@forgeailab/anvil-auth-better-auth`, `anvil-sync-zero`, `anvil-stripe-helpers`, `anvil-anthropic`) live here.
+- `packs/` — pack manifests and file-copy trees. Unchanged in role from v1: each `packs/<name>/` directory contains a `pack.toml`, optional `files/`, optional `skills/`, optional `tasks.yaml`. Hybrid packs have less content under `files/` than v1 copy packs because logic moves to `libs/`.
+
+Root `package.json` `workspaces` MUST include `packages/*`, `libs/*`, and `reference/*` (the reference-app pattern, see next requirement).
+
+#### Scenario: Workspace patterns resolve all three directories
+
+- **WHEN** `bun install` runs at the repo root
+- **THEN** every directory matching `packages/*`, `libs/*`, or `reference/*` with a valid `package.json` is registered as a workspace
+- **AND** workspace deps with `workspace:*` resolve across the three directories
+
+#### Scenario: Library boundary is enforced by location
+
+- **WHEN** a contributor authors a new internal workflow primitive
+- **THEN** it lives under `libs/anvil-<name>/`, not `packages/`
+- **AND** the CLI imports it as `@forgeailab/anvil-<name>` (workspace dep), not via a relative path
+
+### Requirement: Reference App for Validation
+
+The system SHALL ship exactly one reference app at `reference/full-stack-saas/` — a complete, runnable Next.js 15 + TypeScript application integrating Better Auth, Zero sync, Stripe (checkout + webhook + portal), Anthropic chat, Resend transactional email, and shadcn/ui on top of SQLite + drizzle. The reference app exists for three purposes: (1) prove the integrated experience boots before any extraction happens, (2) provide the source from which `libs/` packages are extracted, (3) serve as the acceptance harness — after extractions complete, the reference app's smoke tests must still pass with libraries imported via `workspace:*`.
+
+The reference app MUST NOT be registered as a template selectable via `create-anvil --template`. It is a reference, not a scaffold.
+
+#### Scenario: Reference app exists and boots
+
+- **WHEN** the change is complete
+- **THEN** `reference/full-stack-saas/` contains a runnable Next.js app
+- **AND** `bun install && bun dev` in that directory starts the dev server without prompting for env vars beyond what `.env.example` documents
+- **AND** the app's smoke test (`bun test` in `reference/full-stack-saas/test/`) passes
+
+#### Scenario: Reference app imports extracted libraries via workspace deps
+
+- **WHEN** Phase 1 extractions complete
+- **THEN** `reference/full-stack-saas/package.json` lists `@forgeailab/anvil-auth-better-auth`, `anvil-sync-zero`, `anvil-stripe-helpers`, `anvil-anthropic` with `workspace:*`
+- **AND** the reference app's source files import from those packages
+- **AND** the reference app's smoke test still passes
+
+#### Scenario: Reference app is not a scaffold template
+
+- **WHEN** the user runs `bunx create-anvil my-app --template full-stack-saas`
+- **THEN** the CLI exits non-zero with "unknown template" — `full-stack-saas` is not in the template registry
+
 ### Requirement: Workflow Primitive Packages
 
-The system SHALL ship three workflow-primitive packages under the `@forgeailab` npm scope as monorepo workspace packages under `packages/`:
+The system SHALL ship three workflow-primitive packages under `libs/`, each published to npm as `@forgeailab/anvil-*`:
 
-- `@forgeailab/anvil-state` at `packages/anvil-state/` — typed wrapper around `<projectRoot>/.anvil/state.json` IO. Depends on `@forgeailab/anvil-schema` for the schema. Exports `readState`, `writeState`, `withState`.
-- `@forgeailab/anvil-skill-utils` at `packages/anvil-skill-utils/` — skill markdown frontmatter parsing and Claude↔Codex transforms. Exports `parseSkillFrontmatter`, `toCodexFrontmatter`, `toClaudeFrontmatter`.
-- `@forgeailab/anvil-board` at `packages/anvil-board/` — typed `.ai/board.md` IO. Exports `readBoard`, `seedTasks`, `updateStatus`.
+- `@forgeailab/anvil-state` at `libs/anvil-state/` — typed wrapper around `<projectRoot>/.anvil/state.json` IO. Depends on `@forgeailab/anvil-schema`. Exports `readState`, `writeState`, `withState`.
+- `@forgeailab/anvil-skill-utils` at `libs/anvil-skill-utils/` — skill markdown frontmatter parsing and Claude↔Codex transforms. Exports `parseSkillFrontmatter`, `toCodexFrontmatter`, `toClaudeFrontmatter`.
+- `@forgeailab/anvil-board` at `libs/anvil-board/` — typed `.ai/board.md` IO. Exports `readBoard`, `seedTasks`, `updateStatus`.
 
-Each package MUST have its own `package.json` declaring `name`, `version`, `type: "module"`, an `exports` map, a `tsconfig.json` extending the monorepo's `tsconfig.base.json`, an `src/` tree, a `test/` tree, and a `README.md` documenting the public API. The CLI (`@forgeailab/anvil`) and the initializer (`@forgeailab/create-anvil`) SHALL be refactored to consume these primitives — they MUST NOT duplicate the logic these packages own.
+Each package MUST have its own `package.json`, `tsconfig.json` extending the monorepo's `tsconfig.base.json`, an `src/` tree, a `test/` tree, and a `README.md` documenting the public API. The CLI (`@forgeailab/anvil`) and initializer (`@forgeailab/create-anvil`) SHALL be refactored to consume these primitives.
 
-#### Scenario: Workflow primitives are published as workspace packages
+#### Scenario: Workflow primitives are workspace packages under libs/
 
 - **WHEN** the monorepo is built
-- **THEN** `packages/anvil-state/package.json` declares `name: "@forgeailab/anvil-state"`
-- **AND** `packages/anvil-skill-utils/package.json` declares `name: "@forgeailab/anvil-skill-utils"`
-- **AND** `packages/anvil-board/package.json` declares `name: "@forgeailab/anvil-board"`
+- **THEN** `libs/anvil-state/package.json` declares `name: "@forgeailab/anvil-state"`
+- **AND** `libs/anvil-skill-utils/package.json` declares `name: "@forgeailab/anvil-skill-utils"`
+- **AND** `libs/anvil-board/package.json` declares `name: "@forgeailab/anvil-board"`
 - **AND** each package's `bun test` suite passes
 
-#### Scenario: CLI consumes the primitives, not its own copies
+#### Scenario: CLI consumes primitives, not its own copies
 
 - **WHEN** the CLI's state-file IO is invoked
 - **THEN** the code path imports `readState` / `writeState` from `@forgeailab/anvil-state`
 - **AND** does NOT contain a parallel JSON-validation routine
-- **AND** the same is true for skill mirroring (uses `@forgeailab/anvil-skill-utils`) and board seeding (uses `@forgeailab/anvil-board`)
 
 ### Requirement: Pack Runtime Helper Packages
 
-The system SHALL ship four pack runtime helper packages under the `@forgeailab` npm scope as monorepo workspace packages under `packages/`:
+The system SHALL ship four pack runtime helper packages under `libs/`, each published as `@forgeailab/anvil-*`:
 
-- `@forgeailab/anvil-auth-better-auth` at `packages/anvil-auth-better-auth/` — Better Auth instance factory + Next.js App Router handler + session helpers.
-- `@forgeailab/anvil-sync-zero` at `packages/anvil-sync-zero/` — Zero schema builder + client factory + typed React provider.
-- `@forgeailab/anvil-stripe-helpers` at `packages/anvil-stripe-helpers/` — Stripe checkout + webhook verification + billing portal helpers.
-- `@forgeailab/anvil-anthropic` at `packages/anvil-anthropic/` — Anthropic SDK client wrapper + SSE streaming helper.
+- `@forgeailab/anvil-auth-better-auth` at `libs/anvil-auth-better-auth/` — Better Auth instance factory, Next.js App Router catch-all handler, session helpers.
+- `@forgeailab/anvil-sync-zero` at `libs/anvil-sync-zero/` — Zero schema builder, client factory, typed React provider.
+- `@forgeailab/anvil-stripe-helpers` at `libs/anvil-stripe-helpers/` — checkout session factory, webhook signature verifier, billing portal helper.
+- `@forgeailab/anvil-anthropic` at `libs/anvil-anthropic/` — Anthropic SDK client wrapper, SSE streaming helper.
 
 Each MUST have its own `package.json`, `tsconfig.json`, `src/`, `test/`, and `README.md`. Each MUST declare its direct npm dependencies (e.g. `better-auth`, `@rocicorp/zero`, `stripe`, `@anthropic-ai/sdk`) in its own `dependencies` — they MUST NOT be redeclared in the consuming pack's manifest.
 
 The four corresponding packs (`auth-better-auth`, `sync-zero`, `payments-stripe`, `ai-anthropic`) SHALL be classified `hybrid` by declaring `[runtime_package]` in their `pack.toml`, and their `[[files]]` MUST be trimmed to wiring/config/example-UI only.
 
-#### Scenario: Helper packages declare their own SDK dependencies
+#### Scenario: Helper packages live under libs/ and declare their own SDK deps
 
-- **WHEN** `packages/anvil-auth-better-auth/package.json` is read
-- **THEN** `dependencies` includes `better-auth`
+- **WHEN** `libs/anvil-auth-better-auth/package.json` is read
+- **THEN** the package directory is `libs/anvil-auth-better-auth/`, NOT `packages/anvil-auth-better-auth/`
+- **AND** `dependencies` includes `better-auth`
 - **AND** `packs/auth-better-auth/pack.toml` `[dependencies].runtime` does NOT include `better-auth`
 
 #### Scenario: Hybrid packs ship wiring only
 
 - **WHEN** the files under `packs/auth-better-auth/files/` are inspected
-- **THEN** every file is either: a thin route handler that imports from `@forgeailab/anvil-auth-better-auth`, a configuration file (e.g. `lib/auth.ts` wiring), or an example UI component
+- **THEN** every file is either: a thin route handler that imports from `@forgeailab/anvil-auth-better-auth`, a configuration file, or an example UI component
 - **AND** none of the files re-implement logic that the helper package exports
+- **AND** the file set is the same set of files that remains in `reference/full-stack-saas/` after the corresponding library extraction
 
 ### Requirement: Helper Packages Are Independently Versioned
 
 Each helper package MUST track its own semver. There is no lockstep release across `@forgeailab/anvil-*`. A pack manifest's `[runtime_package].version` field uses a standard semver range (e.g. `"^0.1"`) and bun/npm resolves it at install time. A breaking change to a helper requires a major-version bump of the helper AND a corresponding update to the consuming pack manifest's version range.
 
-#### Scenario: Helper package version drift is allowed within range
+#### Scenario: Helper version drift is allowed within range
 
 - **WHEN** `packs/auth-better-auth/pack.toml` declares `[runtime_package].version = "^0.1"`
-- **AND** `@forgeailab/anvil-auth-better-auth@0.1.5` is the latest matching version on npm
+- **AND** `@forgeailab/anvil-auth-better-auth@0.1.5` is the latest matching version
 - **THEN** `anvil add auth-better-auth` installs `@forgeailab/anvil-auth-better-auth@0.1.5`
 - **AND** the pack manifest is not modified
 

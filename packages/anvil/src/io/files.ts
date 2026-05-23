@@ -168,6 +168,26 @@ export async function applyFileOperation(
     };
   }
 
+  if (operation.mode === 'create-or-skip') {
+    if (await fileExists(destination)) {
+      return {
+        to: operation.to,
+        mode: operation.mode,
+        changed: false,
+        contentHash: hashContent(sourceContent),
+      };
+    }
+
+    await mkdir(dirname(destination), { recursive: true });
+    await writeFile(destination, sourceContent);
+    return {
+      to: operation.to,
+      mode: operation.mode,
+      changed: true,
+      contentHash: hashContent(sourceContent),
+    };
+  }
+
   if (operation.mode === 'append') {
     const { marker, block } = appendBlock(options.packName, sourceContent);
     const current = (await fileExists(destination)) ? await readFile(destination, 'utf8') : '';

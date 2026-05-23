@@ -17,6 +17,7 @@ import { readRegistry, type Registry } from '../io/registry.ts';
 import { addInstalledPack, installedPackNames, readState, writeState } from '../io/state.ts';
 import { seedBoardTasks } from '../io/board.ts';
 import { copyPackSkills } from '../io/skills.ts';
+import { assertRuntimeHelperNotRedeclared, resolveRuntimeHelper } from '../runtime-package.ts';
 
 type AddOutput = Pick<Console, 'log' | 'error'>;
 
@@ -65,15 +66,31 @@ function formatResolverError(error: ResolverError): string {
   return `Unknown pack: ${error.pack}`;
 }
 
-function packRuntimeDependencies(plan: InstallPlan): string[] {
-  return plan.packs.flatMap((pack) => pack.manifest.dependencies?.runtime ?? []);
+async function packRuntimeDependencies(plan: InstallPlan): Promise<string[]> {
+  const dependencies: string[] = [];
+
+  for (const pack of plan.packs) {
+    assertRuntimeHelperNotRedeclared(pack.name, pack.manifest);
+    dependencies.push(...(pack.manifest.dependencies?.runtime ?? []));
+
+    const helper = await resolveRuntimeHelper(pack.manifest);
+    if (helper) {
+      dependencies.push(helper);
+    }
+  }
+
+  return dependencies;
 }
 
 function packDevDependencies(plan: InstallPlan): string[] {
   return plan.packs.flatMap((pack) => pack.manifest.dependencies?.dev ?? []);
 }
 
-function renderPlan(plan: InstallPlan): string {
+function renderPlan(
+  plan: InstallPlan,
+  runtimeDependencies: readonly string[],
+  devDependencies: readonly string[],
+): string {
   if (plan.packs.length === 0) {
     return 'No packs to install.';
   }
@@ -95,13 +112,11 @@ function renderPlan(plan: InstallPlan): string {
     }
   }
 
-  const runtime = packRuntimeDependencies(plan);
-  const dev = packDevDependencies(plan);
-  if (runtime.length > 0) {
-    lines.push(`runtime deps: ${[...new Set(runtime)].sort().join(', ')}`);
+  if (runtimeDependencies.length > 0) {
+    lines.push(`runtime deps: ${[...new Set(runtimeDependencies)].sort().join(', ')}`);
   }
-  if (dev.length > 0) {
-    lines.push(`dev deps: ${[...new Set(dev)].sort().join(', ')}`);
+  if (devDependencies.length > 0) {
+    lines.push(`dev deps: ${[...new Set(devDependencies)].sort().join(', ')}`);
   }
 
   return lines.join('\n');
@@ -220,8 +235,11 @@ export async function runAdd(requestedPacks: readonly string[], options: AddOpti
     };
   }
 
+  const runtimeDependencies = await packRuntimeDependencies(plan);
+  const devDependencies = packDevDependencies(plan);
+
   if (options.dryRun) {
-    output.log(renderPlan(plan));
+    output.log(renderPlan(plan, runtimeDependencies, devDependencies));
     return {
       status: 'dry-run',
       plan,
@@ -288,8 +306,8 @@ export async function runAdd(requestedPacks: readonly string[], options: AddOpti
 
   await installDependencies(
     projectRoot,
-    packRuntimeDependencies(plan),
-    packDevDependencies(plan),
+    runtimeDependencies,
+    devDependencies,
     options.dependencyRunner,
   );
 

@@ -1,5 +1,10 @@
 import { mkdir, readFile, readdir, stat, writeFile } from 'node:fs/promises';
 import { basename, dirname, join, relative, resolve, sep } from 'node:path';
+import {
+  parseSkillFrontmatter,
+  serializeSkillFrontmatter,
+  toCodexFrontmatter,
+} from '@forgeailab/anvil-skill-utils';
 
 type SkillCopyRecord = {
   claudeFiles: string[];
@@ -45,39 +50,14 @@ function assertInsideRoot(root: string, path: string): string {
   return resolvedPath;
 }
 
-function transformCodexFrontmatter(raw: string): string {
-  if (!raw.startsWith('---\n')) {
-    return raw;
-  }
+function formatSkillMarkdown(frontmatter: Record<string, unknown>, body: string): string {
+  return `---\n${serializeSkillFrontmatter(frontmatter)}\n---\n${body}`;
+}
 
-  const lines = raw.split('\n');
-  const closingIndex = lines.findIndex((line, index) => index > 0 && line === '---');
-  if (closingIndex === -1) {
-    return raw;
-  }
+function transformCodexSkillFrontmatter(raw: string): string {
+  const { frontmatter, body } = parseSkillFrontmatter(raw);
 
-  const frontmatter = lines.slice(1, closingIndex);
-  const body = lines.slice(closingIndex);
-  const transformed: string[] = [];
-  let skippingAllowedTools = false;
-
-  for (const line of frontmatter) {
-    if (/^allowed-tools:\s*$/u.test(line)) {
-      skippingAllowedTools = true;
-      continue;
-    }
-
-    if (skippingAllowedTools) {
-      if (/^\s+-\s+/u.test(line) || /^\s{2,}\S/u.test(line) || line.trim().length === 0) {
-        continue;
-      }
-      skippingAllowedTools = false;
-    }
-
-    transformed.push(line);
-  }
-
-  return ['---', ...transformed, ...body].join('\n');
+  return formatSkillMarkdown(toCodexFrontmatter(frontmatter), body);
 }
 
 async function writeIfSafe(path: string, content: string): Promise<void> {
@@ -111,9 +91,10 @@ async function copyOneSkill(
   for (const sourceFile of files) {
     const relativePath = relative(skillSource, sourceFile);
     const raw = await readFile(sourceFile, 'utf8');
+    const codexContent =
+      basename(sourceFile) === 'SKILL.md' ? transformCodexSkillFrontmatter(raw) : raw;
     const claudeTarget = join(projectRoot, '.claude', 'skills', skillName, relativePath);
     const codexTarget = join(projectRoot, '.codex', 'skills', skillName, relativePath);
-    const codexContent = basename(sourceFile) === 'SKILL.md' ? transformCodexFrontmatter(raw) : raw;
 
     await writeIfSafe(claudeTarget, raw);
     await writeIfSafe(codexTarget, codexContent);

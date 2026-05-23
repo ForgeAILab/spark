@@ -1,20 +1,17 @@
-import { createSchema, string, table } from "@rocicorp/zero";
+import { defineZeroSchema, number, string, table } from '@forgeailab/anvil-sync-zero';
 
-const users = table("users")
+// Example schema. Replace with your app's tables.
+const users = table('user')
   .columns({
     id: string(),
     name: string(),
+    email: string(),
+    createdAt: number(),
   })
-  .primaryKey("id");
+  .primaryKey('id');
 
-export const schema = createSchema({
+export const { schema, zql } = defineZeroSchema({
   tables: [users],
 });
 
 export type Schema = typeof schema;
-
-declare module "@rocicorp/zero" {
-  interface DefaultTypes {
-    schema: Schema;
-  }
-}

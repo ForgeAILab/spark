@@ -1,6 +1,6 @@
 ---
 name: risk-check
-description: Detect whether the project is drifting — scope creep, architecture creep, hidden dependencies, missing tests, unclear tasks. Use every few sessions, when the user says "are we on track?", "is this getting out of hand?", or before a demo. The anti-overthinking and anti-feature-creep skill.
+description: Detect whether the project is drifting — scope creep, architecture creep, hidden dependencies, missing tests, unclear tasks, plus stale hybrid-pack helper versions (more than two minor versions behind the latest published). Use every few sessions, when the user says "are we on track?", "is this getting out of hand?", or before a demo. The anti-overthinking and anti-feature-creep skill.
 # Generated from .claude/skills/risk-check/SKILL.md — DO NOT EDIT directly
 ---
 
@@ -39,12 +39,14 @@ Sample reality:
 - Distinguish **drift** (planned scope grew quietly) from **discovery** (new task properly added to the board). Discovery is fine; silent drift is not.
 - For pack-level drift, inspect `.anvil/state.json` when present. For each installed pack, determine its provided capabilities from state or from `packs/<name>/pack.toml`; if none of those capabilities are referenced in `.ai/product-spec.md` or `.ai/architecture.md`, flag it as drift.
 - The pack-level drift recommendation is exactly: **review or revert the pack-install commit via git**. Do not suggest a CLI removal command; v1 has no pack uninstall flow.
+- For each installed pack whose manifest declares `[runtime_package]` (hybrid pack), inspect the consumer project's `package.json` (`dependencies` + `devDependencies`) for the named helper. Compare the installed version against the latest published version on the npm registry (use `bun pm view <pkg> version` or `npm view <pkg> version` via Bash). If the installed version is more than two minor versions behind the latest, flag it under "Stale helper". A `file:` specifier counts as "local dev link" and is NOT stale.
 
 ## Checklist
 
 - **Scope creep** — features in code that are not in `MVP feature list`, or are in `Non-goals`.
 - **Architecture creep** — services / dependencies / abstractions beyond what `architecture.md` declared.
 - **Pack-level drift** — installed packs whose provided capabilities are not justified by the spec or architecture.
+- **Stale helper** — hybrid packs whose helper package is more than two minor versions behind the latest on npm.
 - **Unclear tasks** — open board tasks without observable acceptance criteria.
 - **Missing tests / verification** — tasks marked `Validated` with no run command or no review.
 - **Hidden dependencies** — packages added not justified by a task or decision.
@@ -56,6 +58,10 @@ Sample reality:
 ## Pack-level drift
 - no drift detected
 - <pack-name>: provides <capability tag(s)>; none are referenced in `.ai/product-spec.md` or `.ai/architecture.md` — **recommend: review or revert the pack-install commit via git**
+
+## Stale helper
+- no stale helpers
+- <pack-name>: helper `<helper-package>` installed at <installed-version>, latest is <latest-version> — **recommend: `bun update <helper-package>`**
 
 ## Risk check
 

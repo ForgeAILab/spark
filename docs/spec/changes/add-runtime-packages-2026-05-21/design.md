@@ -1,115 +1,136 @@
 ## Context
 
-This change splits the v1 pack catalog into two install modes — `copy` and `hybrid` — and extracts shared logic into versioned npm packages under `@forgeailab/anvil-*`. The unit of distribution stays the same (the `pack.toml` manifest); what changes is how a pack's runtime behavior gets into a consumer project.
+This change does three things at once: (1) splits the v1 pack catalog into two install modes (`copy` and `hybrid`), (2) extracts shared logic into versioned npm packages under `@forgeailab/anvil-*`, and (3) introduces a reference app that drives the build order and serves as the acceptance harness for the extracted libraries.
 
-Two pressures motivate the split. First, several v1 packs duplicate the same runtime logic across every consumer (Better Auth session middleware, Zero schema definitions, Stripe webhook verification, Anthropic SSE streaming). File-copy means a bug fix in those patterns takes a `pack-update` migration we have not built and do not want to build. Second, internal CLI primitives (`.ai/board.md` parsing, skill frontmatter transforms, `.anvil/state.json` IO) need to be reused by `create-anvil`, future tooling, and Forge — extracting them into typed packages is overdue.
+Three pressures motivate the bundle. **Pressure one:** several v1 packs duplicate the same runtime logic across every consumer (Better Auth session middleware, Zero schema definitions, Stripe webhook verification, Anthropic SSE streaming). File-copy means a bug fix in those patterns takes a `pack-update` migration we have not built and do not want to build. **Pressure two:** internal CLI primitives (`.ai/board.md` parsing, skill frontmatter transforms, `.anvil/state.json` IO) need to be reused by `create-anvil`, future tooling, and Forge — extracting them into typed packages is overdue. **Pressure three:** we have not yet proved that the planned hybrid pack libraries cohere into a real working app. Without a reference, we are extracting libraries based on guesses. Building one complete integrated app first turns those guesses into observations.
 
-Reference: `~/codes/fursion/app-project/takeout2` for the pattern of shipping `better-auth-utils` and `on-zero` as monorepo-internal packages that consumer scaffolds import directly. We adopt that shape.
+Reference: `~/codes/fursion/app-project/takeout2` for the pattern of shipping `better-auth-utils` and `on-zero` as monorepo-internal packages that consumer scaffolds import directly. We adopt that shape under `libs/`.
 
 ## Goals / Non-Goals
 
 - **Goals:**
+  - A working `reference/full-stack-saas/` Next.js app boots and demos every planned hybrid pack capability before any extraction begins.
+  - Extracting from a working reference is mechanical — `mv` + workspace dep + import path swap — not design.
   - One additive manifest field (`[runtime_package]`) cleanly expresses "this pack imports from a versioned npm helper".
   - The CLI's install code path stays a single function — `hybrid` packs are just `copy` packs with one extra step (the `bun add`).
-  - Workflow primitives (`anvil-board`, `anvil-skill-utils`, `anvil-state`) replace ad-hoc duplication inside the CLI without changing CLI behavior.
-  - Four pack helpers ship in v1 to prove the model; the rest of the catalog migrates later, one pack at a time.
-  - A pack author looking at `pack.toml` can tell at a glance whether the pack ships a runtime helper.
+  - Workflow primitives (`anvil-board`, `anvil-skill-utils`, `anvil-state`) replace ad-hoc duplication inside the CLI.
+  - After extraction, scaffolding from `templates/nextjs` + `anvil preset saas-classic-plus` (or equivalent) converges on the reference app's behavior. The reference app is the test.
 - **Non-Goals:**
   - A formal "this is a copy pack" / "this is a hybrid pack" classification field. The model is inferred from presence/absence of `[runtime_package]`.
   - Pinning pack manifest version to helper package version. Each is semver-independent.
-  - Republishing helper packages as ESM-only or CJS-only — both shapes are supported via standard `exports` map.
   - Stripping copied files from a pack on upgrade. There is no `pack-update` story; users `git revert` and reinstall.
   - Making helper packages framework-agnostic if the runtime they wrap is framework-specific. `anvil-stripe-helpers` will assume Next.js App Router for v1; framework abstraction comes if a second framework adopts the pack.
+  - Multiple reference apps in v1.
 
 ## Decisions
 
-### Decision 1: One additive manifest field — `[runtime_package]`
+### Decision 1: Three top-level workspace directories — `packages/`, `libs/`, `packs/`
+
+- **Decision:** The monorepo grows a `libs/` directory alongside `packages/` and `packs/`.
+  - `packages/` holds platform tooling: `@forgeailab/anvil` (CLI), `@forgeailab/create-anvil` (initializer), `@forgeailab/anvil-schema` (Zod schemas — the only "library" colocated with tooling because tooling owns the schema source of truth).
+  - `libs/` holds runtime libraries: workflow primitives (`anvil-board`, `anvil-skill-utils`, `anvil-state`) and pack helpers (`anvil-auth-better-auth`, `anvil-sync-zero`, `anvil-stripe-helpers`, `anvil-anthropic`).
+  - `packs/` holds pack manifests and the file-copy trees the user takes ownership of (unchanged role; smaller content for hybrid packs).
+  - Root `package.json` workspaces pattern becomes `["packages/*", "libs/*", "reference/*"]`.
+- **Alternatives considered:**
+  - Single `packages/` directory for everything. Hides the conceptual line between "platform" and "library" and "user-owned scaffold". Reviewers can't tell at a glance whether a workspace is for the tool, for consumers to import from, or both.
+  - Two directories — `packages/` for everything published, `packs/` for user-owned. Mixes tooling and libraries; would require naming conventions or prefixes to disambiguate.
+- **Why chosen:** Each directory's purpose is unambiguous. `libs/` reads as "things you import from"; `packages/` reads as "the tool itself"; `packs/` reads as "code you'll own once installed". This also matches how a reader navigates: looking for "what does anvil ship as a library?" → `libs/`. Looking for "what does the CLI do?" → `packages/`.
+
+### Decision 2: Reference app drives the build order — extract from a working integration, not toward one
+
+- **Decision:** Phase 0 of this change is building `reference/full-stack-saas/` as a complete, runnable Next.js 15 app that integrates Better Auth + Zero + Stripe + Anthropic + Resend + shadcn end-to-end on top of SQLite. No `libs/anvil-*` exists yet; the reference app contains all the logic inline. Phase 1 extracts that logic, one library at a time, with the reference app's continued boot-and-test as the acceptance bar. Phase 2 authors the pack manifests from the thin wiring left in the reference app after each extraction. Phase 3 validates by scaffolding a fresh app and installing the packs.
+- **Alternatives considered:** Extract libraries directly from the existing per-pack `files/` content, no reference app. Faster start, but each library is designed in isolation and may fail to compose. We already did the inverse on `payments-stripe`'s current files — they look fine in isolation but have not been exercised next to a real `auth-better-auth` flow.
+- **Why chosen:** Working integrated code is the cheapest design tool. Extracting from it is mechanical; designing toward an unknown target is not. The reference app also becomes a durable artifact: future contributors run it to understand the integrated experience, and it serves as the e2e test for the catalog.
+
+### Decision 3: Reference app uses bun workspaces — extracted libs are imported as `workspace:*`
+
+- **Decision:** During Phases 0–2, `reference/full-stack-saas/package.json` lists `@forgeailab/anvil-auth-better-auth`, `anvil-sync-zero`, etc. with `workspace:*` once the corresponding libraries exist. Bun's workspace resolver links them automatically. After every Phase 1 extraction, the reference app's test command (`bun dev`, `bun test`, or a smoke route) must continue passing.
+- **Alternatives considered:** Have the reference app `bun add @forgeailab/anvil-*` against a published or canary npm registry. Adds publish friction to every extraction step. Slower iteration.
+- **Why chosen:** Local workspace resolution makes the extraction loop tight (edit lib → reference app sees it on save). Publishing comes only when v1 ships.
+
+### Decision 4: One additive manifest field — `[runtime_package]`
 
 - **Decision:** A pack manifest MAY declare an optional `[runtime_package]` table with two fields: `package` (full npm package name, e.g. `"@forgeailab/anvil-auth-better-auth"`) and `version` (semver range, e.g. `"^0.1"`). When present, the CLI treats the pack as `hybrid`: it adds the named package to `[dependencies].runtime` for the install and verifies its presence in `check`.
 - **Alternatives considered:**
-  - Add a `mode = "copy" | "hybrid"` field that defaults to `"copy"`. Redundant — `[runtime_package]` presence already carries that signal, and a separate field could disagree with reality.
-  - Allow listing multiple runtime helpers per pack. Defeats the "one package, one source of truth" intent; YAGNI for v1.
-- **Why chosen:** Single optional block keeps the schema small. Pack authors and reviewers can read `pack.toml` and immediately see whether the pack is hybrid. The CLI's branching is `if (manifest.runtime_package) { … add it … }` — one conditional, not a strategy pattern.
+  - Add a `mode = "copy" | "hybrid"` field that defaults to `"copy"`. Redundant — `[runtime_package]` presence already carries that signal.
+  - Allow multiple runtime helpers per pack. YAGNI for v1.
+- **Why chosen:** One optional block. Pack authors and reviewers can read `pack.toml` and immediately see whether the pack is hybrid. The CLI's branching is one conditional.
 
-### Decision 2: Runtime helpers live in `packages/anvil-<name>/`, not `packs/<name>/runtime/`
+### Decision 5: Hybrid packs ship wiring only — substantive logic stays in `libs/`
 
-- **Decision:** Each runtime helper is a first-class workspace package under `packages/`, with its own `package.json`, `src/`, `test/`, and `README.md`. The pack's `pack.toml` references it by npm name, not by relative path.
-- **Alternatives considered:**
-  - Co-locate the helper under `packs/<name>/runtime/` and publish from there. Couples the helper's release cadence to the pack's catalog. Reuse across multiple packs becomes awkward.
-  - Single `packages/anvil-helpers/` package that re-exports everything. Pack authors would lose the ability to add a pack helper without touching a giant central package. Tree-shaking matters less than maintainability.
-- **Why chosen:** Helpers are independent npm units. A consumer with `bun add @forgeailab/anvil-auth-better-auth` should not also drag `anvil-stripe-helpers` into their bundle. Separation matches the Forge precedent (Forge's `crates/forge-*` are sibling crates, not sub-modules of one parent).
-
-### Decision 3: Workflow primitives are extracted *during* this change, not after
-
-- **Decision:** `anvil-board`, `anvil-skill-utils`, and `anvil-state` ship as part of this change, and the CLI is refactored to consume them. The pack helpers (`anvil-auth-better-auth`, etc.) can technically land later, but the workflow primitives go in this change because four downstream tasks (board seeding, skill frontmatter transforms, state-file drift detection) all touch the same ad-hoc code today and will collide if we wait.
-- **Alternatives considered:** Ship pack helpers first, leave primitives as TODO. Risks repeated rebases on the affected CLI files as multiple pack-helper extractions land.
-- **Why chosen:** One refactor, one diff. Future work consumes already-stable internal packages.
-
-### Decision 4: v1 helper roster is exactly four packs
-
-- **Decision:** Four packs gain runtime helpers in this change: `auth-better-auth`, `sync-zero`, `payments-stripe`, `ai-anthropic`. The other ten packs stay `copy`.
-- **Alternatives considered:**
-  - Convert all 7 candidates (the above plus `ai-openai`, `db-supabase`, `analytics-posthog`). Doubles the surface area of this change without proving the model further.
-  - Convert only 2 (`auth-better-auth`, `sync-zero`). Helper packages would feel like a special case rather than a pattern.
-- **Why chosen:** Four packs is enough to prove that the install path scales (auth + sync + payments + AI cover the most divergent shapes — request/response handlers, schema definitions, webhook verification, streaming) without doubling the change size. Remaining packs migrate in a follow-up after we see the v1 four-pack experience.
-
-### Decision 5: Pack copied files for hybrid packs contain wiring only
-
-- **Decision:** For `hybrid` packs, the pack's `[[files]]` entries copy ONLY: (a) thin route handlers / API endpoints that wire the helper to the consumer's framework, (b) config files (e.g. `auth.config.ts`), (c) example UI components (e.g. login form), (d) types re-exports if useful. They MUST NOT duplicate logic that the helper package owns. The helper package is the single source of truth for that logic.
+- **Decision:** For `hybrid` packs, the pack's `[[files]]` entries copy ONLY: (a) thin route handlers / API endpoints that wire the helper to the consumer's framework, (b) config files (e.g. `auth.config.ts`), (c) example UI components (e.g. login form), (d) types re-exports if useful. They MUST NOT duplicate logic that the helper library owns. The library is the single source of truth for that logic.
 - **Why chosen:** Otherwise the bug-fix problem reappears at the seam between the copied wiring and the imported helper. If the helper's signature changes, the wiring is one file to update per consumer instead of one whole module.
 
-### Decision 6: Helper packages take dependencies in their own `package.json`, not in the pack manifest
+### Decision 6: Helper is an implicit dep added by the CLI; `[dependencies].runtime` MUST NOT redeclare it
 
-- **Decision:** `@forgeailab/anvil-auth-better-auth` declares its own `dependencies` (e.g. `better-auth`). The pack's `pack.toml [dependencies].runtime` list only the runtime helper itself; transitive deps come along through npm/bun. The pack manifest does NOT redeclare `better-auth`.
-- **Alternatives considered:** Have the pack manifest list `better-auth` as a peer dep so version skew is explicit at install time. Adds review burden and divergence between pack manifest and helper package.lock.
-- **Why chosen:** npm/bun already handle transitive dep resolution. Duplicating the dep list in the pack manifest is one more place to forget to update.
+- **Decision:** For a hybrid pack, the helper package is declared exactly once — inside the `[runtime_package]` table. The CLI implicitly adds it to the install batch (`bun add <helper>@<version-range>`) at install time. The pack manifest's `[dependencies].runtime` array MUST NOT also list the helper package. Transitive deps of the helper (`better-auth`, `stripe`, `@rocicorp/zero`, `@anthropic-ai/sdk`) live in the helper's own `package.json` dependencies and resolve through bun — they MUST NOT appear in the pack manifest either.
+- **Alternatives considered:**
+  - Have the pack manifest's `[dependencies].runtime` include the helper alongside `[runtime_package]`. Two declarations, two places to forget to update, double-install risk if the CLI doesn't dedupe.
+  - Have the pack manifest enumerate the helper's transitive deps as a "peer deps" hint. Duplication of the helper's own `package.json`, drifts the moment the helper's deps change.
+- **Why chosen:** Single source of truth for "this pack uses helper X at range Y" is `[runtime_package]`. Single source of truth for "the helper needs `better-auth`" is the helper's `package.json`. The CLI's install path becomes: collect explicit `[dependencies].runtime`, append the resolved helper from `[runtime_package]` (if any), call `bun add` once. No deduplication logic needed because no duplication is allowed.
 
-### Decision 7: `anvil-state` exists as an ergonomic wrapper, not a re-implementation
+### Decision 7: `anvil-state` is an ergonomic wrapper, not a re-implementation
 
-- **Decision:** `@forgeailab/anvil-state` wraps the `StateFile` Zod schema (already in `@forgeailab/anvil-schema`) with typed `readState(projectRoot)`, `writeState(projectRoot, state)`, and `withState(projectRoot, mutator)` helpers. It does NOT duplicate the schema. Callers who only need the type continue to import directly from `@forgeailab/anvil-schema`.
-- **Alternatives considered:** Fold state IO into `anvil-board` since both touch project filesystem. Conflates two concerns — board state is user-editable, `.anvil/state.json` is machine-managed.
-- **Why chosen:** State IO is a tiny, repeated operation across CLI and downstream tooling. Wrapping it in five lines saves dozens of duplicated reads downstream. Keeping it separate from `anvil-schema` preserves "schema package has no IO" as an invariant.
+- **Decision:** `@forgeailab/anvil-state` wraps the `StateFile` Zod schema (already in `@forgeailab/anvil-schema`) with typed `readState(projectRoot)`, `writeState(projectRoot, state)`, and `withState(projectRoot, mutator)` helpers. It does NOT duplicate the schema.
+- **Why chosen:** State IO is a tiny, repeated operation across CLI and downstream tooling. Wrapping it saves duplicated reads downstream while keeping schema and IO concerns separate.
 
 ### Decision 8: Skills do not move to a workspace package
 
-- **Decision:** Skills stay as files under `.claude/skills/` (canonical) mirrored to `.codex/skills/`. They are NOT extracted into an `@forgeailab/anvil-skills` package. The two existing distribution mechanisms (templates ship skills baked-in via the initializer copy; packs ship skills under `packs/<name>/skills/`) continue.
-- **Alternatives considered:** Publish skills as an npm package and have the initializer/CLI fetch from it. Lets shared skills update independently of the scaffold release.
-- **Why chosen:** Skills are markdown for AI agents to read in-place — they aren't imported as code, they're discovered by directory scan. Wrapping them in an npm package adds packaging overhead with no payoff (no compiler, no version-pinning, no tree-shaking). The `scripts/sync-skills.ts` mirror already covers the cross-tool surface.
+- **Decision:** Skills stay as files under `.claude/skills/` (canonical) mirrored to `.codex/skills/`. They are NOT extracted into an `@forgeailab/anvil-skills` package. The `scripts/sync-skills.ts` mirror already covers the cross-tool surface.
+- **Why chosen:** Skills are markdown for AI agents to read in-place — they aren't imported as code, they're discovered by directory scan. Wrapping them in an npm package adds packaging overhead with no payoff.
 
 ### Decision 9: The classification "copy vs hybrid" is documented per pack, not enforced at the registry level
 
 - **Decision:** No new field, enum, or category to flag a pack as `copy` or `hybrid`. The classification is whatever `[runtime_package]` presence says. `packs/README.md` documents the v1 split for readers.
 - **Why chosen:** One source of truth per pack. Two would drift.
 
+### Decision 10: Reference app uses SQLite + Better Auth, not Supabase
+
+- **Decision:** `reference/full-stack-saas/` installs `db-sqlite` (copy pack), `auth-better-auth` (hybrid via `libs/anvil-auth-better-auth`), `sync-zero` (hybrid), `payments-stripe` (hybrid), `email-resend` (copy), `ai-anthropic` (hybrid), `ui-shadcn` (copy), and `deploy-vercel` (copy).
+- **Alternatives considered:** Use Supabase + auth-supabase. Reasonable but adds an external service dependency at run time. SQLite + Better Auth boots offline.
+- **Why chosen:** Reference app must boot on `bun dev` without any external account setup. SQLite + Better Auth is self-contained. Supabase variants can be a second reference later.
+
+### Decision 11: CLI uses workspace `file:` links for unpublished helpers in dev mode
+
+- **Decision:** When `anvil add` resolves a hybrid pack's `[runtime_package]` and `ANVIL_ROOT` points at a monorepo where `libs/<helper-name>/` exists, the CLI MUST link the helper into the consumer's `package.json` using a `file:` dep pointing at the absolute (or `..`-relative) path of the workspace package, NOT using the manifest's `version` range. The version range is only consulted when no local copy is found — i.e., when running against a published catalog. This lets `anvil add` work end-to-end pre-publish.
+- **Alternatives considered:**
+  - Spin up a local Verdaccio registry per validation run. Adds CI/dev complexity for a step that is purely about pre-publish smoke testing.
+  - Skip the fresh-scaffold acceptance entirely; let the reference app's `workspace:*` integration be the only acceptance bar. Acceptable, but loses the "install path also works" guarantee.
+  - Always use `file:` (drop the range concept entirely). Breaks the published case — a downstream consumer who runs `anvil add auth-better-auth` should get the version from npm, not a `file:` link to a path that doesn't exist on their machine.
+- **Why chosen:** A two-mode resolver is small, well-bounded, and matches how monorepo tools already think about `workspace:*` vs npm specifiers. The dev path becomes: `ANVIL_ROOT` set + `libs/<name>/` exists → `file:` link. The published path becomes: `ANVIL_ROOT` not set OR `libs/<name>/` absent → `<helper>@<range>` from the manifest. Both paths exercise the same install code; only the version specifier differs.
+
 ## Risks / Trade-offs
 
-- **Version skew at install time.** Pack manifest pins helper version (`version = "^0.1"`). If the helper has a v0.2 with breaking changes and the pack manifest hasn't been updated, consumers get the latest matching v0.1.x. We accept this — it's how every npm dep already works. Pack authors must bump their manifest's version range alongside helper breaking releases.
-- **Pre-publish friction.** Helpers don't exist on npm yet; `bun add @forgeailab/anvil-auth-better-auth` from a scaffolded project will fail until publish. Mitigation: while developing, `anvil add` on a project inside the monorepo resolves the workspace dep locally. For external testing, an npm dry-run step or a private registry is needed. Documented in `packages/<helper>/README.md`.
+- **Reference app expands scope.** Building one complete app first looks like a bigger change. Mitigation: the reference app's code mostly becomes `libs/` content via straightforward `mv` — it isn't throwaway work. The integration time we'd spend later debugging mismatched library APIs collapses into the reference-app build phase.
+- **Version skew at install time.** Pack manifest pins helper version (`version = "^0.1"`). If the helper has a v0.2 with breaking changes and the pack manifest hasn't been updated, consumers get the latest matching v0.1.x. We accept this — it's how every npm dep already works.
+- **Pre-publish friction.** Helpers don't exist on npm yet; `bun add @forgeailab/anvil-auth-better-auth` from a scaffolded project will fail until publish. Mitigation: while developing, `anvil add` on a project inside the monorepo resolves the workspace dep locally. For external testing during this change, the reference app exercises every helper directly via `workspace:*` resolution.
 - **Pack helper boundary is hard to police.** Nothing structurally prevents a pack author from copying logic into the pack's `[[files]]` even when a helper exists. Mitigation: PR review + a `risk-check` rule that flags hybrid packs whose copied files exceed a size threshold.
-- **Helper-per-pack proliferation.** Long term this could become dozens of small packages. Mitigation: keep the bar high — extract only when the pack repeats meaningful logic across consumers. The four v1 candidates are explicitly the ones that crossed the bar.
-- **Reusing helpers across Forge / future products.** `@forgeailab/anvil-board` is named `anvil-board` because it owns `.ai/board.md`. If Forge later wants the same primitive, the naming is right but the home-of-truth is anvil. If Forge needs different semantics, it gets its own package; we don't fork by adding flags.
-- **No `pack-update` story.** A consumer who installed `auth-better-auth` at helper v0.1 and wants v0.2's bug fixes runs `bun add @forgeailab/anvil-auth-better-auth@latest` manually. The pack manifest is not what flows the update. We accept this — it's how every npm dep already works.
+- **Helper-per-pack proliferation.** Long term this could become dozens of small packages. Mitigation: keep the bar high — extract only when the pack repeats meaningful logic across consumers.
+- **`libs/` vs `packages/` is a soft boundary.** Some libraries (anvil-schema) are arguably both library and platform component. We pick a home and document it. Mitigation: every library has a one-line "Why is this in libs/ vs packages/?" note in its README.
 
 ## Migration Plan
 
-This change is greenfield with respect to consumers (anvil is pre-publish). Internal migration steps:
+This change is greenfield with respect to consumers (anvil is pre-publish). Internal migration steps follow the four-phase build order:
 
-1. Land the three workflow-primitive packages (`anvil-board`, `anvil-skill-utils`, `anvil-state`) and refactor CLI to consume them.
-2. Land each pack helper (`anvil-auth-better-auth`, `anvil-sync-zero`, `anvil-stripe-helpers`, `anvil-anthropic`) one PR at a time. Each PR updates exactly one pack from `copy` to `hybrid` and trims `[[files]]` to wiring only.
-3. Update `docs/pack-spec.md`, `packs/README.md`, and the affected skills in one final docs pass.
+1. **Phase 0 — Build the reference app.** `reference/full-stack-saas/` is created as a complete Next.js 15 + SQLite + Better Auth + Zero + Stripe + Anthropic + Resend + shadcn integration. All logic lives inline. App boots, login works, a test checkout flow works, a Zero-synced demo entity round-trips.
+2. **Phase 1 — Extract libraries one by one.** For each planned library, the reference app's relevant code is moved into `libs/<name>/`, the reference app gains a `workspace:*` dep, imports are swapped. After each extraction the reference app's smoke test must pass.
+3. **Phase 2 — Author/update pack manifests.** For each hybrid pack, its `pack.toml` is updated with `[runtime_package]` pointing at the new `libs/` package, and its `[[files]]` are trimmed to the thin wiring that remains in the reference app.
+4. **Phase 3 — Validate via fresh scaffold.** From `/tmp/anvil-smoke`, run `bunx create-anvil demo --template nextjs`, then `anvil add` each pack. The resulting app's behavior must match the reference app on the smoke routes.
 
-Existing scaffolded projects (only `/tmp/demo` exists in dev) are not migrated; they predate the rename and will be re-scaffolded.
+Existing scaffolded projects (only `/tmp/demo-anvil` exists in dev) are not migrated.
 
 ## Resolved decisions (locked)
 
+- **Directory layout:** three top-level dirs — `packages/` (platform), `libs/` (libraries), `packs/` (user-owned scaffold trees). Plus `reference/` for the validation app.
+- **Build order:** reference-app-first, then extract, then update manifests, then validate by fresh scaffold.
 - **Install-mode signal:** presence/absence of `[runtime_package]` block — no separate `mode` field.
-- **Helper package location:** `packages/anvil-<name>/`, sibling to existing workspace packages.
 - **v1 helper roster:** `anvil-auth-better-auth`, `anvil-sync-zero`, `anvil-stripe-helpers`, `anvil-anthropic`. Plus workflow primitives `anvil-board`, `anvil-skill-utils`, `anvil-state`.
 - **Other pack changes:** the ten remaining packs stay `copy` in this change.
-- **Skills:** stay markdown, not extracted into a workspace package.
+- **Reference app stack:** Next.js 15 + SQLite + Better Auth + Zero + Stripe + Anthropic + Resend + shadcn. One reference, not multiple.
 
 ## Open Questions
 
-- Should `anvil info <hybrid-pack>` print the resolved helper version (looked up from the helper's `package.json`) or just the version range from `pack.toml`? **Tentative answer:** both — show `range "^0.1"` from the manifest and `resolved 0.1.4` from `bun pm`.
-- For `auth-better-auth`, the helper needs the consumer's db adapter wired in. Does the helper export a `createAuth({ adapter })` factory, or does the copied wiring construct the auth instance with a pack-shipped factory? **Tentative answer:** helper exports the factory; copied wiring is `import { createAuth } from '@forgeailab/anvil-auth-better-auth'; export const auth = createAuth({ adapter: drizzleAdapter(db) });`.
-- Should the helper packages have their own `tasks.yaml` board seeds, or do the pack manifests stay the only source of seeded tasks? **Tentative answer:** packs only. Helpers are libraries, not workflow units.
+- Should `anvil info <hybrid-pack>` print the resolved helper version (looked up from `bun pm ls`) or just the version range from `pack.toml`? **Tentative answer:** both.
+- For `auth-better-auth`, does the helper export a `createAuth({ adapter })` factory, or does the copied wiring construct the auth instance with a pack-shipped factory? **Tentative answer:** helper exports the factory; copied wiring is the one-line `export const auth = createAuth({ adapter: drizzleAdapter(db) });`.
+- Does the reference app live in git or get gitignored once the libs are extracted? **Tentative answer:** lives in git permanently; it is the e2e test harness.
+- Should the reference app be a registered template (selectable via `create-anvil --template full-stack-saas`)? **Tentative answer:** no — it is a reference, not a scaffold. Users should not start projects from it.

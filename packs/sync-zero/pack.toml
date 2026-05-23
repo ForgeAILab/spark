@@ -3,14 +3,17 @@ version = "1.0.0"
 category = "infra"
 description = "Rocicorp Zero client-first sync setup for a Postgres-backed app."
 provides = ["sync"]
-requires = ["db"]
+requires = ["db-pg"]
 conflicts = ["sync"]
 requires_runtime = ["server"]
 compatible_scaffolds = ["nextjs"]
 
+[runtime_package]
+package = "@forgeailab/anvil-sync-zero"
+version = "^0.1"
+
 [dependencies]
 runtime = ["@rocicorp/zero"]
-dev = ["@rocicorp/zero-cache"]
 
 [env]
 required = ["ZERO_AUTH_SECRET", "ZERO_UPSTREAM_DB"]
@@ -35,6 +38,21 @@ to = "lib/zero/client.ts"
 mode = "create"
 from = "components/ZeroProvider.tsx"
 to = "components/ZeroProvider.tsx"
+
+[[files]]
+mode = "create-or-skip"
+from = "docker-compose.yml"
+to = "docker-compose.yml"
+
+[[files]]
+mode = "create"
+from = "compose/zero-cache.yml"
+to = "compose/zero-cache.yml"
+
+[[files]]
+mode = "append"
+from = "docker-compose.include.yml"
+to = "docker-compose.yml"
 
 [skills]
 copy = ["skills/zero-patterns"]

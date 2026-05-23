@@ -34,7 +34,7 @@ The output SHALL annotate each recommended pack as either `copy` or `hybrid` bas
 
 The system SHALL provide a `new-pack` skill that scaffolds a new pack directory under `packs/<name>/` with a `pack.toml` skeleton, empty `files/` and `skills/` directories, and a `tasks.yaml` stub. The skill MUST validate that `<name>` does not already exist and that the requested `category` is one of the v1 enum values.
 
-The skill SHALL prompt the author to choose an install mode: `copy` or `hybrid`. When the author selects `hybrid`, the skill additionally scaffolds `packages/anvil-<name>/` with a minimal workspace package skeleton (`package.json`, `tsconfig.json`, `src/index.ts`, `test/index.test.ts`, `README.md`) AND writes a `[runtime_package]` block into the new `pack.toml` referencing `@forgeailab/anvil-<name>` with an initial version range of `"^0.1"`.
+The skill SHALL prompt the author to choose an install mode: `copy` or `hybrid`. When the author selects `hybrid`, the skill additionally scaffolds `libs/anvil-<name>/` with a minimal workspace package skeleton (`package.json`, `tsconfig.json`, `src/index.ts`, `test/index.test.ts`, `README.md`) AND writes a `[runtime_package]` block into the new `pack.toml` referencing `@forgeailab/anvil-<name>` with an initial version range of `"^0.1"`.
 
 #### Scenario: Skill scaffolds a copy-mode pack
 
@@ -42,14 +42,14 @@ The skill SHALL prompt the author to choose an install mode: `copy` or `hybrid`.
 - **AND** no directory `packs/realtime-supabase` exists
 - **THEN** the skill creates `packs/realtime-supabase/pack.toml` with `name`, `version`, `category = "db"`, and empty `provides`/`requires`/`conflicts` arrays
 - **AND** creates `packs/realtime-supabase/files/`, `packs/realtime-supabase/skills/`, `packs/realtime-supabase/tasks.yaml` as empty stubs
-- **AND** does NOT create `packages/anvil-realtime-supabase/`
+- **AND** does NOT create `libs/anvil-realtime-supabase/`
 
 #### Scenario: Skill scaffolds a hybrid-mode pack with companion helper package
 
 - **WHEN** the user invokes `/new-pack realtime-supabase category=db mode=hybrid`
 - **THEN** the skill creates the pack directory as in the copy-mode scenario
-- **AND** the new `pack.toml` includes `[runtime_package] package = "@forgeailab/anvil-realtime-supabase"`, `version = "^0.1"`
-- **AND** creates `packages/anvil-realtime-supabase/` with a minimal workspace package skeleton
+- **AND** the new `pack.toml` includes a `[runtime_package]` table with `package = "@forgeailab/anvil-realtime-supabase"` and `version = "^0.1"`
+- **AND** creates `libs/anvil-realtime-supabase/` with a minimal workspace package skeleton
 - **AND** the new workspace package declares `name = "@forgeailab/anvil-realtime-supabase"` and `version = "0.1.0"`
 
 ### Requirement: Risk Check Detects Pack-Level Drift

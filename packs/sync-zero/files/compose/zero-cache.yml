@@ -1,0 +1,26 @@
+services:
+  zero-cache:
+    image: rocicorp/zero:latest
+    restart: unless-stopped
+    environment:
+      ZERO_UPSTREAM_DB: ${ZERO_UPSTREAM_DB}
+      ZERO_CVR_DB: ${ZERO_CVR_DB:-${ZERO_UPSTREAM_DB}_cvr}
+      ZERO_CHANGE_DB: ${ZERO_CHANGE_DB:-${ZERO_UPSTREAM_DB}_change}
+      ZERO_REPLICA_FILE: /zero/replica.db
+      ZERO_AUTH_SECRET: ${ZERO_AUTH_SECRET}
+      ZERO_ADMIN_PASSWORD: ${ZERO_ADMIN_PASSWORD:-change-me}
+      ZERO_PUSH_URL: ${ZERO_PUSH_URL:-http://host.docker.internal:3000/api/zero/mutate}
+      ZERO_LOG_LEVEL: ${ZERO_LOG_LEVEL:-info}
+      ZERO_NUM_SYNC_WORKERS: "1"
+    ports:
+      - "${ZERO_PORT:-4848}:4848"
+    volumes:
+      - zero_data:/zero
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  zero_data:

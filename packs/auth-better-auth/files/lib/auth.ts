@@ -1,11 +1,21 @@
-import { betterAuth } from 'better-auth';
+import { createAuth as createBetterAuth } from '@forgeailab/anvil-auth-better-auth';
 
-export const auth = betterAuth({
-  secret: process.env.BETTER_AUTH_SECRET,
+// Wire your database adapter here. Example (drizzle + sqlite):
+//
+//   import { drizzleAdapter } from '@better-auth/drizzle-adapter';
+//   import { db } from '@/lib/db';
+//   import * as schema from '@/lib/db/schema';
+//   const adapter = drizzleAdapter(db, { provider: 'sqlite', schema });
+//
+// Then pass the adapter into createAuth({ adapter, ... }).
+
+export const auth = createBetterAuth({
+  adapter: undefined as never, // TODO: replace with your drizzle adapter
+  secret: process.env.BETTER_AUTH_SECRET!,
   baseURL: process.env.BETTER_AUTH_URL,
   emailAndPassword: {
     enabled: true,
   },
-  // Wire the active db adapter here before production use, for example:
-  // database: drizzleAdapter(db, { provider: 'sqlite' }),
 });
+
+export type Auth = typeof auth;

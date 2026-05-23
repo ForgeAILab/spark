@@ -1,0 +1,20 @@
+{
+  "name": "@forgeailab/anvil-auth-better-auth",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "sideEffects": false,
+  "dependencies": {
+    "@better-auth/drizzle-adapter": "latest",
+    "better-auth": "latest"
+  },
+  "peerDependencies": {
+    "drizzle-orm": "latest",
+    "next": "^15"
+  },
+  "devDependencies": {
+    "bun-types": "latest",
+    "typescript": "latest"
+  }
+}

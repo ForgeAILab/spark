@@ -1,0 +1,12 @@
+{
+  "name": "@forgeailab/anvil-skill-utils",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "./src/index.ts",
+  "sideEffects": false,
+  "devDependencies": {
+    "bun-types": "latest",
+    "typescript": "latest"
+  }
+}

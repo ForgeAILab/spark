@@ -26,11 +26,13 @@ That scaffolds Next.js 15 + TypeScript, then installs `db-sqlite`, `auth-better-
 | `packages/anvil/` | `anvil` CLI — `list`, `info`, `check`, `add`, `preset` |
 | `packages/create-anvil/` | `create-anvil` initializer |
 | `packages/anvil-schema/` | Shared Zod schemas for `pack.toml`, `template.toml`, `preset.toml`, `state.json` |
+| `libs/` | Workspace libraries published under `@forgeailab/anvil-*`. Workflow primitives (`anvil-board`, `anvil-skill-utils`, `anvil-state`) used internally by the CLI, plus pack runtime helpers (`anvil-auth-better-auth`, `anvil-sync-zero`, `anvil-stripe-helpers`, `anvil-anthropic`) imported by hybrid packs |
 | `templates/` | Base scaffolds. v1 ships `nextjs`; `astro`, `astro-starlight`, `vite-react`, `one` are registered for compatibility, base files land in follow-ups |
 | `packs/` | The pack catalog. See [`packs/README.md`](packs/README.md) |
 | `presets/` | Named pack bundles (`saas-classic`, `lean-saas`, `local-ai-mvp`, `internal-tool`, `docs-site`) |
+| `reference/` | Runnable reference apps that integrate hybrid packs end-to-end. v1 ships `reference/full-stack-saas/` as the acceptance harness for the `libs/` runtime helpers — not a template |
 | `.claude/skills/` | Canonical board-workflow skills. `.codex/skills/` is mirrored from here by `scripts/sync-skills.ts` |
-| `docs/pack-spec.md` | Human-author guide to writing a `pack.toml` |
+| `docs/pack-spec.md` | Human-author guide to writing a `pack.toml` (covers both `copy` and `hybrid` install modes) |
 | `docs/spec/` | Spec-driven workflow — proposals, deltas, decisions |
 | `AGENTS.md` | Operating contract for AI agents in this repo |
 

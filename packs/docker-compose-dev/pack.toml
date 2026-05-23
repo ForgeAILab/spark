@@ -1,7 +1,7 @@
 name = "docker-compose-dev"
 version = "1.0.0"
 category = "infra"
-description = "Local Postgres and Redis runtime for development with Docker Compose."
+description = "Local Redis for development via Docker Compose. Composes with db-postgres / sync-zero."
 provides = ["local-runtime"]
 requires = []
 conflicts = []
@@ -9,11 +9,24 @@ requires_runtime = []
 compatible_scaffolds = []
 
 [env]
-optional = ["POSTGRES_PORT", "REDIS_PORT"]
+optional = ["REDIS_PORT"]
+
+# Compose root + redis fragment. Other infra-providing packs (db-postgres,
+# sync-zero) follow the same pattern: each uses `create-or-skip` to bootstrap
+# the root file, then `append` to add their include line under a marker.
+[[files]]
+mode = "create-or-skip"
+from = "docker-compose.yml"
+to = "docker-compose.yml"
 
 [[files]]
 mode = "create"
-from = "docker-compose.yml"
+from = "compose/redis.yml"
+to = "compose/redis.yml"
+
+[[files]]
+mode = "append"
+from = "docker-compose.include.yml"
 to = "docker-compose.yml"
 
 [[files]]

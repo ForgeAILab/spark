@@ -3,7 +3,7 @@ version = "1.0.0"
 category = "auth"
 description = "Supabase Auth routes, login page, and session middleware for Next.js."
 provides = ["auth"]
-requires = ["db"]
+requires = ["db-pg"]
 conflicts = ["auth"]
 requires_runtime = ["server"]
 compatible_scaffolds = ["nextjs"]
@@ -21,10 +21,9 @@ mode = "create"
 from = "app/auth/callback/route.ts"
 to = "app/auth/callback/route.ts"
 
-[[files]]
-mode = "create"
-from = "app/(auth)/login/page.tsx"
-to = "app/(auth)/login/page.tsx"
+# The nextjs template ships app/(auth)/login/page.tsx as a placeholder;
+# Supabase users wire the supabase client into that template-owned file rather
+# than overwriting it from the pack.
 
 [[files]]
 mode = "create"

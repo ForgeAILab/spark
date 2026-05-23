@@ -104,6 +104,63 @@ scaffold that satisfies `requires_runtime`.
 Use named scaffolds only when the pack depends on framework-specific paths,
 conventions, or APIs.
 
+## Install Modes — `copy` and `hybrid`
+
+Every pack is one of two install modes. The mode is **inferred** from the
+manifest — there is no `mode` field.
+
+- **`copy` (default)**: the pack's `[[files]]` entries are copied into the
+  consumer project. The user owns the resulting code in place. This is the
+  right model for stable framework glue (Tailwind config, route handlers,
+  env wiring) where the user benefits from being able to read and edit
+  files directly.
+- **`hybrid`**: the pack declares an optional `[runtime_package]` block
+  pointing at a versioned npm helper published from `libs/anvil-<name>/`.
+  The CLI implicitly installs the helper alongside the pack's other runtime
+  dependencies. The pack's `[[files]]` are trimmed to thin wiring
+  (config, route handlers, type re-exports, example UI). Substantive logic
+  lives in the helper, so bug fixes ship as a `bun update` of the helper
+  rather than a project-by-project file re-copy.
+
+A pack is `hybrid` if and only if its manifest contains a `[runtime_package]`
+table. Otherwise it is `copy`.
+
+### `[runtime_package]`
+
+```toml
+[runtime_package]
+package = "@forgeailab/anvil-auth-better-auth"
+version = "^0.1"
+```
+
+- `package`: the full npm name of the helper (scoped form supported).
+- `version`: a semver range used when resolving against npm.
+
+The pack's `[dependencies].runtime` array MUST NOT also list the helper
+package — the CLI adds it implicitly. Transitive deps of the helper
+(`better-auth`, `stripe`, etc.) live in the helper's own `package.json`.
+
+When the CLI runs inside the anvil monorepo (`ANVIL_ROOT` set and
+`libs/<helper-dir>/` present), it links the helper as a `file:` dep instead
+of an npm version range. Published consumers get the version range from
+`[runtime_package].version`.
+
+## Directory layout
+
+The anvil monorepo has three top-level workspace directories:
+
+- `packages/` — platform tooling: the CLI, the initializer, the shared
+  schema package.
+- `libs/` — runtime libraries published under `@forgeailab/anvil-*`. Hybrid
+  packs reference these via `[runtime_package]`; internal tools (CLI,
+  `create-anvil`) consume the workflow primitives (`anvil-board`,
+  `anvil-skill-utils`, `anvil-state`).
+- `packs/` — pack manifests + the file trees that copy into consumer
+  projects.
+
+Reference apps (e.g. `reference/full-stack-saas/`) live under `reference/`
+and serve as integration/extraction sources, not user-facing templates.
+
 ## Dependencies
 
 The optional `[dependencies]` table declares npm package specs.
@@ -111,6 +168,9 @@ The optional `[dependencies]` table declares npm package specs.
 `dev` maps to development dependencies.
 The installer uses Bun package operations for these lists and must not run
 unrelated shell commands.
+
+For hybrid packs, the helper named in `[runtime_package]` MUST NOT also
+appear in `runtime` — the CLI handles it implicitly.
 
 Omit the table when the pack has no dependencies.
 

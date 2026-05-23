@@ -1,0 +1,86 @@
+import { drizzleAdapter } from '@better-auth/drizzle-adapter';
+import { createAuth as createBetterAuth } from '@forgeailab/anvil-auth-better-auth';
+import { db } from '@/lib/db';
+import * as schema from '@/lib/db/schema';
+
+// Postgres-flavored Better Auth wiring. Pair this pack with `db-postgres`
+// (or `db-supabase`), and add the four Better Auth tables to your
+// `lib/db/schema.ts`: `user`, `session`, `account`, `verification`. Snake-case
+// column names are what Better Auth expects.
+
+const DEV_SECRET =
+  'reference-dev-secret-change-me-reference-dev-secret-change-me';
+
+function env(name: string, fallback: string): string {
+  return process.env[name] ?? fallback;
+}
+
+function resolveTrustedOrigins(baseURL: string): string[] {
+  const fromEnv = process.env.BETTER_AUTH_TRUSTED_ORIGINS;
+  if (fromEnv) {
+    return fromEnv
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
+  }
+
+  const origins = new Set<string>([baseURL]);
+
+  // In dev, Next.js auto-bumps the port when 3000 is busy. Trust common
+  // localhost ports so signup doesn't break with "Invalid origin" just because
+  // another server already owns 3000. Override via BETTER_AUTH_TRUSTED_ORIGINS
+  // for production lockdown.
+  if (process.env.NODE_ENV !== 'production') {
+    for (const port of [3000, 3001, 3002, 3003, 3010, 4000, 5173, 8080]) {
+      origins.add(`http://localhost:${port}`);
+      origins.add(`http://127.0.0.1:${port}`);
+    }
+  }
+
+  return [...origins];
+}
+
+export function createAuthDatabase() {
+  return drizzleAdapter(db, {
+    provider: 'pg',
+    schema: {
+      ...schema,
+      // Map your Drizzle table exports to the names Better Auth uses. Uncomment
+      // these once your schema has the matching tables (or use these names
+      // directly in your schema and drop the aliases).
+      // user: schema.users,
+      // session: schema.sessions,
+      // account: schema.accounts,
+      // verification: schema.verifications,
+    },
+  });
+}
+
+type CreateAuthOptions = {
+  database?: ReturnType<typeof createAuthDatabase>;
+};
+
+export function createAuth(options: CreateAuthOptions = {}) {
+  const baseURL = env('BETTER_AUTH_URL', 'http://localhost:3000');
+
+  return createBetterAuth({
+    adapter: options.database ?? createAuthDatabase(),
+    baseURL,
+    secret: env('BETTER_AUTH_SECRET', DEV_SECRET),
+    trustedOrigins: resolveTrustedOrigins(baseURL),
+    emailAndPassword: {
+      enabled: true,
+    },
+    // Uncomment to enable GitHub OAuth. Add env vars to your .env.local and
+    // register the OAuth app at https://github.com/settings/developers.
+    // socialProviders: {
+    //   github: {
+    //     clientId: env('GITHUB_CLIENT_ID', 'github-client-id'),
+    //     clientSecret: env('GITHUB_CLIENT_SECRET', 'github-client-secret'),
+    //   },
+    // },
+  });
+}
+
+export const auth = createAuth();
+export type Auth = typeof auth;

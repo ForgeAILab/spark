@@ -1,0 +1,11 @@
+epic: Database
+tasks:
+  - id: DB-001
+    title: Run initial migration
+    acceptance:
+      - Schema applied to Postgres via `bun drizzle-kit push`
+  - id: DB-002
+    title: Provision local Postgres
+    acceptance:
+      - Postgres reachable at DATABASE_URL (docker-compose, Homebrew, or hosted)
+      - wal_level=logical set if pairing with sync-zero

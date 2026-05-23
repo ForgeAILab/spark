@@ -24,6 +24,13 @@ coverage/
 # Test artifacts
 **/.next/
 **/out/
+**/tsconfig.tsbuildinfo
+**/test-results/
+**/playwright-report/
+.playwright-mcp/
+
+# Local dev data (sqlite files, replica files, etc.) under any package.
+**/.data/
 
 # Local anvil state files of the monorepo itself (state files in scaffolded
 # projects are committed; this is for any throwaway under the repo root).

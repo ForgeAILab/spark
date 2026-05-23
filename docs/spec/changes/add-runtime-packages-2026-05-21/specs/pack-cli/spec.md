@@ -48,6 +48,22 @@ The CLI SHALL recognize two pack install modes — `copy` and `hybrid` — infer
 - **THEN** the CLI install path does not invoke `bun add` for any helper package
 - **AND** only the packages declared in `[dependencies].runtime` and `[dependencies].dev` are added
 
+#### Scenario: Dev-mode resolution uses `file:` link when the helper exists locally
+
+- **WHEN** the user runs `anvil add auth-better-auth` against a project whose `anvil.config.json` sits outside the monorepo
+- **AND** `ANVIL_ROOT` is set to the monorepo root
+- **AND** `libs/anvil-auth-better-auth/package.json` exists at `${ANVIL_ROOT}/libs/anvil-auth-better-auth/`
+- **THEN** the CLI invokes `bun add file:${ANVIL_ROOT}/libs/anvil-auth-better-auth` (or an equivalent relative `file:` path)
+- **AND** the consumer's `package.json` lists `@forgeailab/anvil-auth-better-auth` with a `file:` dep specifier
+- **AND** the version range from `[runtime_package].version` is NOT used in this mode
+
+#### Scenario: Published-mode resolution uses npm version range when the helper is not local
+
+- **WHEN** the user runs `anvil add auth-better-auth` against a project where neither `ANVIL_ROOT` is set nor a local `libs/anvil-auth-better-auth/` is reachable from the project's anvil monorepo lookup
+- **AND** `packs/auth-better-auth/pack.toml` declares `[runtime_package].version = "^0.1"`
+- **THEN** the CLI invokes `bun add @forgeailab/anvil-auth-better-auth@^0.1`
+- **AND** the consumer's `package.json` lists the helper with the `^0.1` range
+
 ### Requirement: `info` Reports Install Mode and Resolved Helper Version
 
 `anvil info <pack>` SHALL include an "Install mode" line — either `copy` or `hybrid`. For hybrid packs, the output MUST also display the helper package name, the version range declared in the pack manifest, and the resolved installed version (looked up from the consumer's `bun pm ls` or equivalent). When the helper package is not yet installed in the consumer project, the resolved version is reported as `not installed`.

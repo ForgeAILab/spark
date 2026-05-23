@@ -1,10 +1,16 @@
 import { defineCommand } from 'citty';
 import pc from 'picocolors';
-import { readConfig } from '../config.ts';
-import { readRegistry } from '../io/registry.ts';
+import { readConfig, type AppSkillsConfig } from '../config.ts';
+import { readRegistry, type Registry } from '../io/registry.ts';
 import { installedPackNames, readState } from '../io/state.ts';
+import { formatResolvedRuntimeHelper } from '../runtime-package.ts';
 
 type InfoOutput = Pick<Console, 'log'>;
+
+export type InfoOptions = {
+  config?: AppSkillsConfig;
+  registry?: Registry;
+};
 
 function formatList(values: readonly string[] | undefined): string {
   return values && values.length > 0 ? values.join(', ') : 'none';
@@ -14,14 +20,15 @@ export async function runInfo(
   packName: string,
   projectRoot = process.cwd(),
   output: InfoOutput = console,
+  options: InfoOptions = {},
 ): Promise<void> {
   if (!packName) {
     throw new Error('info requires a pack name');
   }
 
   const [config, registry, state] = await Promise.all([
-    readConfig(projectRoot),
-    readRegistry(projectRoot),
+    options.config ? Promise.resolve(options.config) : readConfig(projectRoot),
+    options.registry ? Promise.resolve(options.registry) : readRegistry(projectRoot),
     readState(projectRoot),
   ]);
   const entry = registry.packs.get(packName);
@@ -43,6 +50,13 @@ export async function runInfo(
   output.log(pc.bold(`${manifest.name}@${manifest.version}`));
   output.log(manifest.description ?? '');
   output.log(`status: ${installed ? 'installed' : 'available'}`);
+  output.log(`Install mode: ${manifest.runtime_package ? 'hybrid' : 'copy'}`);
+  if (manifest.runtime_package) {
+    const resolved = await formatResolvedRuntimeHelper(projectRoot, manifest.runtime_package);
+    output.log(
+      `Runtime helper: ${manifest.runtime_package.package} (range ${manifest.runtime_package.version}, resolved ${resolved})`,
+    );
+  }
   output.log(`category: ${manifest.category}`);
   output.log(`provides: ${formatList(manifest.provides)}`);
   output.log(`requires: ${formatList(manifest.requires)}`);

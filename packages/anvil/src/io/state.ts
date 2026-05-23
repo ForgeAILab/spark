@@ -1,32 +1,15 @@
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import { dirname, join } from 'node:path';
+import { join } from 'node:path';
 import { StateFileSchema, type StateFile, type StateInstalledPack } from '@forgeailab/anvil-schema';
+export { readState, writeState, withState } from '@forgeailab/anvil-state';
 
 export function emptyState(): StateFile {
-  return {
+  return StateFileSchema.parse({
     schema_version: 1,
-    installed_packs: [],
-  };
+  });
 }
 
 export function stateFilePath(projectRoot: string): string {
   return join(projectRoot, '.anvil', 'state.json');
-}
-
-export async function readState(projectRoot: string): Promise<StateFile> {
-  const path = stateFilePath(projectRoot);
-  let raw: string;
-
-  try {
-    raw = await readFile(path, 'utf8');
-  } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
-      return emptyState();
-    }
-    throw error;
-  }
-
-  return StateFileSchema.parse(JSON.parse(raw));
 }
 
 function uniqueSorted(values: readonly string[]): string[] {
@@ -46,18 +29,14 @@ function normalizeInstalledPack(pack: StateInstalledPack): StateInstalledPack {
 }
 
 export function normalizeState(state: StateFile): StateFile {
+  const parsed = StateFileSchema.parse(state);
+
   return {
     schema_version: 1,
-    installed_packs: [...state.installed_packs]
+    installed_packs: [...parsed.installed_packs]
       .map(normalizeInstalledPack)
       .sort((left, right) => left.name.localeCompare(right.name)),
   };
-}
-
-export async function writeState(projectRoot: string, state: StateFile): Promise<void> {
-  const path = stateFilePath(projectRoot);
-  await mkdir(dirname(path), { recursive: true });
-  await writeFile(path, `${JSON.stringify(normalizeState(state), null, 2)}\n`);
 }
 
 export function installedPackNames(state: StateFile): string[] {

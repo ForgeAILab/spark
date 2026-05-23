@@ -1,9 +1,18 @@
-"use client";
+'use client';
 
-import type { ZeroOptions } from "@rocicorp/zero";
-import { schema } from "./schema";
+import { createZeroClient as createAnvilZeroClient } from '@forgeailab/anvil-sync-zero';
+import type { ZeroOptions } from '@forgeailab/anvil-sync-zero';
+import { schema } from './schema';
 
-export const zeroOptions = {
-  cacheURL: "http://localhost:4848",
-  schema,
-} satisfies ZeroOptions;
+const DEFAULT_ZERO_URL = 'http://localhost:4848';
+
+export function createZeroOptions(): ZeroOptions {
+  return {
+    cacheURL: process.env.NEXT_PUBLIC_ZERO_URL ?? DEFAULT_ZERO_URL,
+    schema,
+  };
+}
+
+export function createZeroClient(options: ZeroOptions = createZeroOptions()) {
+  return createAnvilZeroClient(options);
+}

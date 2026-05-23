@@ -1,5 +1,22 @@
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import { dirname, join, resolve, sep } from 'node:path';
+import { readFile } from 'node:fs/promises';
+import { join, resolve, sep } from 'node:path';
+import {
+  BoardTaskStatus,
+  seedTasks as seedPackageTasks,
+} from '@forgeailab/anvil-board';
+
+export {
+  BoardTaskStatus,
+  readBoard,
+  seedTasks,
+  updateStatus,
+} from '@forgeailab/anvil-board';
+export type {
+  Board,
+  BoardEpic,
+  BoardTask as ParsedBoardTask,
+  SeedTask,
+} from '@forgeailab/anvil-board';
 
 export type BoardTask = {
   id: string;
@@ -114,20 +131,13 @@ function boardHasTask(board: string, taskId: string): boolean {
   return new RegExp(`\\b${escapeRegex(taskId)}\\b`).test(board);
 }
 
-function formatTask(task: BoardTask, packName: string): string {
+function formatTaskDescription(task: BoardTask, packName: string): string {
   const acceptance =
     task.acceptance.length > 0
-      ? task.acceptance.map((item) => `    - ${item}`).join('\n')
-      : '    - Confirm acceptance criteria for this pack task.';
+      ? task.acceptance.map((item) => `  - ${item}`)
+      : ['  - Confirm acceptance criteria for this pack task.'];
 
-  return [
-    `- id: ${task.id}`,
-    `  title: ${task.title}`,
-    '  status: Clarifying',
-    `  requires_pack: ${packName}`,
-    '  acceptance:',
-    acceptance,
-  ].join('\n');
+  return [`requires_pack: ${packName}`, 'acceptance:', ...acceptance].join('\n');
 }
 
 function assertInsidePack(packRoot: string, path: string): string {
@@ -157,42 +167,29 @@ export async function seedBoardTasks(
     return [];
   }
 
-  const boardPath = join(projectRoot, '.ai', 'board.md');
-  const existingBoard = await readExisting(boardPath);
-  const seeded: string[] = [];
-  const byEpic = new Map<string, BoardTask[]>();
-
-  for (const task of tasks) {
-    if (boardHasTask(existingBoard, task.id)) {
-      continue;
-    }
-
-    seeded.push(task.id);
-    const group = byEpic.get(task.epic) ?? [];
-    group.push(task);
-    byEpic.set(task.epic, group);
-  }
-
-  if (seeded.length === 0) {
+  const taskIds = tasks.map((task) => task.id);
+  const missingBefore = await missingBoardTasks(projectRoot, taskIds);
+  if (missingBefore.length === 0) {
     return [];
   }
 
-  const sections = [...byEpic.entries()]
-    .sort(([left], [right]) => left.localeCompare(right))
-    .map(([epic, epicTasks]) => {
-      const body = epicTasks
-        .sort((left, right) => left.id.localeCompare(right.id))
-        .map((task) => formatTask(task, packName))
-        .join('\n\n');
-      return `## ${epic}\n\n${body}`;
-    })
-    .join('\n\n');
+  const missing = new Set(missingBefore);
+  await seedPackageTasks(
+    projectRoot,
+    packName,
+    tasks
+      .filter((task) => missing.has(task.id))
+      .sort((left, right) => left.id.localeCompare(right.id))
+      .map((task) => ({
+        id: task.id,
+        title: task.title,
+        status: BoardTaskStatus.Todo,
+        description: formatTaskDescription(task, packName),
+      })),
+  );
 
-  const separator = existingBoard.endsWith('\n') ? '\n' : '\n\n';
-  await mkdir(dirname(boardPath), { recursive: true });
-  await writeFile(boardPath, `${existingBoard}${separator}${sections}\n`);
-
-  return seeded.sort();
+  const missingAfter = new Set(await missingBoardTasks(projectRoot, taskIds));
+  return missingBefore.filter((taskId) => !missingAfter.has(taskId)).sort();
 }
 
 export async function missingBoardTasks(
