@@ -1,4 +1,4 @@
 name = "lean-saas"
-description = "Lean SaaS -- no Supabase. SQLite + Better Auth + shadcn + Vercel."
+description = "Lean SaaS stack on Next.js — typed RPC via tRPC, Postgres, Better Auth, Stripe, shadcn, Resend, deploys to Vercel."
 compatible_scaffolds = ["nextjs"]
-packs = ["db-sqlite", "auth-better-auth", "ui-shadcn", "deploy-vercel"]
+packs = ["db-postgres", "auth-better-auth-pg", "payments-stripe", "ui-shadcn", "email-resend", "api-trpc", "deploy-vercel"]

@@ -15,7 +15,7 @@ export async function applyPreset(
   presetName: string,
   monorepoRoot: string,
 ): Promise<void> {
-  const cliPath = join(monorepoRoot, 'packages', 'cli', 'src', 'cli.ts');
+  const cliPath = join(monorepoRoot, 'packages', 'spark', 'src', 'cli.ts');
 
   // TODO: Replace this subprocess fallback with a direct runPreset import once @forgeailab/spark exports it.
   if (!(await exists(cliPath))) {

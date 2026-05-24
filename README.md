@@ -17,7 +17,13 @@ cd my-app
 bun dev
 ```
 
-That scaffolds Next.js 15 + TypeScript, then installs `db-sqlite`, `auth-better-auth`, `ui-shadcn`, and `deploy-vercel` on top. From there your `.ai/board.md` is the source of truth, and `spark add <pack>` is how you extend.
+That scaffolds Next.js 15 + TypeScript, then installs `api-trpc`, `db-postgres`, `auth-better-auth`, `payments-stripe`, `ui-shadcn`, `email-resend`, and `deploy-vercel` on top. From there your `.ai/board.md` is the source of truth, and `spark add <pack>` is how you extend.
+
+For a Cloudflare Workers deploy (Vite + tRPC + R2 + Workers):
+
+```bash
+bunx create-spark my-app --template vite-react --preset lean-cloudflare
+```
 
 ## What's in the monorepo
 
@@ -26,13 +32,13 @@ That scaffolds Next.js 15 + TypeScript, then installs `db-sqlite`, `auth-better-
 | `packages/spark/` | `spark` CLI — `list`, `info`, `check`, `add`, `preset` |
 | `packages/create-spark/` | `create-spark` initializer |
 | `packages/spark-schema/` | Shared Zod schemas for `pack.toml`, `template.toml`, `preset.toml`, `state.json` |
-| `libs/` | Workspace libraries published under `@forgeailab/spark-*`. Workflow primitives (`spark-board`, `spark-skill-utils`, `spark-state`) used internally by the CLI, plus pack runtime helpers (`spark-auth-better-auth`, `spark-sync-zero`, `spark-stripe-helpers`, `spark-anthropic`) imported by hybrid packs |
-| `templates/` | Base scaffolds. v1 ships `nextjs`; `astro`, `astro-starlight`, `vite-react`, `one` are registered for compatibility, base files land in follow-ups |
+| `libs/` | Workspace libraries published under `@forgeailab/spark-*`. Workflow primitives (`spark-board`, `spark-skill-utils`, `spark-state`) used internally by the CLI |
+| `templates/` | Base scaffolds. `nextjs` and `vite-react` are stable; `astro`, `astro-starlight`, `one` are registered for follow-up |
 | `packs/` | The pack catalog. See [`packs/README.md`](packs/README.md) |
-| `presets/` | Named pack bundles (`saas-classic`, `lean-saas`, `local-ai-mvp`, `internal-tool`, `docs-site`) |
-| `reference/` | Runnable reference apps that integrate hybrid packs end-to-end. v1 ships `reference/full-stack-saas/` as the acceptance harness for the `libs/` runtime helpers — not a template |
+| `presets/` | Named pack bundles (`saas-classic`, `lean-saas`, `lean-saas-zero`, `lean-cloudflare`, `local-ai-mvp`, `internal-tool`, `docs-site`) |
+| `reference/` | Runnable reference apps. v1 ships `reference/full-stack-saas/` as an integration harness — not a template |
 | `.claude/skills/` | Canonical board-workflow skills. `.codex/skills/` is mirrored from here by `scripts/sync-skills.ts` |
-| `docs/pack-spec.md` | Human-author guide to writing a `pack.toml` (covers both `copy` and `hybrid` install modes) |
+| `docs/pack-spec.md` | Human-author guide to writing a `pack.toml` (copy install model) |
 | `docs/spec/` | Spec-driven workflow — proposals, deltas, decisions |
 | `AGENTS.md` | Operating contract for AI agents in this repo |
 
@@ -50,9 +56,9 @@ Lovable-style templates ship every feature; you delete what you don't use. Bare 
 
 v1 ships:
 
-- 1 base template (`nextjs`); 4 registered for follow-up (`astro`, `astro-starlight`, `vite-react`, `one`).
-- 14 packs across `db`, `auth`, `payments`, `email`, `ui`, `ai`, `infra`, `testing`, `deploy`, `analytics`.
-- 5 presets.
+- 2 base templates (`nextjs`, `vite-react`); 3 registered for follow-up (`astro`, `astro-starlight`, `one`).
+- 19 packs across `db`, `auth`, `payments`, `email`, `ui`, `ai`, `infra`, `testing`, `deploy`, `analytics`, `storage`.
+- 6 presets.
 - 18 skills mirrored into both Claude and Codex skill formats.
 
 Out of scope for v1: a remote pack registry, `remove`/`update` subcommands, pack versioning, base scaffolds for non-Next.js templates.

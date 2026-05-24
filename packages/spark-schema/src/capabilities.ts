@@ -13,7 +13,7 @@ export const PACK_CAPABILITY_VALUES = [
   'ai-sdk',
   'blob-storage',
   'analytics',
-  'sync',
+  'data-api',
 ] as const;
 
 export const TEMPLATE_CAPABILITY_VALUES = ['static', 'server', 'react', 'native', 'vue', 'svelte', 'mdx-content', 'edge-runtime'] as const;
@@ -38,7 +38,7 @@ export const EXCLUSIVE_CAPABILITIES: ReadonlySet<PackCapability> = new Set<PackC
   'auth',
   'payments',
   'ui-kit',
-  'sync',
+  'data-api',
 ]);
 
 export const NON_EXCLUSIVE_CAPABILITIES: ReadonlySet<PackCapability> = new Set<PackCapability>([

@@ -1,0 +1,42 @@
+name = "api-trpc"
+version = "1.0.0"
+category = "infra"
+description = "Typed RPC layer using tRPC v11 with a Hono fetch handler that mounts on Next App Router, Vite dev server, and Cloudflare Workers."
+provides = ["data-api"]
+requires = ["db"]
+conflicts = ["data-api"]
+requires_runtime = ["server"]
+compatible_scaffolds = []
+
+[dependencies]
+runtime = ["@trpc/server@^11", "@trpc/client@^11", "@trpc/react-query@^11", "@tanstack/react-query@^5", "superjson@^1", "hono@^4", "zod@^4"]
+
+[[files]]
+mode = "create"
+from = "server/trpc.ts"
+to = "server/trpc.ts"
+
+[[files]]
+mode = "create"
+from = "server/router.ts"
+to = "server/router.ts"
+
+[[files]]
+mode = "create"
+from = "lib/trpc-client.ts"
+to = "lib/trpc-client.ts"
+
+[[files]]
+mode = "create-or-skip"
+from = "app/api/trpc/[trpc]/route.ts"
+to = "app/api/trpc/[trpc]/route.ts"
+
+[[files]]
+mode = "create-or-skip"
+from = "worker.ts"
+to = "worker.ts"
+
+[[files]]
+mode = "create-or-skip"
+from = "server/dev.ts"
+to = "server/dev.ts"

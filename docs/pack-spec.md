@@ -53,7 +53,7 @@ The v1 `PackCapability` enum is closed and exactly:
 - `ai-sdk`
 - `blob-storage`
 - `analytics`
-- `sync`
+- `data-api`
 
 Exclusive capabilities allow only one provider in a project:
 
@@ -61,7 +61,7 @@ Exclusive capabilities allow only one provider in a project:
 - `auth`
 - `payments`
 - `ui-kit`
-- `sync`
+- `data-api`
 
 Non-exclusive capabilities can have multiple providers:
 
@@ -111,6 +111,10 @@ consumer project, and the user owns the resulting code in place. This is the
 right model for stable framework glue (Tailwind config, route handlers, env
 wiring) where the user benefits from being able to read and edit files
 directly.
+
+As of v0.2.0, `copy` is the only install mode. The runtime-package / hybrid
+model (where a pack ships a versioned npm helper the consumer imports) was
+proposed and reverted; all packs copy source files only.
 
 ## Directory layout
 

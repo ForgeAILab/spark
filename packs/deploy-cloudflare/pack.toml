@@ -1,0 +1,31 @@
+name = "deploy-cloudflare"
+version = "1.0.0"
+category = "deploy"
+description = "Cloudflare Workers deploy target with wrangler config and a Hono-based Workers entrypoint."
+provides = ["deploy-target"]
+requires = []
+conflicts = []
+requires_runtime = ["edge-runtime"]
+compatible_scaffolds = []
+
+[dependencies]
+runtime = []
+dev = ["wrangler@^3", "@cloudflare/workers-types@^4"]
+
+[[files]]
+from = "wrangler.toml.hbs"
+to = "wrangler.toml"
+mode = "template"
+
+[[files]]
+from = "worker.ts"
+to = "worker.ts"
+mode = "create-or-skip"
+
+[[files]]
+from = "package.patch.json"
+to = "package.json"
+mode = "merge-json"
+
+[tasks]
+file = "tasks.yaml"

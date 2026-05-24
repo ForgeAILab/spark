@@ -1,4 +1,6 @@
 import { describe, expect, test } from 'bun:test';
+import { EXCLUSIVE_CAPABILITIES } from '../src/capabilities.ts';
+import { PackManifestSchema } from '../src/pack.ts';
 import { parsePackToml } from '../src/parse.ts';
 
 const validFullManifest = `
@@ -92,6 +94,42 @@ requires_runtime = ["server"]
     if (!result.ok) {
       expect(result.error.issues?.join('\n')).toContain('provides.0');
     }
+  });
+
+  test('data-api capability parses', () => {
+    const result = parsePackToml(`
+name = "api-trpc"
+version = "1.0.0"
+category = "infra"
+provides = ["data-api"]
+requires = ["db"]
+conflicts = ["data-api"]
+requires_runtime = ["server"]
+`);
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data.provides).toEqual(['data-api']);
+      expect(result.data.conflicts).toEqual(['data-api']);
+    }
+  });
+
+  test('legacy sync capability rejected by manifest schema', () => {
+    expect(() =>
+      PackManifestSchema.parse({
+        name: 'sync-zero',
+        version: '1.0.0',
+        category: 'infra',
+        provides: ['sync'],
+        requires: ['db'],
+        conflicts: [],
+        requires_runtime: ['server'],
+      }),
+    ).toThrow();
+  });
+
+  test('data-api is exclusive', () => {
+    expect(EXCLUSIVE_CAPABILITIES.has('data-api')).toBe(true);
   });
 
   test('unknown template capability rejected', () => {

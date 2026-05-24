@@ -1,0 +1,4 @@
+name = "lean-cloudflare"
+description = "Vite + Cloudflare Workers stack — typed RPC via tRPC on Hono, Postgres via Drizzle, S3-compatible blob storage, deploys to Cloudflare Workers. Auth and email arrive when vite-compatible variants land."
+compatible_scaffolds = ["vite-react"]
+packs = ["db-postgres", "api-trpc", "storage-s3", "deploy-cloudflare"]

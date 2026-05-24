@@ -1,0 +1,6 @@
+{
+  "scripts": {
+    "dev:worker": "wrangler dev",
+    "deploy": "wrangler deploy"
+  }
+}

@@ -1,6 +1,6 @@
 import { mkdir, readFile, stat, writeFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
-import { dirname, resolve, sep } from 'node:path';
+import { dirname, extname, resolve, sep } from 'node:path';
 import type { PackManifest } from '@forgeailab/spark-schema';
 import type { AppSkillsConfig } from '../config.ts';
 
@@ -60,6 +60,20 @@ function hashContent(content: string): string {
   return createHash('sha256').update(content).digest('hex');
 }
 
+function commentSyntax(path: string): { start: string; end: string } {
+  const extension = extname(path).slice(1).toLowerCase();
+
+  if (['css', 'scss', 'less', 'js', 'cjs', 'mjs', 'ts', 'tsx', 'jsx', 'json5'].includes(extension)) {
+    return { start: '/* ', end: ' */' };
+  }
+
+  if (['html', 'htm', 'xml', 'svg', 'vue'].includes(extension)) {
+    return { start: '<!-- ', end: ' -->' };
+  }
+
+  return { start: '# ', end: '' };
+}
+
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
@@ -114,15 +128,16 @@ export function renderTemplate(template: string, config: AppSkillsConfig): strin
   );
 }
 
-function appendBlock(packName: string, content: string): { marker: string; block: string } {
+function appendBlock(packName: string, content: string, destinationPath: string): { marker: string; block: string } {
   const marker = `spark:${packName}`;
-  const begin = `# >>> ${marker} >>>`;
-  const end = `# <<< ${marker} <<<`;
+  const { start, end } = commentSyntax(destinationPath);
+  const begin = `${start}>>> ${marker} >>>${end}`.trim();
+  const finish = `${start}<<< ${marker} <<<${end}`.trim();
   const trimmedContent = content.replace(/\s+$/u, '');
 
   return {
     marker,
-    block: `${begin}\n${trimmedContent}\n${end}\n`,
+    block: `${begin}\n${trimmedContent}\n${finish}\n`,
   };
 }
 
@@ -189,10 +204,10 @@ export async function applyFileOperation(
   }
 
   if (operation.mode === 'append') {
-    const { marker, block } = appendBlock(options.packName, sourceContent);
+    const { marker, block } = appendBlock(options.packName, sourceContent, destination);
     const current = (await fileExists(destination)) ? await readFile(destination, 'utf8') : '';
 
-    if (current.includes(`# >>> ${marker} >>>`)) {
+    if (current.includes(marker)) {
       return {
         to: operation.to,
         mode: operation.mode,

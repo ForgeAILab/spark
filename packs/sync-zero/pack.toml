@@ -2,9 +2,9 @@ name = "sync-zero"
 version = "1.0.0"
 category = "infra"
 description = "Rocicorp Zero client-first sync setup for a Postgres-backed app."
-provides = ["sync"]
+provides = ["data-api"]
 requires = ["db-pg"]
-conflicts = ["sync"]
+conflicts = ["data-api"]
 requires_runtime = ["server"]
 compatible_scaffolds = ["nextjs"]
 

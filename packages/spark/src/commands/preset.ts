@@ -27,6 +27,7 @@ export async function runPreset(
     projectRoot,
     registry,
     config,
+    yes: true,
   });
 }
 

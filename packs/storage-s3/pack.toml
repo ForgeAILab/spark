@@ -1,0 +1,21 @@
+name = "storage-s3"
+version = "1.0.0"
+category = "storage"
+description = "S3-compatible blob storage helpers (AWS S3 or Cloudflare R2) with presigned upload URLs."
+provides = ["blob-storage"]
+requires = []
+conflicts = []
+requires_runtime = ["server"]
+compatible_scaffolds = []
+
+[dependencies]
+runtime = ["@aws-sdk/client-s3@^3", "@aws-sdk/s3-request-presigner@^3"]
+
+[env]
+required = ["S3_BUCKET", "S3_ACCESS_KEY_ID", "S3_SECRET_ACCESS_KEY"]
+optional = ["S3_ENDPOINT", "S3_REGION"]
+
+[[files]]
+mode = "create"
+from = "lib/s3.ts"
+to = "lib/s3.ts"

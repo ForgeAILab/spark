@@ -1,0 +1,4 @@
+name = "lean-saas-zero"
+description = "Zero-flavored (sync-zero) variant of the lean SaaS stack -- SQLite + Better Auth + shadcn + Vercel."
+compatible_scaffolds = ["nextjs"]
+packs = ["db-sqlite", "auth-better-auth", "ui-shadcn", "deploy-vercel"]

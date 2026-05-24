@@ -2,6 +2,12 @@
 
 Templates live under `templates/<name>/` and register a base scaffold for `create-spark`. Each template directory must contain a `template.toml` manifest and may contain scaffold files when the template is stable.
 
+## Template Registry
+
+| Template | Status | Capabilities | Description |
+| --- | --- | --- | --- |
+| `vite-react` | stable | react, static, edge-runtime | Vite + React 19 + TypeScript scaffold with a Hono dev API entrypoint; deployable to Cloudflare Workers. |
+
 ## `template.toml`
 
 `template.toml` is parsed with `TemplateManifestSchema` from `packages/spark-schema/src/template.ts`.

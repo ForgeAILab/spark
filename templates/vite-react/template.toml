@@ -1,4 +1,4 @@
 name = "vite-react"
-status = "planned"
-provides = ["static", "react"]
-description = "Planned Vite React scaffold for client-side web apps."
+status = "stable"
+provides = ["react", "static", "edge-runtime", "server"]
+description = "Vite + React 19 + TypeScript scaffold with a Hono dev API entrypoint; deployable to Cloudflare Workers."

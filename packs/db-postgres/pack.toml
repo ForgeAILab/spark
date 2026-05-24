@@ -6,7 +6,7 @@ provides = ["db", "db-pg"]
 requires = []
 conflicts = ["db"]
 requires_runtime = ["server"]
-compatible_scaffolds = ["nextjs"]
+compatible_scaffolds = []
 
 [dependencies]
 runtime = ["drizzle-orm", "postgres"]

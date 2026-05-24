@@ -10,11 +10,51 @@ compatible_scaffolds = ["nextjs"]
 
 [dependencies]
 runtime = [
-  "@radix-ui/react-slot",
-  "class-variance-authority",
-  "clsx",
-  "tailwind-merge",
-  "lucide-react",
+  "@radix-ui/react-accordion@^1",
+  "@radix-ui/react-alert-dialog@^1",
+  "@radix-ui/react-aspect-ratio@^1",
+  "@radix-ui/react-avatar@^1",
+  "@radix-ui/react-checkbox@^1",
+  "@radix-ui/react-collapsible@^1",
+  "@radix-ui/react-context-menu@^2",
+  "@radix-ui/react-dialog@^1",
+  "@radix-ui/react-dropdown-menu@^2",
+  "@radix-ui/react-hover-card@^1",
+  "@radix-ui/react-label@^2",
+  "@radix-ui/react-menubar@^1",
+  "@radix-ui/react-navigation-menu@^1",
+  "@radix-ui/react-popover@^1",
+  "@radix-ui/react-progress@^1",
+  "@radix-ui/react-radio-group@^1",
+  "@radix-ui/react-scroll-area@^1",
+  "@radix-ui/react-select@^2",
+  "@radix-ui/react-separator@^1",
+  "@radix-ui/react-slider@^1",
+  "@radix-ui/react-slot@^1",
+  "@radix-ui/react-switch@^1",
+  "@radix-ui/react-tabs@^1",
+  "@radix-ui/react-toggle@^1",
+  "@radix-ui/react-toggle-group@^1",
+  "@radix-ui/react-tooltip@^1",
+  "@hookform/resolvers@^5",
+  "class-variance-authority@^0.7",
+  "clsx@^2",
+  "cmdk@^1",
+  "date-fns@^4",
+  "embla-carousel-react@^8",
+  "framer-motion@^12",
+  "input-otp@^1",
+  "lucide-react@^0.453",
+  "next-themes@^0.4",
+  "react-day-picker@^9",
+  "react-hook-form@^7",
+  "react-resizable-panels@^3",
+  "recharts@^2",
+  "sonner@^2",
+  "tailwind-merge@^3",
+  "tailwindcss-animate@^1",
+  "vaul@^1",
+  "zod@^4",
 ]
 
 [[files]]
@@ -36,6 +76,236 @@ to = "components/ui/card.tsx"
 mode = "append"
 from = "app/globals.css"
 to = "app/globals.css"
+
+[[files]]
+mode = "create"
+from = "components.json"
+to = "components.json"
+
+[[files]]
+mode = "create"
+from = "components/ui/accordion.tsx"
+to = "components/ui/accordion.tsx"
+
+[[files]]
+mode = "create"
+from = "components/ui/alert.tsx"
+to = "components/ui/alert.tsx"
+
+[[files]]
+mode = "create"
+from = "components/ui/alert-dialog.tsx"
+to = "components/ui/alert-dialog.tsx"
+
+[[files]]
+mode = "create"
+from = "components/ui/aspect-ratio.tsx"
+to = "components/ui/aspect-ratio.tsx"
+
+[[files]]
+mode = "create"
+from = "components/ui/avatar.tsx"
+to = "components/ui/avatar.tsx"
+
+[[files]]
+mode = "create"
+from = "components/ui/badge.tsx"
+to = "components/ui/badge.tsx"
+
+[[files]]
+mode = "create"
+from = "components/ui/breadcrumb.tsx"
+to = "components/ui/breadcrumb.tsx"
+
+[[files]]
+mode = "create"
+from = "components/ui/calendar.tsx"
+to = "components/ui/calendar.tsx"
+
+[[files]]
+mode = "create"
+from = "components/ui/carousel.tsx"
+to = "components/ui/carousel.tsx"
+
+[[files]]
+mode = "create"
+from = "components/ui/chart.tsx"
+to = "components/ui/chart.tsx"
+
+[[files]]
+mode = "create"
+from = "components/ui/checkbox.tsx"
+to = "components/ui/checkbox.tsx"
+
+[[files]]
+mode = "create"
+from = "components/ui/collapsible.tsx"
+to = "components/ui/collapsible.tsx"
+
+[[files]]
+mode = "create"
+from = "components/ui/command.tsx"
+to = "components/ui/command.tsx"
+
+[[files]]
+mode = "create"
+from = "components/ui/context-menu.tsx"
+to = "components/ui/context-menu.tsx"
+
+[[files]]
+mode = "create"
+from = "components/ui/dialog.tsx"
+to = "components/ui/dialog.tsx"
+
+[[files]]
+mode = "create"
+from = "components/ui/drawer.tsx"
+to = "components/ui/drawer.tsx"
+
+[[files]]
+mode = "create"
+from = "components/ui/dropdown-menu.tsx"
+to = "components/ui/dropdown-menu.tsx"
+
+[[files]]
+mode = "create"
+from = "components/ui/form.tsx"
+to = "components/ui/form.tsx"
+
+[[files]]
+mode = "create"
+from = "components/ui/hover-card.tsx"
+to = "components/ui/hover-card.tsx"
+
+[[files]]
+mode = "create"
+from = "components/ui/input.tsx"
+to = "components/ui/input.tsx"
+
+[[files]]
+mode = "create"
+from = "components/ui/input-otp.tsx"
+to = "components/ui/input-otp.tsx"
+
+[[files]]
+mode = "create"
+from = "components/ui/label.tsx"
+to = "components/ui/label.tsx"
+
+[[files]]
+mode = "create"
+from = "components/ui/menubar.tsx"
+to = "components/ui/menubar.tsx"
+
+[[files]]
+mode = "create"
+from = "components/ui/navigation-menu.tsx"
+to = "components/ui/navigation-menu.tsx"
+
+[[files]]
+mode = "create"
+from = "components/ui/pagination.tsx"
+to = "components/ui/pagination.tsx"
+
+[[files]]
+mode = "create"
+from = "components/ui/popover.tsx"
+to = "components/ui/popover.tsx"
+
+[[files]]
+mode = "create"
+from = "components/ui/progress.tsx"
+to = "components/ui/progress.tsx"
+
+[[files]]
+mode = "create"
+from = "components/ui/radio-group.tsx"
+to = "components/ui/radio-group.tsx"
+
+[[files]]
+mode = "create"
+from = "components/ui/resizable.tsx"
+to = "components/ui/resizable.tsx"
+
+[[files]]
+mode = "create"
+from = "components/ui/scroll-area.tsx"
+to = "components/ui/scroll-area.tsx"
+
+[[files]]
+mode = "create"
+from = "components/ui/select.tsx"
+to = "components/ui/select.tsx"
+
+[[files]]
+mode = "create"
+from = "components/ui/separator.tsx"
+to = "components/ui/separator.tsx"
+
+[[files]]
+mode = "create"
+from = "components/ui/sheet.tsx"
+to = "components/ui/sheet.tsx"
+
+[[files]]
+mode = "create"
+from = "components/ui/skeleton.tsx"
+to = "components/ui/skeleton.tsx"
+
+[[files]]
+mode = "create"
+from = "components/ui/slider.tsx"
+to = "components/ui/slider.tsx"
+
+[[files]]
+mode = "create"
+from = "components/ui/sonner.tsx"
+to = "components/ui/sonner.tsx"
+
+[[files]]
+mode = "create"
+from = "components/ui/switch.tsx"
+to = "components/ui/switch.tsx"
+
+[[files]]
+mode = "create"
+from = "components/ui/table.tsx"
+to = "components/ui/table.tsx"
+
+[[files]]
+mode = "create"
+from = "components/ui/tabs.tsx"
+to = "components/ui/tabs.tsx"
+
+[[files]]
+mode = "create"
+from = "components/ui/textarea.tsx"
+to = "components/ui/textarea.tsx"
+
+[[files]]
+mode = "create"
+from = "components/ui/toggle.tsx"
+to = "components/ui/toggle.tsx"
+
+[[files]]
+mode = "create"
+from = "components/ui/toggle-group.tsx"
+to = "components/ui/toggle-group.tsx"
+
+[[files]]
+mode = "create"
+from = "components/ui/tooltip.tsx"
+to = "components/ui/tooltip.tsx"
+
+[[files]]
+mode = "create-or-skip"
+from = "postcss.config.mjs"
+to = "postcss.config.mjs"
+
+[[files]]
+mode = "create"
+from = "tailwind.config.ts"
+to = "tailwind.config.ts"
 
 [skills]
 copy = ["skills/shadcn-dashboard-patterns"]

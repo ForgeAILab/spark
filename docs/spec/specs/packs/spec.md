@@ -70,7 +70,7 @@ The v1 pack-capability enum SHALL be closed and equal to: `db`, `auth`, `payment
 #### Scenario: Two exclusive providers cannot coexist
 
 - **WHEN** `db-supabase` is installed (it provides the exclusive capability `db`)
-- **AND** the user runs `app-skills add db-drizzle-postgres` (which also provides `db`)
+- **AND** the user runs `spark add db-drizzle-postgres` (which also provides `db`)
 - **THEN** the install aborts before writing any file
 - **AND** the error names both packs and the exclusive capability they both provide
 - **AND** suggests the user run `git reset` or remove the existing pack via revert before installing the alternative
@@ -78,7 +78,7 @@ The v1 pack-capability enum SHALL be closed and equal to: `db`, `auth`, `payment
 #### Scenario: Two non-exclusive providers coexist
 
 - **WHEN** `ai-anthropic` is installed (it provides the non-exclusive capability `ai-sdk`)
-- **AND** the user runs `app-skills add ai-openai` (which also provides `ai-sdk`)
+- **AND** the user runs `spark add ai-openai` (which also provides `ai-sdk`)
 - **THEN** both installs succeed
 - **AND** the resolver does not flag a conflict on `ai-sdk`
 
@@ -89,7 +89,7 @@ The v1 pack-capability enum SHALL be closed and equal to: `db`, `auth`, `payment
 #### Scenario: Capability-tag conflict aborts install
 
 - **WHEN** `payments-stripe` is installed and declared `conflicts = ["payments"]`
-- **AND** the user attempts `app-skills add payments-polar` (which provides `payments`)
+- **AND** the user attempts `spark add payments-polar` (which provides `payments`)
 - **THEN** the second install aborts
 - **AND** the error names both packs and the conflicting capability
 
@@ -113,7 +113,7 @@ Template capabilities SHALL live in a separate closed enum from pack capabilitie
 
 ### Requirement: File Operation Modes
 
-Each `[[files]]` entry in a manifest SHALL declare a `mode` of exactly one of `create`, `append`, `merge-json`, or `template`, plus a `from` path (relative to the pack's `files/` tree) and a `to` path (relative to the project root). `create` MUST fail if the destination already exists. `append` MUST be idempotent (re-running it MUST NOT add the content twice). `merge-json` MUST produce deterministic key ordering. `template` MUST expand variables from `app-skills.config.json` using Handlebars-style syntax.
+Each `[[files]]` entry in a manifest SHALL declare a `mode` of exactly one of `create`, `append`, `merge-json`, or `template`, plus a `from` path (relative to the pack's `files/` tree) and a `to` path (relative to the project root). `create` MUST fail if the destination already exists. `append` MUST be idempotent (re-running it MUST NOT add the content twice). `merge-json` MUST produce deterministic key ordering. `template` MUST expand variables from `spark.config.json` using Handlebars-style syntax.
 
 #### Scenario: `create` mode refuses to overwrite
 
@@ -125,13 +125,13 @@ Each `[[files]]` entry in a manifest SHALL declare a `mode` of exactly one of `c
 #### Scenario: `append` mode is idempotent
 
 - **WHEN** a pack declares an `append` block targeting `.env.example`
-- **AND** the user runs `app-skills add <pack>` twice
+- **AND** the user runs `spark add <pack>` twice
 - **THEN** the appended content appears in `.env.example` exactly once
 
 #### Scenario: `template` mode substitutes config variables
 
 - **WHEN** a template file references `{{appName}}`
-- **AND** `app-skills.config.json` contains `"appName": "demo"`
+- **AND** `spark.config.json` contains `"appName": "demo"`
 - **THEN** the installed file contains `demo` at every occurrence of `{{appName}}`
 
 ### Requirement: Declarative Dependencies and Env
@@ -185,11 +185,11 @@ A pack MAY include a `tasks.yaml` declaring board tasks to seed into `.ai/board.
 
 ### Requirement: Presets
 
-The system SHALL support **presets** — named bundles of packs defined as TOML files under `presets/`. A preset MUST declare a `name`, a `description`, a `compatible_scaffolds` array, and a `packs = [...]` array referencing pack names. Installing a preset is semantically equivalent to running `app-skills add` with the listed packs. The preset install MUST abort with a clear error if the active project's template is not in `compatible_scaffolds`.
+The system SHALL support **presets** — named bundles of packs defined as TOML files under `presets/`. A preset MUST declare a `name`, a `description`, a `compatible_scaffolds` array, and a `packs = [...]` array referencing pack names. Installing a preset is semantically equivalent to running `spark add` with the listed packs. The preset install MUST abort with a clear error if the active project's template is not in `compatible_scaffolds`.
 
 #### Scenario: Preset install resolves to a multi-pack add
 
-- **WHEN** the user runs `app-skills preset saas-classic`
+- **WHEN** the user runs `spark preset saas-classic`
 - **AND** `presets/saas-classic.toml` declares `compatible_scaffolds = ["nextjs"]` and `packs = ["db-supabase", "auth-supabase", "payments-stripe", "email-resend", "ui-shadcn", "deploy-vercel"]`
 - **AND** the active project's template is `nextjs`
 - **THEN** all six packs are installed in dependency order
@@ -198,6 +198,6 @@ The system SHALL support **presets** — named bundles of packs defined as TOML 
 #### Scenario: Preset rejected on incompatible template
 
 - **WHEN** the active project's template is `vite-react`
-- **AND** the user runs `app-skills preset saas-classic` whose `compatible_scaffolds = ["nextjs"]`
+- **AND** the user runs `spark preset saas-classic` whose `compatible_scaffolds = ["nextjs"]`
 - **THEN** the preset install aborts before any pack is applied
 - **AND** the error names the active template and the preset's compatible templates

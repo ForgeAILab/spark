@@ -1,0 +1,9 @@
+- id: DEPLOY-CF-001
+  title: Configure Cloudflare account + create R2 bucket
+  status: Clarifying
+  acceptance_criteria:
+    - Cloudflare account is provisioned and wrangler login succeeds locally.
+    - An R2 bucket exists if storage-s3 is also installed.
+    - S3_ENDPOINT is set in .env.local pointing at the R2 endpoint when relevant.
+    - wrangler deploy --dry-run succeeds.
+  requires_pack: deploy-cloudflare
