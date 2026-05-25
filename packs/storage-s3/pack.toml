@@ -1,7 +1,7 @@
 name = "storage-s3"
 version = "1.0.0"
 category = "storage"
-description = "S3-compatible blob storage helpers (AWS S3 or Cloudflare R2) with presigned upload URLs."
+description = "S3-compatible blob storage helpers (AWS S3 or Cloudflare R2) with presigned upload URLs. Ships a MinIO docker-compose service for local dev."
 provides = ["blob-storage"]
 requires = []
 conflicts = []
@@ -19,3 +19,18 @@ optional = ["S3_ENDPOINT", "S3_REGION"]
 mode = "create"
 from = "lib/s3.ts"
 to = "lib/s3.ts"
+
+[[files]]
+mode = "create-or-skip"
+from = "docker-compose.yml"
+to = "docker-compose.yml"
+
+[[files]]
+mode = "create"
+from = "compose/minio.yml"
+to = "compose/minio.yml"
+
+[[files]]
+mode = "append"
+from = "docker-compose.include.yml"
+to = "docker-compose.yml"

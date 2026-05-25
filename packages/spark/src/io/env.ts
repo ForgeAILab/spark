@@ -25,8 +25,13 @@ function hasEnvVar(content: string, key: string): boolean {
   return new RegExp(`^\\s*(?:export\\s+)?${escapeRegex(key)}\\s*=`, 'm').test(content);
 }
 
-async function appendEnvVarsToFile(path: string, vars: readonly string[]): Promise<string[]> {
-  const current = await readExisting(path);
+async function appendEnvVarsToFile(
+  path: string,
+  vars: readonly string[],
+  createIfMissing = false,
+): Promise<string[]> {
+  const existing = await readExisting(path);
+  const current = existing === undefined && createIfMissing ? '' : existing;
   if (current === undefined) {
     return [];
   }
@@ -50,7 +55,7 @@ export async function appendEnvVars(
   const results: EnvApplyResult[] = [];
 
   for (const file of ['.env.example', '.env.local']) {
-    const added = await appendEnvVarsToFile(join(projectRoot, file), uniqueVars);
+    const added = await appendEnvVarsToFile(join(projectRoot, file), uniqueVars, file === '.env.example');
     results.push({ file, added });
   }
 

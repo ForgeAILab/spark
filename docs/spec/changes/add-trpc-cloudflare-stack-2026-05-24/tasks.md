@@ -1,6 +1,6 @@
 ---
 created_at: 2026-05-24T19:46:04Z
-updated_at: 2026-05-24T22:44:14Z
+updated_at: 2026-05-25T00:53:47Z
 completed_at: 2026-05-24T22:04:31Z
 ---
 
@@ -88,3 +88,12 @@ So `spark add api-trpc` exposes `/trpc/hello` immediately on every supported tem
 - [x] 10.5 deploy-cloudflare's `worker.ts` file op switches from `create` to `create-or-skip` so api-trpc wins on install order in lean-cloudflare.
 - [x] 10.6 Re-run smoke 9.3 — `wrangler deploy --dry-run` bundled the trpc router (749 KiB), `bun run server/dev.ts` boots, `curl /trpc/hello` returns `{"greeting":"Hello, world!"}`.
 - [x] 10.7 Re-run smoke 9.4 — `next build` emits `ƒ /api/trpc/[trpc]` (11 routes total); `next start` + `curl /api/trpc/hello` returns `{"greeting":"Hello, world!"}`.
+
+## 11. Local-dev ergonomics — `.env.example` bootstrap + MinIO compose
+
+So `spark add` actually produces a `.env.example` with declared vars, and `storage-s3 + docker compose up` gives you working blob storage locally.
+
+- [x] 11.1 `packages/spark/src/io/env.ts` — `appendEnvVarsToFile` creates `.env.example` if it doesn't exist; `.env.local` keeps the create-only-if-exists behavior. Differentiation via `createIfMissing` parameter.
+- [x] 11.2 `storage-s3` ships MinIO docker-compose pattern matching db-postgres: `files/compose/minio.yml`, top-level `files/docker-compose.yml` (create-or-skip), `files/docker-compose.include.yml` (append). Bucket auto-created by minio-bucket sidecar on first boot.
+- [x] 11.3 `storage-s3` README documents AWS vs R2 vs local-MinIO env values.
+- [x] 11.4 Smoke (demo-vite-cf): `.env.example` bootstrapped with `DATABASE_URL=, S3_BUCKET=, S3_ACCESS_KEY_ID=, S3_SECRET_ACCESS_KEY=`; `docker-compose.yml` includes both `compose/postgres.yml` and `compose/minio.yml`; test suite 79 pass (was 51 — env.ts gained tests).
