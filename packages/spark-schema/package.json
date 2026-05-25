@@ -1,6 +1,6 @@
 {
   "name": "@forgeailab/spark-schema",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Shared Zod schemas + TOML parsers for spark pack and template manifests.",
   "repository": {
     "type": "git",
