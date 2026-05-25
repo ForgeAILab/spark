@@ -1,0 +1,20 @@
+{
+  "name": "forgeailab",
+  "owner": {
+    "name": "ForgeAILab"
+  },
+  "description": "ForgeAILab Claude Code plugins. spark = the board-driven AI MVP workflow (planner / implementer / evaluator skills over a docs/spark spec workspace).",
+  "plugins": [
+    {
+      "name": "spark",
+      "source": ".",
+      "description": "spark's 21-skill workflow: /spark:start plans a docs/spark spec workspace (proposal + visual design + EARS specs + tasks.md), /spark:build-loop builds toward the spec scenarios, /spark:capture-feedback turns live feedback into tasks, plus the full pipeline and pack tooling.",
+      "version": "0.2.0",
+      "keywords": [
+        "mvp",
+        "spec-driven",
+        "workflow"
+      ]
+    }
+  ]
+}
