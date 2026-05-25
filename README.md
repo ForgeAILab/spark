@@ -58,7 +58,7 @@ v1 ships:
 - 2 base templates (`nextjs`, `vite-react`); 3 registered for follow-up (`astro`, `astro-starlight`, `one`).
 - 19 packs across `db`, `auth`, `payments`, `email`, `ui`, `ai`, `infra`, `testing`, `deploy`, `analytics`, `storage`.
 - 6 presets.
-- 21 skills mirrored into both Claude and Codex skill formats.
+- 22 skills mirrored into both Claude and Codex skill formats.
 
 Out of scope for v1: a remote pack registry, `remove`/`update` subcommands, pack versioning, base scaffolds for non-Next.js templates.
 

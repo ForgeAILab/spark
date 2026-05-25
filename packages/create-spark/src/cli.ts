@@ -108,6 +108,7 @@ async function promptForTemplate(templates: TemplateMetadata[]): Promise<string>
   const answer = abortIfCancel(
     await select<string>({
       message: 'Template',
+      initialValue: 'vite-react',
       options: templates.map((template) => ({
         value: template.name,
         label: formatTemplateLabel(template),

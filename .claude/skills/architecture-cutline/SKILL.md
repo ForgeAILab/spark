@@ -41,7 +41,7 @@ If the proposal is missing, stop and tell the user to run `/mvp-spec` first.
 - For every decision, also write what you are **NOT building yet**. This is the cutline.
 - If the spec implies something exotic (realtime collab, ML inference, search, multi-tenancy), call it out and propose a faked version for v1.
 - Respect prior decisions recorded in earlier proposals / design docs unless they conflict with the spec.
-- Choose a scaffold template before choosing packs. Prefer `nextjs` for v1 unless the spec clearly fits a registered template.
+- Choose a scaffold template before choosing packs. **Default to `vite-react`** (SPA + a minimal Hono API; deploys to Cloudflare Workers or Bun). Choose `nextjs` only when the spec needs SSR, server-rendered routes, or SEO-critical pages. Note the choice in the Pack plan so `/scaffold` can flag a mismatch with what `create-spark` laid down.
 - Recommend only packs that exist in `packs/*/pack.toml`. Do not recommend a capability if no v1 pack provides it.
 - If the spec implies a capability with no v1 pack, name the gap explicitly in the `## Pack plan` and suggest `/new-pack`.
 

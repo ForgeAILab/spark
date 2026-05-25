@@ -34,7 +34,8 @@ Read these from the active `docs/spark/changes/<id>-YYYY-MM-DD/` (required):
 - `docs/spark/design.md` if the batch is user-facing (visual direction)
 
 If the change is not approved, stop and route to `/start`. Approval is owned by
-`/board-review`, never by this skill.
+`/board-review`, never by this skill. The stack should already be stood up by
+`/scaffold` (packs installed, app boots); if it isn't, route to `/scaffold` first.
 
 ## Rules
 

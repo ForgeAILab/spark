@@ -22,9 +22,10 @@ if an answer isn't here, they ask you instead of inventing it.
 1. **Propose** (`/start`) — understand the idea, then write the change:
    `proposal.md` → `design.md` (+ product `design.md` for UI) → EARS `specs/` → `tasks.md`.
    Stops at the approval gate. No application code yet.
-2. **Build** (`/build-loop`) — once you approve, build toward the specs: implement each
-   task, test it against its `#### Scenario` steps, update the task's status, and loop
-   until the change's scenarios pass.
+2. **Build** (`/scaffold` → `/build-loop`) — once you approve, `/scaffold` stands up the
+   stack (installs the change's Pack plan, confirms the app boots), then `/build-loop`
+   builds toward the specs: implement each task, test it against its `#### Scenario`
+   steps, update the task's status, and loop until the change's scenarios pass.
 3. **Archive** — when every task is done and its scenarios pass, fold the change's EARS
    deltas into `specs/` as the new truth and move the change folder aside.
 
@@ -92,6 +93,7 @@ review → Validated`, plus side states `Blocked` and `Cut`.
 | Architecture | `architecture-cutline` |
 | Visual design | `ux-theme` |
 | Plan tasks | `mvp-board`, `board-review` |
+| Scaffold stack | `scaffold` |
 | Schedule | `parallel-execution`, `next-task` |
 | Execute | `implementation-brief`, `execute-task` |
 | Evaluate | `code-review`, `qa-verify` |

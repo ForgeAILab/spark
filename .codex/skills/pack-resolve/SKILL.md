@@ -34,6 +34,7 @@ If the proposal or design is missing, stop and tell the user to run `/mvp-spec` 
 
 - Do not run `bunx create-spark`, `spark add`, or `spark preset`. This is a planning skill only.
 - Resolve from the registry, not from memory. Pack names must come from `packs/*/pack.toml`; templates must come from `templates/*/template.toml`.
+- **Default the scaffold to `vite-react`** (SPA + Hono API; pairs with Cloudflare/Bun). Recommend `nextjs` only when the spec needs SSR, server-rendered routes, or SEO-critical pages.
 - Prefer the smallest pack set that satisfies the spec and architecture. Do not install "usual SaaS" packs unless the capability is actually required.
 - Group packs by manifest `category`, and map each pack to the capability tags it provides or satisfies.
 - Annotate each recommended pack as `copy`. Since v0.2.0 all packs use the copy model; there is no hybrid/runtime-package mode.

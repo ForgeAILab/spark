@@ -43,7 +43,7 @@ from `tasks.md` on demand. If an answer is not in the workspace, ask the user �
 3. **Cut the architecture.** Boring stack > clever stack — the change's `design.md`, with a `## Pack plan`. Every choice has a "not building yet" sibling.
 4. **Theme the UX.** One vibe, one reference product, concrete tokens — `docs/spark/design.md`.
 5. **Build the tasks.** `tasks.md` tasks sized for one focused session, each linked to the scenario it satisfies. Declare `Depends on:` and `Parallel-safe:` as sub-bullets.
-6. **Review the plan.** Approval gate between planning and execution. No task is built until its change is `Approved for execution`.
+6. **Review, then scaffold.** Approval gate between planning and execution. Once approved, `/scaffold` installs the change's Pack plan (`spark add …`) and verifies the app boots. No task is built until its change is `Approved for execution`.
 7. **Brief each task** before execution. Self-contained, with files-to-inspect, the linked scenario, and a verification command.
 8. **Execute one task at a time.** Stay inside the declared file list. No bonus refactors.
 9. **Review independently.** A separate pass checks the diff against the task's scenario, security, and scope.
@@ -83,6 +83,7 @@ Claude Code skills live in `.claude/skills/`. The same operations on Codex shoul
 | Architecture | `architecture-cutline` |
 | Visual design | `ux-theme` |
 | Plan tasks | `mvp-board`, `board-review` |
+| Scaffold stack | `scaffold` |
 | Schedule | `parallel-execution`, `next-task` |
 | Execute | `implementation-brief`, `execute-task` |
 | Evaluate | `code-review`, `qa-verify` |

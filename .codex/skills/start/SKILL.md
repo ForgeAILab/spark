@@ -69,7 +69,8 @@ Walk top to bottom; route to the first row that is not yet satisfied.
 | Design names a capability with no installed pack | `/pack-resolve` then `/pack-add` |
 | Specs done, `tasks.md` empty | `/mvp-board` |
 | `tasks.md` drafted, change not approved | `/board-review` (the approval gate) |
-| Change approved | `/build-loop` |
+| Change approved, stack not stood up | `/scaffold` (install the Pack plan, verify boot) |
+| Stack scaffolded (app boots) | `/build-loop` |
 | Tasks `[~]` / needs review | `/build-loop` (drives review + QA) |
 | All tasks `[x]` and scenarios pass | `/risk-check`, then archive / deploy |
 
@@ -78,7 +79,7 @@ Walk top to bottom; route to the first row that is not yet satisfied.
 ```md
 ## <Project> — build status
 
-**Pipeline:** Grill <✅|⬜> · Proposal <✅|⬜> · Design <✅|⬜|n/a> · Specs <✅|⬜> · Tasks <✅|⬜> · Approved <✅|⬜> · Building <🔨|⬜>
+**Pipeline:** Grill <✅|⬜> · Proposal <✅|⬜> · Design <✅|⬜|n/a> · Specs <✅|⬜> · Tasks <✅|⬜> · Approved <✅|⬜> · Scaffolded <✅|⬜> · Building <🔨|⬜>
 
 **Active change:** `<id>-YYYY-MM-DD` (or "none yet")
 **Tasks:** <n> total — <n> done · <n> in progress · <n> blocked · <n> todo

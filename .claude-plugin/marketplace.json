@@ -11,7 +11,7 @@
         "source": "github",
         "repo": "ForgeAILab/spark"
       },
-      "description": "spark's 21-skill workflow: /spark:start plans a docs/spark spec workspace (proposal + visual design + EARS specs + tasks.md), /spark:build-loop builds toward the spec scenarios, /spark:capture-feedback turns live feedback into tasks, plus the full pipeline and pack tooling.",
+      "description": "spark's 22-skill workflow: /spark:start plans a docs/spark spec workspace (proposal + visual design + EARS specs + tasks.md), /spark:scaffold stands up the stack, /spark:build-loop builds toward the spec scenarios, /spark:capture-feedback turns live feedback into tasks, plus the full pipeline and pack tooling.",
       "version": "0.3.0",
       "keywords": [
         "mvp",
