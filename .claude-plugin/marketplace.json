@@ -12,7 +12,7 @@
         "repo": "ForgeAILab/spark"
       },
       "description": "spark's 17-skill workflow: /spark:start conducts the whole pipeline (proposal + visual design + EARS specs + tasks.md, then — once approved — scaffold and build), /spark:board-review is the approval gate, /spark:capture-feedback turns live feedback into tasks, plus the evaluator and pack tooling. The planning phases ship as references inside /spark:start.",
-      "version": "0.4.0",
+      "version": "0.4.1",
       "keywords": [
         "mvp",
         "spec-driven",
