@@ -35,7 +35,8 @@ Read these from the active `docs/spark/changes/<id>-YYYY-MM-DD/` (required):
 
 If the change is not approved, stop and route to `/start`. Approval is owned by
 `/board-review`, never by this skill. The stack should already be stood up by
-`/scaffold` (packs installed, app boots); if it isn't, route to `/scaffold` first.
+`/scaffold` (packs installed, app boots); if it isn't, hand back to `/start`, which runs
+`/scaffold` first.
 
 ## Rules
 
@@ -44,8 +45,9 @@ If the change is not approved, stop and route to `/start`. Approval is owned by
 - **The scenario is the definition of done.** A task linked to a `#### Scenario`
   is `[x]` only when its WHEN/THEN steps actually pass; otherwise leave it `[~]`
   or annotate `Blocked: <failing step>`.
-- **One batch at a time.** Build the current parallel-safe batch, show the result,
-  and wait for the user before the next batch.
+- **One batch at a time, but keep moving.** Build a parallel-safe batch, show the live
+  result, then continue to the next batch automatically. Pause for the user only on a
+  blocker, an out-of-scope / feedback request, or when they interject.
 - **Delegate, don't reinvent.** Use the real skills for each step (below). This
   skill only sequences them, tests against scenarios, and renders status.
 - **`tasks.md` is the only state.** Update status inline (`[ ]`→`[~]`→`[x]`); never
@@ -69,8 +71,9 @@ If the change is not approved, stop and route to `/start`. Approval is owned by
 5. **Reconcile** with `/sync-board` so `tasks.md` matches git reality.
 6. **Show the result:** render the build-status view (from `/start`) and the live
    URL, and summarize what changed this batch.
-7. **Hand the wheel back.** Ask the user to approve, change, or add. Route any
-   plain-English feedback through `/capture-feedback`, then loop from step 1.
+7. **Show the live result, then keep going.** Continue to the next batch automatically;
+   route any plain-English feedback through `/capture-feedback`. Pause only on a blocker
+   or when the user interjects, then loop from step 1.
 8. Stop when the user stops, or when every task in the change is `[x]` and each
    linked scenario passes — then report the change **ready to archive**.
 
@@ -89,10 +92,10 @@ http://localhost:<port> — <what to look at>
 
 <build-status view from /start>
 
-### Your move
-- "looks good" → next batch
-- "change <x>" / "add <y>" / "<z> is broken" → I'll capture it as a task
-- "stop" → I'll leave `tasks.md` synced and the server note here
+### Continuing
+- Next batch starting automatically — watch the live preview above.
+- "change <x>" / "add <y>" / "<z> is broken" → I'll capture it via `/capture-feedback`
+- "stop" → I'll pause, leave `tasks.md` synced, and note the server here
 ```
 
 When the last task is `[x]` and all scenarios pass, replace "Your move" with a

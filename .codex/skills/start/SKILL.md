@@ -1,6 +1,6 @@
 ---
 name: start
-description: The front door for a spark project. Understands the user's idea, then builds the validatable planning docs in the `docs/spark/` workspace — drafts the active change's `proposal.md`, drives design/EARS-specs/`tasks.md`, renders the build-status view, and stops at the approval gate. Use when the user hands over a fresh idea, opens a new spark project, or asks "where do I start?", "what's next?", "let's build X". Do NOT write application code or mark tasks executable — that gate is `/board-review`, and building is `/build-loop`.
+description: The front door and conductor for a spark project. Understands the user's idea, then drives the whole pipeline as one flow with a single human gate — grills for scope, drafts the active change's proposal → design → specs → tasks without stopping between phases, halts at the `/board-review` approval gate, and once approved continues automatically through `/scaffold` and `/build-loop` to a running app. Use when the user hands over a fresh idea, opens a new spark project, or asks "where do I start?", "what's next?", "let's build X". The one human gate is approval; never mark a task executable before it.
 # Generated from .claude/skills/start/SKILL.md — DO NOT EDIT directly
 ---
 
@@ -8,18 +8,45 @@ description: The front door for a spark project. Understands the user's idea, th
 
 ## Goal
 
-Be the conductor of the **Propose** stage. A spark project ships the full
-planner / implementer / evaluator loop but no obvious entry point — this skill
-removes the "which skill do I run now?" friction. Understand the idea, build the
-one legible artifact the user validates (`proposal.md`), drive the rest of the
-documentation (design → EARS specs → `tasks.md`) toward the approval gate, and
-always show where the project is on the production line. You own the
-orchestration and the proposal; the named planning skills do the deep authoring.
+Be the **conductor** of the whole pipeline: take a raw idea to a running app in one
+continuous flow with a single human gate (approval). A spark project ships the full
+planner / implementer / evaluator loop but no obvious entry point — this skill removes
+both the "which skill do I run now?" friction *and* the stop-and-go of confirming every
+phase. You own the orchestration, the ordering, and the `proposal.md`; the named skills
+do the deep authoring and building. **The pipeline order lives here and nowhere else** —
+phase skills hand control back to you; they do not name the next skill.
+
+## The conductor contract (how you drive)
+
+You conduct the **whole lifecycle** — idea → plan → approval → scaffold → build — as one
+flow. Walk the routing table top to bottom; for each unsatisfied phase, run its skill,
+then continue to the next **without asking "shall I continue?"**.
+
+**Stop for exactly two human touchpoints:**
+
+1. **You need the user** — `/idea-sharpen` or `/mvp-grill` questions, or a genuine fork
+   only the user can decide (e.g. a real stack trade-off). Ask, then resume.
+2. **The `/board-review` approval gate.** The Propose stage is documents-only (nothing
+   installed or coded yet), so chain it straight to here, render build-status, and stop.
+   Never approve on the user's behalf.
+
+**The approval banner is the green light for the build.** Once the active change carries
+it, keep going automatically — run `/scaffold` (install the Pack plan, verify the app
+boots), then drive `/build-loop` — without making the user invoke each phase. After
+approval you pause only on a **blocker** (a failed install/boot, or a decision only the
+user can make) — report the specific reason, don't thrash — or when the user interjects.
+
+- Before the gate: as each artifact lands, note it in one line (`✅ proposal.md`,
+  `✅ specs/auth/spec.md`). Render the full build-status view when you stop.
+- Never skip the gate, and never mark a task executable before approval.
+
+Net result: the user grills once, approves once, and watches the plan become a running
+app. Two touchpoints, not eight.
 
 ## Recommended model
 
-Opus 4.7 / GPT-5.5 when judging a raw idea or drafting the proposal. Sonnet 4.6
-is enough once you are only reading state and routing.
+Opus 4.7 / GPT-5.5 when judging a raw idea or drafting the proposal. Sonnet 4.6 is enough
+once you are only reading state and routing.
 
 ## Inputs
 
@@ -29,57 +56,68 @@ Read whatever exists in `docs/spark/` (none are required — absence is signal):
 - `docs/spark/design.md` — product visual language (filled when UI is in scope)
 - `docs/spark/specs/<capability>/spec.md` — EARS truth that has shipped
 - `docs/spark/changes/<id>-YYYY-MM-DD/` — the active change: `proposal.md`,
-  optional `design.md`, `tasks.md` (the source of truth for task status)
+  optional technical `design.md`, `tasks.md` (the source of truth for task status)
 - `spark.config.json`, `.spark/state.json` — template, installed packs
 - `git status --short` — uncommitted work in flight
 
-Treat a file that is missing, empty, or only template headings as "not done."
-The **active change** is the newest non-archived folder under `docs/spark/changes/`;
-if none exists, the first thing `/start` does is create one.
+Treat a file that is missing, empty, or only template headings as "not done." The
+**active change** is the newest non-archived folder under `docs/spark/changes/`; if none
+exists, the first thing `/start` does is create one. The **approval banner**
+(`> **Approved for execution** — <date> (/board-review)` under the `tasks.md` frontmatter)
+is what flips the project from planning to building.
 
 ## Rules
 
-- **Build the proposal, then route.** You may draft `proposal.md` and scaffold the
-  active change folder. Hand off deep authoring (EARS specs, task breakdown) to the
-  matching planning skill — recommend exactly one next step and stop.
-- **No application code.** The Propose stage produces documentation only. Never
-  edit `app/`, `src/`, or `server/` from this skill.
-- **Never skip a gate.** A change advances from planning to building only after
-  `/board-review` approves it. Say so; do not route around it, and never mark a
-  task executable yourself.
-- **One next step.** If several are possible, pick the earliest unfinished phase.
-  Offer at most one optional side-step (e.g. "or run `/risk-check`").
-- **Always render the build-status view** (below) so progress is visible every
-  time, even on a brand-new project.
-- If the user gave an idea but `project.md` / `proposal.md` is empty, capture the
-  idea verbatim in your summary and grill before drafting — do not invent scope.
+- **Drive, don't narrate the contradiction.** You are the single router. Resume from the
+  first unsatisfied row and flow forward; do not stop to explain which skill "would have"
+  sent you elsewhere.
+- **No application code from this skill.** You delegate building to `/scaffold` and
+  `/build-loop`; you never edit `app/`, `src/`, or `server/` directly.
+- **One gate.** A change advances from planning to building only after `/board-review`
+  writes the approval banner. Stop there for approval; never route around it, and never
+  mark a task executable yourself. After the banner exists, the build is authorized — flow.
+- **Design is an unordered pair, both required.** `architecture-cutline` (the change's
+  technical `design.md`: stack + Pack plan) and `ux-theme` (the product visual `design.md`)
+  are independent of each other, but **both** must exist before `/mvp-board` (ux-theme only
+  when UI is in scope). Do **architecture first** — it surfaces pack gaps and constrains
+  layout — then ux-theme.
+- **One change, this run.** Drive the active change only; do not start a second.
+- If the user gave an idea but `project.md` / `proposal.md` is empty, capture the idea
+  verbatim in your summary and grill before drafting — do not invent scope.
 
-## Routing table
+## Routing table (the one place the order lives)
 
-Walk top to bottom; route to the first row that is not yet satisfied.
+Walk top to bottom; act on the first row that is not yet satisfied, then continue.
 
-| State | Next |
+| State | Action |
 | --- | --- |
-| Idea is vague or has 2+ directions | `/idea-sharpen` |
-| `project.md` empty / idea not grilled | `/mvp-grill` |
-| Grilled, no active change or `proposal.md` empty | draft `proposal.md` here, then `/mvp-spec` |
-| Proposal drafted, EARS `specs/` deltas empty | `/mvp-spec` |
-| UI in scope, product `design.md` empty | `/ux-theme` |
-| Stack undecided, change `design.md` empty | `/architecture-cutline` |
-| Design names a capability with no installed pack | `/pack-resolve` then `/pack-add` |
-| Specs done, `tasks.md` empty | `/mvp-board` |
-| `tasks.md` drafted, change not approved | `/board-review` (the approval gate) |
-| Change approved, stack not stood up | `/scaffold` (install the Pack plan, verify boot) |
-| Stack scaffolded (app boots) | `/build-loop` |
-| Tasks `[~]` / needs review | `/build-loop` (drives review + QA) |
-| All tasks `[x]` and scenarios pass | `/risk-check`, then archive / deploy |
+| Idea is vague or has 2+ directions | run `/idea-sharpen` — **pause** for the user's pick |
+| `project.md` empty / idea not grilled | run `/mvp-grill` — **pause** for answers |
+| Grilled, no active change or `proposal.md` empty | draft `proposal.md` here, then run `/mvp-spec` |
+| Proposal drafted, EARS `specs/` deltas empty | run `/mvp-spec` |
+| Stack undecided, change `design.md` empty | run `/architecture-cutline` |
+| UI in scope, product `design.md` empty | run `/ux-theme` |
+| Design names a capability with no installed pack | run `/pack-resolve` (plan only — install is `/scaffold`'s job) |
+| Specs + required design docs done, `tasks.md` empty | run `/mvp-board` |
+| `tasks.md` drafted, change not approved | **STOP** → hand to `/board-review` (the approval gate) |
+| Change approved, stack not stood up | run `/scaffold` — install the Pack plan + verify boot, then continue |
+| Stack scaffolded (app boots) | run `/build-loop` — build toward the scenarios |
+| Tasks `[~]` / needs review | continue `/build-loop` (drives review + QA) |
+| All tasks `[x]` and scenarios pass | run `/risk-check`, then archive / deploy |
+
+Rows above the gate are documents-only and auto-chain; rows marked **pause** wait for the
+user; the gate is the one hard **STOP**, for approval. Once the approval banner is present,
+the rows below the gate auto-run too — the build flows from approval to a running app,
+pausing only on a blocker.
 
 ## Output format
+
+Render this when you stop (at a pause, the gate, or a blocker):
 
 ```md
 ## <Project> — build status
 
-**Pipeline:** Grill <✅|⬜> · Proposal <✅|⬜> · Design <✅|⬜|n/a> · Specs <✅|⬜> · Tasks <✅|⬜> · Approved <✅|⬜> · Scaffolded <✅|⬜> · Building <🔨|⬜>
+**Pipeline:** Grill <✅|⬜> · Proposal <✅|⬜> · Architecture <✅|⬜> · Visual <✅|⬜|n/a> · Specs <✅|⬜> · Tasks <✅|⬜> · Approved <✅|⬜> · Scaffolded <✅|⬜> · Building <🔨|⬜>
 
 **Active change:** `<id>-YYYY-MM-DD` (or "none yet")
 **Tasks:** <n> total — <n> done · <n> in progress · <n> blocked · <n> todo
@@ -90,11 +128,11 @@ Walk top to bottom; route to the first row that is not yet satisfied.
 - [ ] **<feature>** — <one line> · `<task id>` · ⛔ blocked — <reason>
 - [ ] **<feature>** · `<task id>` · 🆕 todo
 
-**Next:** run `/<skill>` — <one sentence why this is the next step>
+**Next:** <the pause question, "run `/board-review` to approve", or "scaffolding now → building"> — <one sentence why>
 ```
 
-Checkbox = task `[x]` (done); the emoji carries the granular status from the
-`tasks.md` markers. On a fresh project the Features list is empty and Next points
-at `/mvp-grill` (or `/idea-sharpen`). This build-status view is the canonical
-progress/checklist surface — `/build-loop` and `/capture-feedback` re-render it
-rather than inventing their own.
+Checkbox = task `[x]` (done); the emoji carries the granular status from the `tasks.md`
+markers. On a fresh project the Features list is empty and the first stop is the
+`/mvp-grill` (or `/idea-sharpen`) questions. This build-status view is the canonical
+progress/checklist surface — `/scaffold`, `/build-loop`, and `/capture-feedback` re-render
+it rather than inventing their own.

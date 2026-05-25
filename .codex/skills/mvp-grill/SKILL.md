@@ -28,7 +28,7 @@ If `proposal.md` already has a target user, core loop, and MVP features, stop an
 - Max **5 questions per round**. Wait for answers before the next round.
 - Only ask questions that change scope, architecture, or the definition of "done." Skip cosmetic or curious questions.
 - Force a real answer. If the user dodges, ask a sharper version.
-- Stop grilling once you can write a coherent one-sentence product, target user, core loop, and MVP feature list. Then record the locked-in answers in the active change's `proposal.md` and recommend `/mvp-spec`.
+- Stop grilling once you can write a coherent one-sentence product, target user, core loop, and MVP feature list. Then record the locked-in answers in the active change's `proposal.md` and hand control back to `/start`.
 - Never write code or scaffold files in this skill.
 
 ## Question pool (pick the highest-leverage 5 each round)
@@ -53,6 +53,6 @@ After each round, return:
 1. **Summary so far** — what you have locked in.
 2. **Open questions** — up to 5, numbered, sharp.
 3. **Gaps** — what is still too vague to plan around.
-4. **Next** — either "answer the questions above" or "ready for `/mvp-spec`".
+4. **Next** — either "answer the questions above" (the only thing blocking) or "scope locked".
 
-When grilling ends, record the locked-in answers in the active change's `proposal.md` (Why / What / Impact sections).
+When grilling ends, record the locked-in answers in the active change's `proposal.md` (Why / What / Impact sections), then hand control back to `/start`, which resumes the Propose chain. Do not name the next skill yourself; the pipeline order lives in `/start`.

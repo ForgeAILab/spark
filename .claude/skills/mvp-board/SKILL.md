@@ -67,4 +67,5 @@ completed_at:
 - <thing>  Cut: <reason>
 ```
 
-After writing, recommend `/board-review`. Tasks must not be built until the change is approved.
+After writing, hand control back to `/start`, which stops at the `/board-review` approval
+gate. Do not name the next skill yourself. Tasks must not be built until the change is approved.

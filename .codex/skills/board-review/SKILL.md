@@ -68,7 +68,10 @@ Walk the tasks and flag:
 - Added "Approved for execution" banner (<date>) | Sent <task id> back with a note
 
 ### Recommended next
-Run `/parallel-execution`, then `/build-loop`.
+Approved → hand back to `/start`, which now **continues the build automatically**: it runs
+`/scaffold` (install the Pack plan, verify boot) and then drives `/build-loop` — no manual
+kickoff needed. It pauses only on a blocker or a decision. (Sent tasks back instead? Stay in
+planning until they're resolved and re-approved.)
 ```
 
 After writing the review, edit `tasks.md`: add the approval banner if approved, or attach

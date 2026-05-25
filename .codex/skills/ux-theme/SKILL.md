@@ -69,4 +69,6 @@ Write `docs/spark/design.md`:
 - <hard "no" rules, e.g. "no gradients", "no emoji in UI">
 ```
 
-After writing, recommend `/mvp-board`.
+After writing, hand control back to `/start`, which continues the Propose chain. Do not
+name the next skill yourself; the pipeline order lives in `/start` (and never skips the
+change's technical `design.md` / Pack plan on the way to tasks).

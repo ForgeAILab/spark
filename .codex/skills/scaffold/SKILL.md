@@ -11,8 +11,9 @@ description: Stand up the approved change's stack — read its `design.md` Pack 
 Turn an approved plan into a running, capability-complete project before any feature
 work starts. The template scaffold already exists (created by `create-spark`); this
 skill stands up the **capabilities** the plan calls for — it runs the change's Pack
-plan, confirms the app still boots, and hands a ready project to `/build-loop`. It
-conducts existing skills; it does not invent install logic or write feature code.
+plan, confirms the app still boots, and hands the ready project back to `/start`, which
+continues automatically into `/build-loop`. It conducts existing skills; it does not
+invent install logic or write feature code.
 
 ## Recommended model
 
@@ -57,7 +58,9 @@ and route to `/start`. If there is no `## Pack plan`, route to `/architecture-cu
 4. Install the stack via `/pack-add` (runs the `spark add …` from the plan).
 5. Run `spark check` to confirm no drift (missing files / env / tasks).
 6. Start the dev server and confirm it boots; capture the local URL.
-7. Render the build-status view (from `/start`) and hand off to `/build-loop`.
+7. Render the build-status view (from `/start`) and hand back to `/start`, which continues
+   automatically into `/build-loop` (no manual kickoff). A boot failure or template
+   mismatch is a blocker — surface it and stop instead of proceeding.
 
 ## Output format
 
@@ -75,6 +78,6 @@ and route to `/start`. If there is no `## Pack plan`, route to `/architecture-cu
 <build-status view from /start>
 
 ### Next
-- Booted and clean → run `/build-loop` to build the first batch.
-- Mismatch or boot failure above needs a decision first.
+- Booted and clean → `/start` continues automatically into `/build-loop` (first batch).
+- Mismatch or boot failure above is a blocker — it needs a decision before building.
 ```

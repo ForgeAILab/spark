@@ -57,7 +57,7 @@ Read these if they exist:
 <one of A/B/C, with the single reason that decides it>
 
 ## Next
-Run `/mvp-grill` on the chosen angle.
+Scope angle chosen — hand back to `/start`, which resumes the Propose chain (grilling the chosen angle next).
 ```
 
-Record the chosen angle and its reasoning in the active change's `proposal.md`.
+Record the chosen angle and its reasoning in the active change's `proposal.md`, then return control to `/start`. Do not name the next skill yourself; the pipeline order lives in `/start`.

@@ -86,5 +86,7 @@ spark add <pack-1> <pack-2>
 <2–4 risks with a simpler fallback for each>
 ````
 
-After writing, update the one-line stack summary in `docs/spark/project.md` and recommend
-`/ux-theme` (if UI is in scope) or `/mvp-board`.
+After writing, update the one-line stack summary in `docs/spark/project.md`, then hand
+control back to `/start`, which continues the Propose chain (product visual design next if
+UI is in scope, otherwise tasks). Do not name the next skill yourself; the pipeline order
+lives in `/start`.

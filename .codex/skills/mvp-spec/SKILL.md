@@ -79,5 +79,6 @@ The system SHALL <observable behavior>.
 - **AND** <additional outcome>
 ```
 
-After writing, summarize the proposal in two lines and recommend `/architecture-cutline`
-(stack + pack plan) or `/ux-theme` (if UI-heavy), then `/mvp-board`.
+After writing, summarize the proposal in two lines, then hand control back to `/start` —
+the conductor renders build-status and continues the Propose chain. Do not name the next
+skill yourself; the pipeline order lives in `/start`.

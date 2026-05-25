@@ -1,6 +1,6 @@
 ---
 created_at: 2026-05-24T23:39:11Z
-updated_at: 2026-05-25T00:10:00Z
+updated_at: 2026-05-25T18:38:53Z
 completed_at:
 ---
 
@@ -53,3 +53,10 @@ completed_at:
 - [x] 6.3 Smoke: local `create-spark … --template nextjs --no-packs --yes` → `docs/spark/` present, no `.ai/`, 21 skills mirrored, scaffold files intact. (`bun dev` boot unchanged by this change — not re-run.)
 - [ ] 6.4 Manual: a full `/start` → approve → `/build-loop` cycle on a one-feature demo. Interactive (human-in-the-loop) acceptance test — deferred to a live session; all skills/runtime are in place for it.
 - [x] 6.5 Grep: no `.ai/` references remain in skills, templates, libs, or docs (outside `docs/spec/specs/` truth — those merge at archive — and intentional "there is no `.ai/`" mentions).
+
+## 7. Continuous full-pipeline conductor (2026-05-25)
+
+- [x] 7.1 Centralize routing in `/start`: every phase skill (grill, idea-sharpen, spec, architecture, visual, board, board-review, scaffold, build-loop) hands control back to `/start` instead of naming the next skill; the pipeline order lives only in the conductor's routing table. `/start` auto-chains the documents-only Propose phases (no per-phase "shall I continue?"), stopping only for grilling input and the `/board-review` gate.
+- [x] 7.2 Continuity across the gate: once the approval banner is present, `/start` continues automatically through `/scaffold` (install Pack plan + verify boot) → `/build-loop`, pausing only on a blocker (failed install/boot, a decision) or user interruption. `scaffold` hands back to `/start`; `build-loop` keeps moving through batches (live preview each batch) instead of waiting for a manual kickoff.
+- [x] 7.3 Update the agent-workflow delta requirement to "Start Skill Conducts the Full Pipeline" (post-approval continuity, blocker pause, unapproved-does-not-build, phase-skills-route-through-conductor).
+- [x] 7.4 `bun run scripts/sync-skills.ts` + `check:skills` green (22 skills in sync).

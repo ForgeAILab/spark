@@ -45,22 +45,46 @@ The `docs/spark/design.md` document SHALL define the product's durable, product-
 - **THEN** `docs/spark/design.md` defines at least color, typography, and component style
 - **AND** subsequent UI tasks reference it rather than inventing ad-hoc styling
 
-### Requirement: Start Skill Builds the Spec Documentation
+### Requirement: Start Skill Conducts the Full Pipeline
 
-The `start` skill SHALL understand the user's intent and build the planning documentation for the active change: it grills for scope, then authors `proposal.md`, the product `design.md` where UI is involved, the EARS `specs/<capability>/spec.md` deltas, and `tasks.md`. It MUST stop at the approval gate (it does not move tasks to an executable state), MUST route to the correct next phase based on which workspace files already exist, and MUST render the build-status view each time.
+The `start` skill SHALL be the single conductor and router across the project's whole lifecycle — idea → plan → approval → scaffold → build. The pipeline order SHALL live only in `start`; the individual phase skills MUST hand control back to `start` rather than naming the next skill. `start` MUST chain its phases automatically, stopping for exactly two human touchpoints: (1) it needs user input — idea-sharpen / grill questions, or a genuine fork only the user can decide; and (2) the `/board-review` approval gate.
 
-#### Scenario: Fresh project routes to documentation
+Before approval (the documents-only Propose stage), `start` grills for scope, then authors `proposal.md`, the change's technical `design.md` (stack + Pack plan), the product visual `design.md` where UI is involved, the EARS `specs/<capability>/spec.md` deltas, and `tasks.md`, without pausing between these documents-only phases, and halts at `/board-review`. Before the approval banner exists it MUST NOT write application code, install packs, or mark a task executable. The change's technical `design.md` and the product visual `design.md` are an unordered pair, both required (visual only when UI is in scope) before `tasks.md` is written.
 
-- **WHEN** `/start` runs in a project whose active change has no `proposal.md`
-- **THEN** it grills for scope and drafts `proposal.md`
-- **AND** it does not write application code
-- **AND** it ends by naming the next step and rendering the build-status view
+Once the active change carries the approval banner, `start` SHALL continue the build automatically — running `/scaffold` (install the Pack plan and verify the app boots), then driving `/build-loop` — without requiring the user to invoke each phase. The approval banner is the single authorization for this consequential work. After approval `start` MUST pause only on a blocker (a failed install/boot, or a decision only the user can make), reporting the specific reason rather than thrashing, or on explicit user interruption. `start` MUST render the build-status view whenever it stops.
 
-#### Scenario: Start respects the approval gate
+#### Scenario: Propose stage chains to the gate without per-phase prompts
 
-- **WHEN** the proposal and specs exist but are not yet approved
-- **THEN** `/start` recommends review/approval
-- **AND** it does not mark any task executable
+- **WHEN** `/start` runs on a grilled idea whose `proposal.md`, specs, design docs, and `tasks.md` are not yet written
+- **THEN** it authors them in sequence without asking the user to confirm each phase
+- **AND** it stops at the `/board-review` approval gate
+- **AND** it does not write application code or install any pack
+
+#### Scenario: Approved change continues to a running app without manual kickoff
+
+- **WHEN** the active change carries the `/board-review` approval banner and the stack is not yet stood up
+- **THEN** `/start` runs `/scaffold` (installing the Pack plan and verifying the app boots) and then drives `/build-loop`
+- **AND** it does not require the user to invoke `/scaffold` or `/build-loop` separately
+- **AND** it stops only on a blocker or when the build is complete
+
+#### Scenario: Unapproved change does not build
+
+- **WHEN** the proposal and specs exist but the `tasks.md` carries no approval banner
+- **THEN** `/start` stops at `/board-review`
+- **AND** it does not install packs, write application code, or mark any task executable
+
+#### Scenario: A blocker pauses the build with a reason
+
+- **WHEN** `/scaffold` or `/build-loop` hits a blocker — a failed install/boot, or a decision only the user can make
+- **THEN** `/start` stops and reports the specific blocker
+- **AND** it does not continue past the blocker until it is resolved
+
+#### Scenario: Phase skills route through the conductor
+
+- **WHEN** any phase skill (planning or build) finishes its step
+- **THEN** it returns control to `/start`
+- **AND** it does not itself name the next skill to run
+- **AND** `/start` selects the next unsatisfied phase from its routing table
 
 ### Requirement: Build Loop Converges on the Spec
 
