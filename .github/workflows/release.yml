@@ -8,6 +8,9 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write # required for npm trusted publishing (OIDC)
     steps:
       - uses: actions/checkout@v4
 
@@ -36,15 +39,28 @@ jobs:
           done
           exit $mismatch
 
-      - name: Configure npm auth for @forgeailab scope
-        run: |
-          cat > ~/.npmrc <<EOF
-          //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}
-          @forgeailab:registry=https://registry.npmjs.org/
-          always-auth=true
-          EOF
+      # npm trusted publishing (OIDC) needs the npm CLI >= 11.5.1. `bun publish`
+      # does not support OIDC yet (oven-sh/bun#22423), so publish with npm.
+      - name: Upgrade npm for trusted publishing
+        run: npm install -g npm@latest
 
-      - name: Publish to npm in topological order
+      - name: Resolve workspace:* internal deps to the tag version
+        run: |
+          set -e
+          TAG_VERSION="${GITHUB_REF#refs/tags/v}"
+          for pkg in packages/spark-schema packages/spark packages/create-spark; do
+            tmp="$(mktemp)"
+            jq --arg v "$TAG_VERSION" '
+              if .dependencies then
+                .dependencies |= with_entries(
+                  if (.key | startswith("@forgeailab/")) and (.value == "workspace:*")
+                  then .value = $v else . end)
+              else . end
+            ' "$pkg/package.json" > "$tmp"
+            mv "$tmp" "$pkg/package.json"
+          done
+
+      - name: Publish to npm in topological order (OIDC trusted publishing)
         run: |
           set -e
           # spark-schema first (no internal deps), then spark (depends on schema),
@@ -58,10 +74,10 @@ jobs:
             PKG_VERSION=$(jq -r .version "$pkg/package.json")
             echo "::group::Publish $PKG_NAME@$PKG_VERSION"
             # Skip if already on the registry (lets us re-run after a partial failure).
-            if bunx npm view "$PKG_NAME@$PKG_VERSION" version > /dev/null 2>&1; then
+            if npm view "$PKG_NAME@$PKG_VERSION" version > /dev/null 2>&1; then
               echo "Already published, skipping."
             else
-              (cd "$pkg" && bun publish --access public)
+              (cd "$pkg" && npm publish --access public)
             fi
             echo "::endgroup::"
           done
