@@ -236,6 +236,14 @@ export async function runAdd(requestedPacks: readonly string[], options: AddOpti
   }
 
   if (!options.yes) {
+    if (!process.stdin.isTTY) {
+      throw new Error(
+        'spark add needs interactive confirmation but stdin is not a TTY. ' +
+          'Re-run with --yes. Non-interactive callers (the /scaffold and /pack-add flows, ' +
+          'CI, or any agent-spawned process) must pass --yes — they gate approval before invoking add.',
+      );
+    }
+
     const accepted = await confirm({
       message: `Install ${plan.packs.map((pack) => pack.name).join(', ')}?`,
       initialValue: false,

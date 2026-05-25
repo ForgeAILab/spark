@@ -34,7 +34,7 @@ The user must provide one or more pack names. If no pack is named, stop and ask 
 - Wait for explicit confirmation before installing. Accept only clear approval such as "yes", "approved", or "install".
 - If the dry-run fails, stop. Do not attempt the real install.
 - If the user declines or gives an ambiguous answer, stop with no filesystem changes.
-- On approval, run `spark add <pack...>` with the same pack arguments as the dry-run.
+- On approval, run `spark add <pack...> --yes` with the same pack arguments as the dry-run. The `--yes` is required: the skill is the approval gate, and `spark add` hangs forever waiting on a confirmation prompt when stdin is not a TTY (which it never is here).
 - After a successful install, invoke `/sync-board` so seeded tasks are reflected in the active change's `tasks.md`.
 - Do not mark any seeded task `Approved for execution` or `Validated`; board-review and review skills own those transitions.
 
@@ -43,7 +43,7 @@ The user must provide one or more pack names. If no pack is named, stop and ask 
 1. Confirm the pack arguments exactly as provided.
 2. Run `spark add <pack...> --dry-run`.
 3. Summarize the plan and ask the user for explicit approval.
-4. If approved, run `spark add <pack...>`.
+4. If approved, run `spark add <pack...> --yes`.
 5. If install succeeds, run `/sync-board`.
 6. Report the installed packs, changed files summary, and board sync result.
 

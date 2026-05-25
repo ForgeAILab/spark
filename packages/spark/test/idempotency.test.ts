@@ -169,4 +169,31 @@ describe('add idempotency', () => {
     expect(afterSecond['.codex/skills/demo-skill/SKILL.md']).not.toContain('allowed-tools');
     expect(afterSecond['.spark/state.json']).toContain('"demo-pack"');
   });
+
+  test('add without --yes fails fast (does not hang on the prompt) when stdin is not a TTY', async () => {
+    const { projectRoot, registry } = await setupProject();
+    const output = { log() {}, error() {} };
+
+    const originalIsTTY = process.stdin.isTTY;
+    Object.defineProperty(process.stdin, 'isTTY', { value: false, configurable: true });
+    try {
+      await expect(
+        runAdd(['demo-pack'], {
+          projectRoot,
+          registry,
+          config: { template: 'nextjs', appName: 'demo' },
+          // no `yes` and no TTY: must throw, never await the clack prompt
+          output,
+          dependencyRunner: async () => {},
+        }),
+      ).rejects.toThrow(/not a TTY/);
+    } finally {
+      Object.defineProperty(process.stdin, 'isTTY', { value: originalIsTTY, configurable: true });
+    }
+
+    // The guard fires before any filesystem mutation.
+    const tree = await snapshotTree(projectRoot);
+    expect(tree['lib/demo.ts']).toBeUndefined();
+    expect(tree['.spark/state.json']).toBeUndefined();
+  });
 });
