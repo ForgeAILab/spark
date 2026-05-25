@@ -26,7 +26,7 @@ jobs:
           TAG_VERSION="${GITHUB_REF#refs/tags/v}"
           echo "Tag version: $TAG_VERSION"
           mismatch=0
-          for pkg in packages/spark-schema packages/spark packages/create-spark libs/spark-*; do
+          for pkg in packages/spark-schema packages/spark packages/create-spark; do
             PKG_NAME=$(jq -r .name "$pkg/package.json")
             PKG_VERSION=$(jq -r .version "$pkg/package.json")
             if [ "$PKG_VERSION" != "$TAG_VERSION" ]; then
@@ -47,19 +47,11 @@ jobs:
       - name: Publish to npm in topological order
         run: |
           set -e
-          # spark-schema first (no internal deps).
-          # Then independent libs.
-          # Then spark (depends on schema + state + skill-utils + board).
-          # Finally create-spark (depends on schema + spark).
+          # spark-schema first (no internal deps), then spark (depends on schema),
+          # finally create-spark (depends on schema + spark). v0.2.0 dropped the
+          # libs/ runtime helpers, so only these three packages publish.
           for pkg in \
             packages/spark-schema \
-            libs/spark-skill-utils \
-            libs/spark-state \
-            libs/spark-board \
-            libs/spark-anthropic \
-            libs/spark-auth-better-auth \
-            libs/spark-sync-zero \
-            libs/spark-stripe-helpers \
             packages/spark \
             packages/create-spark; do
             PKG_NAME=$(jq -r .name "$pkg/package.json")
@@ -82,7 +74,7 @@ jobs:
             echo ""
             echo "| Package | Version |"
             echo "|---|---|"
-            for pkg in packages/spark-schema packages/spark packages/create-spark libs/spark-*; do
+            for pkg in packages/spark-schema packages/spark packages/create-spark; do
               PKG_NAME=$(jq -r .name "$pkg/package.json")
               PKG_VERSION=$(jq -r .version "$pkg/package.json")
               echo "| \`$PKG_NAME\` | \`$PKG_VERSION\` |"

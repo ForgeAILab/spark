@@ -32,7 +32,6 @@ bunx create-spark my-app --template vite-react --preset lean-cloudflare
 | `packages/spark/` | `spark` CLI — `list`, `info`, `check`, `add`, `preset` |
 | `packages/create-spark/` | `create-spark` initializer |
 | `packages/spark-schema/` | Shared Zod schemas for `pack.toml`, `template.toml`, `preset.toml`, `state.json` |
-| `libs/` | Workspace libraries published under `@forgeailab/spark-*`. Workflow primitives (`spark-board`, `spark-skill-utils`, `spark-state`) used internally by the CLI |
 | `templates/` | Base scaffolds. `nextjs` and `vite-react` are stable; `astro`, `astro-starlight`, `one` are registered for follow-up |
 | `packs/` | The pack catalog. See [`packs/README.md`](packs/README.md) |
 | `presets/` | Named pack bundles (`saas-classic`, `lean-saas`, `lean-saas-zero`, `lean-cloudflare`, `local-ai-mvp`, `internal-tool`, `docs-site`) |
@@ -71,7 +70,7 @@ Out of scope for v1: a remote pack registry, `remove`/`update` subcommands, pack
 
 ## Releasing
 
-All 10 publishable packages (`@forgeailab/spark-*`, `@forgeailab/spark`, `@forgeailab/create-spark`) ship together at a single locked version. CI publishes — humans only bump + tag.
+All 3 publishable packages (`@forgeailab/spark-schema`, `@forgeailab/spark`, `@forgeailab/create-spark`) ship together at a single locked version. CI publishes — humans only bump + tag.
 
 **One-time setup**: create an npm automation token at <https://www.npmjs.com/settings/~/tokens/granular-access-tokens> with publish access for `@forgeailab/*`, then add it as `NPM_TOKEN` at <https://github.com/ForgeAILab/spark/settings/secrets/actions>.
 
@@ -82,7 +81,7 @@ bun run release 0.1.1 --tag       # bumps all 10 package.json files + commits + 
 git push --follow-tags             # CI takes over from here
 ```
 
-The `release` workflow (`.github/workflows/release.yml`) runs on any `v*` tag push: it installs deps, runs `bun test`, asserts every package.json matches the tag, then publishes in topological order (`spark-schema` → libs → `spark` → `create-spark`). Already-published versions are skipped, so re-runs after a partial failure are safe.
+The `release` workflow (`.github/workflows/release.yml`) runs on any `v*` tag push: it installs deps, runs `bun test`, asserts every package.json matches the tag, then publishes in topological order (`spark-schema` → `spark` → `create-spark`). Already-published versions are skipped, so re-runs after a partial failure are safe.
 
 To review the bump before tagging:
 
