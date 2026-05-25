@@ -17,6 +17,7 @@ export const PackCategory = z.enum([
   'deploy',
   'analytics',
   'storage',
+  'admin',
 ]);
 export type PackCategory = z.infer<typeof PackCategory>;
 

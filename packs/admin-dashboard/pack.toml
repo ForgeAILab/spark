@@ -1,0 +1,48 @@
+name = "admin-dashboard"
+version = "1.0.0"
+category = "admin"
+description = "Server-gated admin dashboard shell for Next.js apps."
+provides = ["admin"]
+requires = ["auth", "ui-kit", "db"]
+conflicts = ["admin"]
+requires_runtime = ["server"]
+compatible_scaffolds = ["nextjs"]
+
+[env]
+optional = ["ADMIN_EMAILS"]
+
+[[files]]
+mode = "create"
+from = "lib/require-admin.ts"
+to = "lib/require-admin.ts"
+
+[[files]]
+mode = "create"
+from = "app/admin/layout.tsx"
+to = "app/admin/layout.tsx"
+
+[[files]]
+mode = "create"
+from = "app/admin/page.tsx"
+to = "app/admin/page.tsx"
+
+[[files]]
+mode = "create"
+from = "app/admin/users/page.tsx"
+to = "app/admin/users/page.tsx"
+
+[[files]]
+mode = "create"
+from = "app/admin/users/actions.ts"
+to = "app/admin/users/actions.ts"
+
+[[files]]
+mode = "append"
+from = "env.example"
+to = ".env.example"
+
+[skills]
+copy = ["skills/admin-dashboard-patterns"]
+
+[tasks]
+file = "tasks.yaml"

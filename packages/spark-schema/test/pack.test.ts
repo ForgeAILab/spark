@@ -114,6 +114,43 @@ requires_runtime = ["server"]
     }
   });
 
+  test('admin capability and category parse', () => {
+    const result = parsePackToml(`
+name = "admin-dashboard"
+version = "1.0.0"
+category = "admin"
+provides = ["admin"]
+requires = ["auth", "ui-kit", "db"]
+conflicts = ["admin"]
+requires_runtime = ["server"]
+`);
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data.category).toBe('admin');
+      expect(result.data.provides).toEqual(['admin']);
+      expect(result.data.requires).toEqual(['auth', 'ui-kit', 'db']);
+      expect(result.data.conflicts).toEqual(['admin']);
+    }
+  });
+
+  test('admin capability parses in requires', () => {
+    const result = parsePackToml(`
+name = "admin-consumer"
+version = "1.0.0"
+category = "infra"
+provides = ["ui-kit"]
+requires = ["admin"]
+conflicts = []
+requires_runtime = ["server"]
+`);
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data.requires).toEqual(['admin']);
+    }
+  });
+
   test('legacy sync capability rejected by manifest schema', () => {
     expect(() =>
       PackManifestSchema.parse({
@@ -130,6 +167,10 @@ requires_runtime = ["server"]
 
   test('data-api is exclusive', () => {
     expect(EXCLUSIVE_CAPABILITIES.has('data-api')).toBe(true);
+  });
+
+  test('admin is exclusive', () => {
+    expect(EXCLUSIVE_CAPABILITIES.has('admin')).toBe(true);
   });
 
   test('unknown template capability rejected', () => {

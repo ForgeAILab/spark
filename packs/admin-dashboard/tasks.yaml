@@ -1,0 +1,16 @@
+epic: Admin
+tasks:
+  - id: ADM-001
+    title: Add role column to user schema
+    acceptance:
+      - User schema includes a role enum with user and admin values, defaulting to user
+      - A migration applies cleanly and existing user records carry a role value
+  - id: ADM-002
+    title: Promote first admin
+    acceptance:
+      - At least one user resolves as admin through ADMIN_EMAILS or the database
+      - The promoted admin can reach /admin
+  - id: ADM-003
+    title: "Clarifying: Wire real metrics into stats shell once payments/analytics pack is present"
+    acceptance:
+      - "Clarifying: metric sources are selected after a payments or analytics pack is installed"

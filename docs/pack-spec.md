@@ -36,6 +36,7 @@ The closed `category` enum is:
 - `deploy`
 - `analytics`
 - `storage`
+- `admin`
 
 ## PackCapability
 
@@ -54,6 +55,7 @@ The v1 `PackCapability` enum is closed and exactly:
 - `blob-storage`
 - `analytics`
 - `data-api`
+- `admin`
 
 Exclusive capabilities allow only one provider in a project:
 
@@ -62,6 +64,7 @@ Exclusive capabilities allow only one provider in a project:
 - `payments`
 - `ui-kit`
 - `data-api`
+- `admin`
 
 Non-exclusive capabilities can have multiple providers:
 
