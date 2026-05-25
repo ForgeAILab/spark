@@ -1,6 +1,6 @@
 ---
 name: board-review
-description: Sanity-check `.ai/board.md` before any task moves to `Approved for execution`. The approval gate between planning and execution. Use after `/mvp-board`, when the user says "is the board good?", "review the plan", or before kicking off coding. Do NOT skip this gate — it is the plan/review/approve boundary the whole system depends on.
+description: Sanity-check the active change's `tasks.md` (against its proposal + specs) before the change moves to `Approved for execution`. The approval gate between planning and building. Use after `/mvp-board`, when the user says "is the plan good?", "review the plan", or before kicking off coding. Do NOT skip this gate — it is the plan/review/approve boundary the whole system depends on.
 # Generated from .claude/skills/board-review/SKILL.md — DO NOT EDIT directly
 ---
 
@@ -8,7 +8,9 @@ description: Sanity-check `.ai/board.md` before any task moves to `Approved for 
 
 ## Goal
 
-This is the **technical-founder review** that turns a draft board into one approved for execution. Catch the mistakes that compound: missing tasks, oversized tasks, wrong dependencies, risky parallel batches, and overbuilt scope.
+The **technical-founder review** that turns a draft `tasks.md` into an approved change. Catch
+the mistakes that compound: missing tasks, oversized tasks, wrong dependencies, risky parallel
+batches, and overbuilt scope — before any code is written.
 
 ## Recommended model
 
@@ -16,60 +18,58 @@ Opus 4.7 or GPT-5.5.
 
 ## Inputs
 
-Read these (required):
+Read these (required), from the active `docs/spark/changes/<id>-YYYY-MM-DD/`:
 
-- `.ai/board.md`
-- `.ai/product-spec.md`
-- `.ai/architecture.md`
+- `tasks.md`
+- `proposal.md` and its `specs/<capability>/spec.md`
 
-Read if available:
-
-- `.ai/ux-theme.md`
-- `.ai/decision-log.md`
+Read if available: the change's technical `design.md`, and `docs/spark/design.md`.
 
 ## Rules
 
-- The whole board does not have to pass at once. You may approve some epics while sending others back.
-- After review, set the status on approved tasks to `Approved for execution`. Tasks needing changes go to `Clarifying` with a note.
+- The whole change does not have to pass at once. You may approve it while sending specific tasks back.
+- **Approval is recorded on the change, not per task.** When approved, add (or update) a banner
+  line directly under the `tasks.md` frontmatter:
+  `> **Approved for execution** — <date> (/board-review)`. `/build-loop` only builds a change
+  that carries this banner.
+- Tasks needing changes get a `Needs changes: <note>` sub-bullet and stay `- [ ]`.
 - Verdict per task is binary: **Approved** or **Needs changes**.
-- The reviewer is read-only on code, but **may edit `.ai/board.md`** to flip statuses, split oversized tasks, or add missing tasks.
+- The reviewer is read-only on code, but **may edit `tasks.md`** to add the banner, split
+  oversized tasks, or add missing tasks.
 
 ## Checklist
 
-Walk the board and flag:
+Walk the tasks and flag:
 
-- **Missing tasks** — anything in the spec's acceptance criteria with no task covering it.
-- **Oversized tasks** — touches > 5 files, > 3 acceptance criteria, or > one focused session.
-- **Wrong dependencies** — task B depends on A but A does not produce what B needs; or hidden dependency not declared.
-- **Risky parallel batches** — tasks marked parallel-safe that actually share files, schema, routes, or shared components.
-- **Overbuilt parts** — tasks for things the spec's non-goals ruled out.
-- **Vague acceptance criteria** — not observable / testable.
+- **Missing tasks** — any `#### Scenario` in the change's specs with no task covering it.
+- **Oversized tasks** — touches > 5 files, > 3 acceptance points, or > one focused session.
+- **Wrong dependencies** — B depends on A but A does not produce what B needs; or an undeclared hidden dependency.
+- **Risky parallel batches** — `Parallel-safe` tasks that actually share files, schema, routes, or components.
+- **Overbuilt parts** — tasks for things the proposal's non-goals ruled out.
+- **Vague acceptance** — a task with no linked scenario, or not observable.
 - **No core-flow-first ordering** — auth or dashboards scheduled before the user's primary action.
 
 ## Output format
 
 ```md
-## Board review
+## Plan review — <change id>
 
-### Verdict per epic
-- EPIC 1 — <Approved | Needs changes>
-- EPIC 2 — <Approved | Needs changes>
+### Verdict
+- Change: <Approved for execution | Needs changes>
 
 ### Issues
-- <TASK-ID>: <category> — <what's wrong> — <suggested fix>
+- <task id>: <category> — <what's wrong> — <suggested fix>
 
-### Tasks to add
-- <NEW-ID>: <title> — <why missing>
+### Tasks to add / split
+- <new id>: <title> — <why missing>
+- <task id> → <id-a>, <id-b>
 
-### Tasks to split
-- <TASK-ID> → <NEW-ID-a>, <NEW-ID-b>, ...
-
-### Status flips applied to board.md
-- <TASK-ID>: <old> → Approved for execution
-- <TASK-ID>: <old> → Clarifying (<reason>)
+### Applied to tasks.md
+- Added "Approved for execution" banner (<date>) | Sent <task id> back with a note
 
 ### Recommended next
-Run `/parallel-execution` on approved tasks, then `/implementation-brief <ID>`.
+Run `/parallel-execution`, then `/build-loop`.
 ```
 
-After writing the review, edit `.ai/board.md` to apply the status flips. Do not invent new fields — only change statuses and (if explicitly approved by the user) split tasks.
+After writing the review, edit `tasks.md`: add the approval banner if approved, or attach
+`Needs changes:` notes to the tasks sent back. Do not invent new fields.

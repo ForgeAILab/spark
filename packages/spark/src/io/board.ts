@@ -1,17 +1,23 @@
 import { readFile } from 'node:fs/promises';
-import { join, resolve, sep } from 'node:path';
+import { resolve, sep } from 'node:path';
 import {
   BoardTaskStatus,
+  readAllChangeTasks,
   seedTasks as seedPackageTasks,
 } from '../internal/board';
 
 export {
   BoardTaskStatus,
+  parseBoardMarkdown,
+  parseTasksMarkdown,
+  readAllChangeTasks,
   readBoard,
+  renderBuildStatus,
   seedTasks,
   updateStatus,
 } from '../internal/board';
 export type {
+  AggregatedTask,
   Board,
   BoardEpic,
   BoardTask as ParsedBoardTask,
@@ -33,16 +39,12 @@ function stripYamlValue(value: string): string {
   ) {
     return trimmed.slice(1, -1);
   }
-
   return trimmed;
 }
 
 function parseKeyValue(line: string): { key: string; value: string } | undefined {
   const index = line.indexOf(':');
-  if (index === -1) {
-    return undefined;
-  }
-
+  if (index === -1) return undefined;
   return {
     key: line.slice(0, index).trim(),
     value: stripYamlValue(line.slice(index + 1)),
@@ -57,9 +59,7 @@ export function parseTasksYaml(raw: string): BoardTask[] {
 
   for (const line of raw.split(/\r?\n/u)) {
     const trimmed = line.trim();
-    if (trimmed.length === 0 || trimmed.startsWith('#')) {
-      continue;
-    }
+    if (trimmed.length === 0 || trimmed.startsWith('#')) continue;
 
     if (!trimmed.startsWith('- ') && parseKeyValue(trimmed)?.key === 'epic') {
       defaultEpic = parseKeyValue(trimmed)?.value || defaultEpic;
@@ -68,20 +68,13 @@ export function parseTasksYaml(raw: string): BoardTask[] {
 
     if (trimmed.startsWith('- id:')) {
       const id = stripYamlValue(trimmed.slice('- id:'.length));
-      current = {
-        id,
-        title: id,
-        epic: defaultEpic,
-        acceptance: [],
-      };
+      current = { id, title: id, epic: defaultEpic, acceptance: [] };
       tasks.push(current);
       inAcceptance = false;
       continue;
     }
 
-    if (!current) {
-      continue;
-    }
+    if (!current) continue;
 
     if (trimmed === 'acceptance:' || trimmed === 'acceptance_criteria:') {
       inAcceptance = true;
@@ -94,9 +87,7 @@ export function parseTasksYaml(raw: string): BoardTask[] {
     }
 
     const kv = parseKeyValue(trimmed);
-    if (!kv) {
-      continue;
-    }
+    if (!kv) continue;
 
     if (kv.key === 'title') {
       current.title = kv.value;
@@ -112,43 +103,23 @@ export function parseTasksYaml(raw: string): BoardTask[] {
   return tasks.filter((task) => task.id.length > 0);
 }
 
-async function readExisting(path: string): Promise<string> {
-  try {
-    return await readFile(path, 'utf8');
-  } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
-      return '# Board\n';
-    }
-    throw error;
+function assertInsidePack(packRoot: string, path: string): string {
+  const resolvedRoot = resolve(packRoot);
+  const resolvedPath = resolve(packRoot, path);
+  if (resolvedPath !== resolvedRoot && !resolvedPath.startsWith(`${resolvedRoot}${sep}`)) {
+    throw new Error(`Refusing to read tasks file outside pack root: ${path}`);
   }
+  return resolvedPath;
 }
 
-function escapeRegex(value: string): string {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
-
-function boardHasTask(board: string, taskId: string): boolean {
-  return new RegExp(`\\b${escapeRegex(taskId)}\\b`).test(board);
-}
-
-function formatTaskDescription(task: BoardTask, packName: string): string {
+// The pack-install change's task lines carry "Status: Clarifying" + "requires_pack:"
+// (added by internal/board.ts); here we only contribute the acceptance sub-bullets.
+function formatTaskDescription(task: BoardTask): string {
   const acceptance =
     task.acceptance.length > 0
       ? task.acceptance.map((item) => `  - ${item}`)
       : ['  - Confirm acceptance criteria for this pack task.'];
-
-  return [`requires_pack: ${packName}`, 'acceptance:', ...acceptance].join('\n');
-}
-
-function assertInsidePack(packRoot: string, path: string): string {
-  const resolvedRoot = resolve(packRoot);
-  const resolvedPath = resolve(packRoot, path);
-
-  if (resolvedPath !== resolvedRoot && !resolvedPath.startsWith(`${resolvedRoot}${sep}`)) {
-    throw new Error(`Refusing to read tasks file outside pack root: ${path}`);
-  }
-
-  return resolvedPath;
+  return ['acceptance:', ...acceptance].join('\n');
 }
 
 export async function seedBoardTasks(
@@ -157,21 +128,15 @@ export async function seedBoardTasks(
   packRoot: string,
   tasksFile?: string,
 ): Promise<string[]> {
-  if (!tasksFile) {
-    return [];
-  }
+  if (!tasksFile) return [];
 
   const rawTasks = await readFile(assertInsidePack(packRoot, tasksFile), 'utf8');
   const tasks = parseTasksYaml(rawTasks);
-  if (tasks.length === 0) {
-    return [];
-  }
+  if (tasks.length === 0) return [];
 
   const taskIds = tasks.map((task) => task.id);
   const missingBefore = await missingBoardTasks(projectRoot, taskIds);
-  if (missingBefore.length === 0) {
-    return [];
-  }
+  if (missingBefore.length === 0) return [];
 
   const missing = new Set(missingBefore);
   await seedPackageTasks(
@@ -184,7 +149,7 @@ export async function seedBoardTasks(
         id: task.id,
         title: task.title,
         status: BoardTaskStatus.Todo,
-        description: formatTaskDescription(task, packName),
+        description: formatTaskDescription(task),
       })),
   );
 
@@ -196,8 +161,7 @@ export async function missingBoardTasks(
   projectRoot: string,
   taskIds: readonly string[],
 ): Promise<string[]> {
-  const boardPath = join(projectRoot, '.ai', 'board.md');
-  const board = await readExisting(boardPath);
-
-  return taskIds.filter((taskId) => !boardHasTask(board, taskId)).sort();
+  if (taskIds.length === 0) return [];
+  const existingIds = new Set((await readAllChangeTasks(projectRoot)).map((task) => task.id));
+  return taskIds.filter((id) => !existingIds.has(id)).sort();
 }

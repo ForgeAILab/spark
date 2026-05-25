@@ -1,6 +1,6 @@
 ---
 name: mvp-grill
-description: Grill a rough product idea with sharp questions until it is buildable. Use when the user says "I want to build X", "help me make an MVP", "is this idea good?", or hands over a vague concept. Do NOT use once `.ai/product-spec.md` already exists — switch to `/mvp-spec` or `/architecture-cutline` instead.
+description: Grill a rough product idea with sharp questions until it is buildable. Use when the user says "I want to build X", "help me make an MVP", "is this idea good?", or hands over a vague concept. Do NOT use once the active change's `proposal.md` already exists — switch to `/mvp-spec` or `/architecture-cutline` instead.
 # Generated from .claude/skills/mvp-grill/SKILL.md — DO NOT EDIT directly
 ---
 
@@ -18,17 +18,17 @@ Opus 4.7 or GPT-5.5. This is a planning task — do not delegate to a fast execu
 
 Read these if they exist:
 
-- `.ai/product-spec.md`
-- `.ai/decision-log.md`
+- `docs/spark/project.md`
+- The active change's `docs/spark/changes/<id>-YYYY-MM-DD/proposal.md`
 
-If `.ai/product-spec.md` already has a target user, core loop, and MVP features, stop and tell the user the idea is past the grilling stage.
+If `proposal.md` already has a target user, core loop, and MVP features, stop and tell the user the idea is past the grilling stage.
 
 ## Rules
 
 - Max **5 questions per round**. Wait for answers before the next round.
 - Only ask questions that change scope, architecture, or the definition of "done." Skip cosmetic or curious questions.
 - Force a real answer. If the user dodges, ask a sharper version.
-- Stop grilling once you can write a coherent one-sentence product, target user, core loop, and MVP feature list. Then write to `.ai/decision-log.md` and recommend `/mvp-spec`.
+- Stop grilling once you can write a coherent one-sentence product, target user, core loop, and MVP feature list. Then record the locked-in answers in the active change's `proposal.md` and recommend `/mvp-spec`.
 - Never write code or scaffold files in this skill.
 
 ## Question pool (pick the highest-leverage 5 each round)
@@ -55,4 +55,4 @@ After each round, return:
 3. **Gaps** — what is still too vague to plan around.
 4. **Next** — either "answer the questions above" or "ready for `/mvp-spec`".
 
-When grilling ends, append a short entry to `.ai/decision-log.md` capturing the locked-in answers.
+When grilling ends, record the locked-in answers in the active change's `proposal.md` (Why / What / Impact sections).

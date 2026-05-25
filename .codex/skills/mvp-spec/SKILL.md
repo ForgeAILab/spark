@@ -1,6 +1,6 @@
 ---
 name: mvp-spec
-description: Convert a grilled idea into a single concise MVP specification that an executor can build from. Use when the user says "write the spec", "let's lock the MVP", or after `/mvp-grill` has settled the open questions. Do NOT use if `.ai/product-spec.md` already exists and is current — edit it directly or run `/risk-check` first.
+description: Lock a grilled idea into the active change's validatable plan — its `proposal.md` (Why/What/Impact) plus the EARS `specs/<capability>/spec.md` deltas an executor builds against. Use when the user says "write the spec", "lock the MVP", or after `/mvp-grill` settles the open questions. Do NOT use if the active change's `proposal.md` and specs already exist and are current — edit them directly or run `/risk-check` first.
 # Generated from .claude/skills/mvp-spec/SKILL.md — DO NOT EDIT directly
 ---
 
@@ -8,7 +8,14 @@ description: Convert a grilled idea into a single concise MVP specification that
 
 ## Goal
 
-Produce `.ai/product-spec.md` — the single source of truth for what the MVP is. Technical enough that Sonnet/Claude Code can execute without guessing, short enough to fit in working memory.
+Produce the two documents the founder validates and the executor builds from, inside
+the active `docs/spark/changes/<id>-YYYY-MM-DD/`:
+
+- `proposal.md` — Why / What Changes / Impact, in plain English. This is the legible
+  artifact the founder reads to **validate the idea before building**.
+- `specs/<capability>/spec.md` — the EARS truth deltas: `### Requirement:` (SHALL/MUST)
+  each with at least one `#### Scenario:` (WHEN/THEN). These are the checkable
+  acceptance criteria `/code-review` and `/qa-verify` test against.
 
 ## Recommended model
 
@@ -16,61 +23,61 @@ Opus 4.7 or GPT-5.5.
 
 ## Inputs
 
-Read these if they exist:
+Read these from `docs/spark/` if they exist:
 
-- `.ai/decision-log.md` (this is the input — do not re-grill)
-- existing `.ai/product-spec.md` (update in place rather than rewrite)
+- `project.md` — north star and non-goals (settled input; do not re-grill)
+- the active change's `proposal.md` (refine in place rather than rewrite)
+- existing truth `specs/<capability>/spec.md` (so deltas extend, not duplicate)
 
-If the decision log is missing the answers needed, stop and tell the user to run `/mvp-grill` first. Do not invent answers.
+If the idea has not been grilled (no clear scope in `project.md` or the conversation),
+stop and tell the user to run `/mvp-grill` first. Do not invent answers.
 
 ## Rules
 
-- One spec, one MVP slice. If the user wants v1 and v2, write v1 only.
-- Every section must fit on one screen. If it does not, you are over-specifying.
-- **Non-goals are mandatory.** A spec without a non-goals list always leaks scope.
-- Acceptance criteria must be checkable, not aspirational.
-- Do not pick a stack here — that is `/architecture-cutline`'s job.
-- Do not write tasks here — that is `/mvp-board`'s job.
+- One change, one MVP slice. If the user wants v1 and v2, spec v1 only.
+- Keep `proposal.md` short and normative; push checkable detail into scenarios.
+- **Non-goals are mandatory** — record them in `proposal.md` (and `project.md` if durable).
+- Acceptance criteria live as `#### Scenario:` WHEN/THEN steps, not prose.
+- Prefer `## ADDED Requirements` for new capability slices; use `## MODIFIED` only to
+  change existing behavior, pasting the whole updated requirement block.
+- Do not pick a stack here — that is `/architecture-cutline`. Do not write tasks — that
+  is `/mvp-board`.
 
 ## Output format
 
-Write `.ai/product-spec.md` with exactly these sections:
+`proposal.md`:
 
 ```md
-# Product Spec — <name>
+---
+created_at: <iso8601>
+updated_at: <iso8601>
+---
 
-## 1. One-sentence product
-<who it is for, what it does, what they get>
+## Why
+<1–2 sentences: the problem and why now>
 
-## 2. Target user
-<specific persona, not a category>
+## What Changes
+- <bullets; mark breaking changes **BREAKING**>
 
-## 3. Core user journey
-<3–7 numbered steps from open-app to win>
-
-## 4. MVP feature list
-- <feature>: <one-line description>
-(keep this list aggressively short)
-
-## 5. Non-goals
-- <thing we will NOT build for MVP>
-(at least 5 entries; this section is mandatory)
-
-## 6. Data model
-<entities and their key fields, no SQL>
-
-## 7. Screens / pages
-- <route>: <purpose>
-
-## 8. Integrations
-<auth, payments, third-party APIs, or "none">
-
-## 9. Risks
-<technical, product, or scope risks — 3–5 bullets>
-
-## 10. Acceptance criteria
-- [ ] <observable, testable statement>
-(these are what makes MVP "done")
+## Impact
+- Affected specs: <capability ids>
+- Affected screens / surfaces: <list or none>
+- Non-goals: <what this change will NOT do>
 ```
 
-After writing, return a short summary and recommend `/architecture-cutline` next.
+Each `specs/<capability>/spec.md` delta (the first line is the operation header):
+
+```md
+## ADDED Requirements
+
+### Requirement: <Name>
+The system SHALL <observable behavior>.
+
+#### Scenario: <short name>
+- **WHEN** <trigger>
+- **THEN** <observable outcome>
+- **AND** <additional outcome>
+```
+
+After writing, summarize the proposal in two lines and recommend `/architecture-cutline`
+(stack + pack plan) or `/ux-theme` (if UI-heavy), then `/mvp-board`.

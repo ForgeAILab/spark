@@ -18,8 +18,8 @@ Opus 4.7 or GPT-5.5.
 
 Read these if they exist:
 
-- `.ai/product-spec.md`
-- `.ai/decision-log.md`
+- `docs/spark/project.md`
+- The active change's `docs/spark/changes/<id>-YYYY-MM-DD/proposal.md`
 
 ## Rules
 
@@ -60,4 +60,4 @@ Read these if they exist:
 Run `/mvp-grill` on the chosen angle.
 ```
 
-Append the chosen angle to `.ai/decision-log.md` with the reasoning.
+Record the chosen angle and its reasoning in the active change's `proposal.md`.

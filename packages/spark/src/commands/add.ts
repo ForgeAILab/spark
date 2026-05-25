@@ -169,11 +169,13 @@ function stateEntryForPack(
   skillFiles: readonly string[],
   touchedEnvFiles: readonly string[],
 ): StateInstalledPack {
+  const now = new Date();
+  const packInstallChange = `pack-install-${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, '0')}-${String(now.getUTCDate()).padStart(2, '0')}`;
   const fileTargets = [
     ...fileRecords.map((record) => record.to),
     ...skillFiles,
     ...touchedEnvFiles,
-    ...(taskIds.length > 0 ? ['.ai/board.md'] : []),
+    ...(taskIds.length > 0 ? [`docs/spark/changes/${packInstallChange}/tasks.md`] : []),
   ];
 
   return {

@@ -25,9 +25,9 @@ family executor for routine route and UI wiring.
 
 Read these before changing billing code:
 
-- `.ai/product-spec.md` for the monetization promise and non-goals
-- `.ai/architecture.md` for the chosen auth and database providers
-- `.ai/board.md` for the exact billing task and acceptance criteria
+- `docs/spark/project.md` for the monetization promise and non-goals
+- The active change's `docs/spark/changes/<id>-YYYY-MM-DD/design.md` for the chosen auth and database providers
+- The active change's `docs/spark/changes/<id>-YYYY-MM-DD/tasks.md` for the exact billing task and acceptance criteria
 - `lib/stripe.ts` for shared Stripe client setup
 - `app/api/webhooks/stripe/route.ts` for event handling
 

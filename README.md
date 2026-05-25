@@ -6,7 +6,7 @@ A minimal AI-ready scaffold plus a composable feature-pack registry for technica
 
 `spark` gives you two things:
 
-1. A **minimal Next.js scaffold** preloaded with a board-driven workflow (`AGENTS.md`, `.ai/`, `.claude/skills/`, `.codex/skills/`). No auth, no db, no UI library out of the box — just the workflow.
+1. A **minimal Next.js scaffold** preloaded with a spec-driven workflow (`AGENTS.md`, a `docs/spark/` spec workspace, `.claude/skills/`, `.codex/skills/`). No auth, no db, no UI library out of the box — just the workflow.
 2. A **composable feature-pack registry** (auth, db, payments, UI, AI SDKs, email, deploy, …) you bolt on as needed. Picks are explicit; nothing is force-installed.
 
 ## Quickstart
@@ -17,7 +17,7 @@ cd my-app
 bun dev
 ```
 
-That scaffolds Next.js 15 + TypeScript, then installs `api-trpc`, `db-postgres`, `auth-better-auth`, `payments-stripe`, `ui-shadcn`, `email-resend`, and `deploy-vercel` on top. From there your `.ai/board.md` is the source of truth, and `spark add <pack>` is how you extend.
+That scaffolds Next.js 15 + TypeScript, then installs `api-trpc`, `db-postgres`, `auth-better-auth`, `payments-stripe`, `ui-shadcn`, `email-resend`, and `deploy-vercel` on top. From there your `docs/spark/` workspace is the source of truth — run `/start` to plan, and `spark add <pack>` to extend.
 
 For a Cloudflare Workers deploy (Vite + tRPC + R2 + Workers):
 
@@ -45,7 +45,7 @@ bunx create-spark my-app --template vite-react --preset lean-cloudflare
 ## Operating model
 
 - **Specs first.** Significant changes are written as proposals under `docs/spec/changes/` before code lands. See `AGENTS.md` and `docs/spec/AGENTS.md`.
-- **Board-driven.** `.ai/board.md` holds the task list with a clear status flow (`Clarifying → Approved for planning → Approved for execution → In progress → Needs review → Validated`).
+- **Workspace-driven.** Each change's `docs/spark/changes/<id>/tasks.md` holds the task list (inline `- [ ]` / `- [~]` / `- [x]` status) with a clear status flow (`Clarifying → Approved for planning → Approved for execution → In progress → Needs review → Validated`); the build-status view is rendered from it.
 - **Skill-mediated.** Planning, implementation, review, and risk-check all run through skills under `.claude/skills/`.
 
 ## Why not a batteries-included template?
@@ -59,7 +59,7 @@ v1 ships:
 - 2 base templates (`nextjs`, `vite-react`); 3 registered for follow-up (`astro`, `astro-starlight`, `one`).
 - 19 packs across `db`, `auth`, `payments`, `email`, `ui`, `ai`, `infra`, `testing`, `deploy`, `analytics`, `storage`.
 - 6 presets.
-- 18 skills mirrored into both Claude and Codex skill formats.
+- 21 skills mirrored into both Claude and Codex skill formats.
 
 Out of scope for v1: a remote pack registry, `remove`/`update` subcommands, pack versioning, base scaffolds for non-Next.js templates.
 

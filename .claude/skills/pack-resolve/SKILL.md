@@ -1,6 +1,6 @@
 ---
 name: pack-resolve
-description: Recommend the right scaffold template and concrete feature packs from `.ai/product-spec.md` and `.ai/architecture.md`. Annotates each recommended pack as `copy`. Use when the user asks which packs to install, wants a scaffold/preset recommendation, or scope changed after architecture. This skill only plans; it never installs.
+description: Recommend the right scaffold template and concrete feature packs from the active change's `proposal.md` and `design.md`. Annotates each recommended pack as `copy`. Use when the user asks which packs to install, wants a scaffold/preset recommendation, or scope changed after architecture. This skill only plans; it never installs.
 allowed-tools:
   - Read
   - Bash
@@ -10,7 +10,7 @@ allowed-tools:
 
 ## Goal
 
-Recommend a scaffold template and a concrete pack set from the current product spec and architecture. The output should be directly actionable, but this skill must not execute any install.
+Recommend a scaffold template and a concrete pack set from the current proposal and technical design. The output should be directly actionable, but this skill must not execute any install.
 
 ## Recommended model
 
@@ -20,8 +20,8 @@ Opus 4.7 or GPT-5.5.
 
 Read these (required):
 
-- `.ai/product-spec.md`
-- `.ai/architecture.md`
+- The active change's `docs/spark/changes/<id>-YYYY-MM-DD/proposal.md`
+- The active change's `docs/spark/changes/<id>-YYYY-MM-DD/design.md`
 
 Read these if present:
 
@@ -30,7 +30,7 @@ Read these if present:
 - `presets/*.toml`
 - `spark.config.json`
 
-If the spec or architecture is missing, stop and tell the user to run `/mvp-spec` and `/architecture-cutline` first.
+If the proposal or design is missing, stop and tell the user to run `/mvp-spec` and `/architecture-cutline` first.
 
 ## Rules
 

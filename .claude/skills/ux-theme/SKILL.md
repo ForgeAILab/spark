@@ -1,6 +1,6 @@
 ---
 name: ux-theme
-description: Define the visual and product direction (vibe, layout, color, typography, component style) before coding starts. Use when the user says "what should this look like?", "pick a theme", "make it feel like Linear/Notion/Vercel", or right before scaffolding UI. Do NOT use for fine-grained component styling — that belongs in execution.
+description: Define the product's durable visual language (vibe, layout, color, typography, component style, empty/loading/error patterns) and write it to `docs/spark/design.md`. Use when the user says "what should this look like?", "pick a theme", "make it feel like Linear/Notion/Vercel", or right before scaffolding UI. Do NOT use for fine-grained component styling — that belongs in execution.
 allowed-tools:
   - Read
   - Write
@@ -10,7 +10,10 @@ allowed-tools:
 
 ## Goal
 
-Produce `.ai/ux-theme.md` — a concrete visual direction that every executor task can consult. Lovable-style theme control: one clear vibe, one set of patterns, one reference product.
+Produce / refine `docs/spark/design.md` — the durable, product-wide visual direction every
+executor task consults so the app looks like one product. One clear vibe, one set of patterns,
+one reference product. This is the product-level visual doc, distinct from a change's technical
+`design.md`.
 
 ## Recommended model
 
@@ -20,15 +23,14 @@ Opus 4.7 or GPT-5.5 for the direction. Sonnet 4.6 can implement against it later
 
 Read these if they exist:
 
-- `.ai/product-spec.md`
-- `.ai/architecture.md`
-- `.ai/decision-log.md`
+- the active change's `proposal.md` and technical `design.md`
+- the existing `docs/spark/design.md` (refine in place rather than rewrite)
 
 ## Rules
 
 - Pick **one** vibe. Not "minimal but playful but also enterprise."
 - Name **one** reference product to imitate. "Linear-style productivity SaaS" beats "clean and modern."
-- Give concrete tokens (color names, type scale, spacing) so executors do not invent their own.
+- Give concrete tokens (color roles, type scale, spacing) so executors do not invent their own.
 - Define empty / loading / error patterns up front — these are where MVPs feel broken.
 - Do not generate full design files. This is a brief, not Figma.
 
@@ -42,52 +44,31 @@ Read these if they exist:
 
 ## Output format
 
-Write `.ai/ux-theme.md`:
+Write `docs/spark/design.md`:
 
 ```md
-# UX Theme — <name>
+# <Product> — Visual Design
 
-## Vibe
-<one sentence>
+## Vibe & reference
+<one sentence vibe + one reference product>
 
-## Reference product
-<one product, with a link or short description of what to copy>
-
-## Layout style
-<sidebar + content / centered single column / dashboard grid / etc.>
-
-## Color direction
-- Background:
-- Surface:
-- Text primary:
-- Text muted:
-- Accent:
-- Danger:
-(prefer Tailwind palette names or hex)
+## Color
+- Background / Surface / Text primary / Text muted / Accent / Danger (Tailwind names or hex)
 
 ## Typography
-- Display:
-- Body:
-- Mono:
-- Scale: <e.g. 12 / 14 / 16 / 20 / 24 / 32>
+- Display / Body / Mono; Scale: <e.g. 12 / 14 / 16 / 20 / 24 / 32>
 
-## Component style
-- Corners: <radius>
-- Borders: <weight, color>
-- Shadows: <none / soft / layered>
-- Buttons: <filled / outlined / ghost variants>
-- Inputs: <style>
+## Layout & spacing
+<sidebar + content / centered column / dashboard grid; density, max width, radius, elevation>
 
-## Patterns
-- Empty state:
-- Loading state:
-- Error state:
-- Table:
-- Card:
-- Dialog / modal:
+## Components
+<buttons, inputs, cards, dialog conventions — one set>
+
+## States
+- Empty / Loading / Error
 
 ## Constraints
 - <hard "no" rules, e.g. "no gradients", "no emoji in UI">
 ```
 
-After writing, recommend `/mvp-board` next.
+After writing, recommend `/mvp-board`.

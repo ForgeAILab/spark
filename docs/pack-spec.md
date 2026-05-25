@@ -184,10 +184,11 @@ Skills are authored in canonical Claude format and mirrored into both
 
 ## Tasks
 
-The optional `[tasks]` table points to board tasks seeded by the pack.
+The optional `[tasks]` table points to tasks seeded by the pack.
 `file` points to a YAML file in the pack directory.
-Seeded tasks enter `.ai/board.md` as `Clarifying` and should include stable IDs
-and acceptance criteria.
+Seeded tasks enter a `docs/spark/changes/pack-install-YYYY-MM-DD/tasks.md` as `- [ ]`
+items annotated `Status: Clarifying` and `requires_pack: <name>`, and should include
+stable IDs and acceptance criteria. No `.ai/board.md` is written.
 
 ## Forbidden Fields
 
@@ -202,7 +203,7 @@ Pack installs are declarative. These fields are forbidden:
 
 Do not hide shell commands under another field name.
 Do not rely on install-time JavaScript hooks.
-When a feature needs manual setup, seed a board task instead.
+When a feature needs manual setup, seed a task via `[tasks]` instead.
 
 ## Worked Example
 

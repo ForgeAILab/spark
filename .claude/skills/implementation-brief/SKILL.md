@@ -1,6 +1,6 @@
 ---
 name: implementation-brief
-description: Generate the exact prompt an executor (Sonnet / Claude Code) should receive to implement one board task without wandering. Use when the user says "give Claude Code the prompt for TASK-X", "prep this task for execution", or right before handing a task to an executor. Do NOT use to actually run the task — that is `/execute-task`.
+description: Generate the exact prompt an executor (Sonnet / Claude Code) should receive to implement one tasks.md task without wandering. Use when the user says "give Claude Code the prompt for TASK-X", "prep this task for execution", or right before handing a task to an executor. Do NOT use to actually run the task — that is `/execute-task`.
 allowed-tools:
   - Read
   - Write
@@ -10,7 +10,7 @@ allowed-tools:
 
 ## Goal
 
-Produce a tight, executor-ready brief for one specific board task. The brief is the contract that stops the executor from inventing scope.
+Produce a tight, executor-ready brief for one specific task. The brief is the contract that stops the executor from inventing scope.
 
 ## Recommended model
 
@@ -20,16 +20,16 @@ Opus 4.7 or GPT-5.5 (planning-quality model writes the brief; cheaper model exec
 
 Read these (required):
 
-- `.ai/board.md` — find the task by ID
-- `.ai/product-spec.md`
-- `.ai/architecture.md`
+- The active change's `docs/spark/changes/<id>-YYYY-MM-DD/tasks.md` — find the task by ID
+- The active change's `docs/spark/changes/<id>-YYYY-MM-DD/proposal.md`
+- The active change's `docs/spark/changes/<id>-YYYY-MM-DD/design.md`
 
 Read if they exist:
 
-- `.ai/ux-theme.md`
-- `.ai/decision-log.md`
+- `docs/spark/design.md` — product-wide visual language
+- The active change's `docs/spark/changes/<id>/specs/<capability>/spec.md` — EARS deltas
 
-If the task ID is not in `board.md`, stop and ask the user.
+If the task ID is not in `tasks.md`, stop and ask the user.
 
 ## Rules
 
@@ -68,7 +68,7 @@ Return a single fenced block the user can copy into the executor:
 - <path>
 
 ## UX / theme constraints (if relevant)
-<short reference to `.ai/ux-theme.md` patterns>
+<short reference to `docs/spark/design.md` patterns>
 
 ## Commands to run
 - <install / build / test>

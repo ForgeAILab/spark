@@ -25,9 +25,9 @@ family executor for endpoint, UI, and test wiring.
 
 Read these before changing AI behavior:
 
-- `.ai/product-spec.md` for the user workflow and non-goals
-- `.ai/architecture.md` for persistence, auth, and runtime boundaries
-- `.ai/board.md` for the exact AI task and acceptance criteria
+- `docs/spark/project.md` for the user workflow and non-goals
+- The active change's `docs/spark/changes/<id>-YYYY-MM-DD/design.md` for persistence, auth, and runtime boundaries
+- The active change's `docs/spark/changes/<id>-YYYY-MM-DD/tasks.md` for the exact AI task and acceptance criteria
 - `lib/anthropic.ts` for shared client setup
 - `app/api/ai/route.ts` for request, stream, and guardrail behavior
 

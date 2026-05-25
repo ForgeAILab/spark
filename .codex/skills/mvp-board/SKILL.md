@@ -1,6 +1,6 @@
 ---
 name: mvp-board
-description: Convert the spec and architecture into an executable Markdown board of epics and tasks. Use when the user says "build the board", "break this into tasks", "what should I build first?", or after `.ai/product-spec.md` and `.ai/architecture.md` are in place. Do NOT use to update an existing board after code changes — that is `/sync-board`.
+description: Convert the active change's proposal and design into an executable `tasks.md` — numbered sections of one-session tasks with inline status checkboxes, each linked to the `#### Scenario` it satisfies. Use when the user says "build the board", "break this into tasks", "what should I build first?", or after the proposal + specs exist. Do NOT use to update an existing tasks.md after code changes — that is `/sync-board`.
 # Generated from .claude/skills/mvp-board/SKILL.md — DO NOT EDIT directly
 ---
 
@@ -8,9 +8,10 @@ description: Convert the spec and architecture into an executable Markdown board
 
 ## Goal
 
-Produce `.ai/board.md` — the cockpit for the whole project. Every task is sized for one Claude Code session, has acceptance criteria, and declares whether it can run in parallel.
-
-This is the most important artifact in the system. The board is truth; chat is steering.
+Produce the active change's `docs/spark/changes/<id>-YYYY-MM-DD/tasks.md` — the cockpit and
+single source of truth for execution. Every task is sized for one focused session, links to
+the `#### Scenario` it satisfies, and declares whether it can run in parallel. The build-status
+view is rendered from this file; there is no separate board file.
 
 ## Recommended model
 
@@ -18,76 +19,50 @@ Opus 4.7 or GPT-5.5.
 
 ## Inputs
 
-Read these (required):
+Read these (required), from the active change folder:
 
-- `.ai/product-spec.md`
-- `.ai/architecture.md`
+- `proposal.md` and its `specs/<capability>/spec.md`
 
 Read if they exist:
 
-- `.ai/ux-theme.md`
-- `.ai/decision-log.md`
+- the change's technical `design.md`, and `docs/spark/design.md` (visual)
 
-If spec or architecture is missing, stop and tell the user.
+If the proposal or specs are missing, stop and route the user to `/start` → `/mvp-spec`.
 
 ## Rules
 
-- Every task must fit in one focused execution session. If a task touches more than ~5 files or has more than 3 acceptance criteria, split it.
-- Every task must declare **Depends on** and **Parallel-safe**. No exceptions.
-- Order tasks so the **core flow comes online first**, then polish. Auth and dashboards are not core — the user's primary action is.
-- Mark explicit non-tasks for things the spec ruled out, so they do not silently re-enter scope.
-- Use stable IDs (e.g. `AUTH-001`, `FEED-002`) so other skills can reference them.
+- Every task fits one focused session. If it touches more than ~5 files or has more than 3
+  acceptance points, split it.
+- **Link each task to the `#### Scenario` it makes pass** — that scenario is its definition of done.
+- Order tasks so the **core flow comes online first**, then polish. Auth and dashboards are
+  rarely the core; the user's primary action is.
+- Record metadata (`Depends on:`, `Parallel-safe:`, likely files) as sub-bullets under the task.
+- Use stable numbering (`1.1`, `2.3`) or stable IDs; never renumber.
+- New tasks start `- [ ]`. They are not built until `/board-review` approves the change.
+- List anything the proposal's non-goals ruled out under a `## Cut` section so it does not
+  silently re-enter scope.
 
 ## Output format
 
-Write `.ai/board.md`:
+Write `tasks.md`:
 
 ```md
-# MVP Board
-
-## Rules
-- Only execute one task at a time unless marked parallel-safe.
-- Every task must have acceptance criteria.
-- Completed tasks must list changed files and verification result.
-- New discoveries become new tasks, not silent scope expansion.
-
-## Status legend
-Clarifying | Approved for planning | Approved for execution | In progress | Needs review | Validated | Blocked | Cut from MVP
-
-New tasks start in `Clarifying`. They only move to `Approved for execution` via `/board-review`. Execution skills must refuse to act on tasks not in `Approved for execution`.
-
+---
+created_at: <iso8601>
+updated_at: <iso8601>
+completed_at:
 ---
 
-## EPIC 1: <name>
+## 1. <Section>
+- [ ] 1.1 <task>
+  - Scenario: <capability> / <scenario name>
+  - Depends on: none
+  - Parallel-safe: yes
+  - Files: <path>, <path>
+- [ ] 1.2 <task>
 
-### TASK <ID>: <short title>
-Status: Clarifying
-Priority: P0 | P1 | P2
-Agent owner: planner | sonnet | reviewer
-Human owner: <name or @handle>
-Depends on: <ID> | none
-Parallel-safe: yes | no
-Risk: low | medium | high
-Validation state: not started | code-reviewed | qa-verified | both
-Linked PR: <url or none>
-Demo URL: <url or none>
-
-Acceptance criteria:
-- [ ] <observable>
-- [ ] <observable>
-
-Files likely touched:
-- <path>
-
-Execution prompt:
-Use `/implementation-brief <ID>`, then `/execute-task <ID>`, then `/code-review <ID>` and `/qa-verify`.
-
----
-
-(repeat for every task)
-
-## Cut from MVP
-- <thing>: <reason>
+## Cut
+- <thing>  Cut: <reason>
 ```
 
-After writing, recommend `/board-review` as the next step. Tasks must not move to execution until reviewed and approved.
+After writing, recommend `/board-review`. Tasks must not be built until the change is approved.

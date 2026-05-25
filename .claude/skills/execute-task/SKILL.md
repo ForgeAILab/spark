@@ -1,6 +1,6 @@
 ---
 name: execute-task
-description: Implement exactly one board task end-to-end, then report changes and a suggested board update. Use when the user says "do TASK-X", "execute the next task", "implement AUTH-001", or hands a task ID to the agent. Do NOT use without a task ID — ask which task, or run `/next-task` first.
+description: Implement exactly one tasks.md task end-to-end, then report changes and a suggested inline status update. Use when the user says "do TASK-X", "execute the next task", "implement AUTH-001", or hands a task ID to the agent. Do NOT use without a task ID — ask which task, or run `/next-task` first.
 allowed-tools:
   - Read
   - Write
@@ -12,7 +12,7 @@ allowed-tools:
 
 ## Goal
 
-Execute one and only one task from `.ai/board.md`, without touching unrelated areas. The output is code changes plus a clean report the user can paste back into the board.
+Execute one and only one task from the active change's `tasks.md`, without touching unrelated areas. The output is code changes plus a clean report with a suggested inline status update.
 
 ## Recommended model
 
@@ -22,26 +22,26 @@ Sonnet 4.6 (or a comparable cheaper executor). Planning-quality models are overk
 
 Read these (required):
 
-- `.ai/board.md` — locate the task by ID
-- `.ai/product-spec.md`
-- `.ai/architecture.md`
+- The active change's `docs/spark/changes/<id>-YYYY-MM-DD/tasks.md` — locate the task by ID
+- The active change's `docs/spark/changes/<id>-YYYY-MM-DD/proposal.md`
+- The active change's `docs/spark/changes/<id>-YYYY-MM-DD/design.md`
 
 Read if they exist:
 
-- `.ai/ux-theme.md`
-- `.ai/decision-log.md`
+- `docs/spark/design.md` — product-wide visual language
+- The active change's `docs/spark/changes/<id>/specs/<capability>/spec.md` — linked `#### Scenario` acceptance steps
 - A prior `/implementation-brief` for this task if the user provided one
 
-If the task ID is missing, already `Validated`, or not in status `Approved for execution`, stop and tell the user. Approval comes from `/board-review`, not from this skill.
+If the task ID is missing, already `[x]` / `Validated`, or not in status `Approved for execution`, stop and tell the user. Approval comes from `/board-review`, not from this skill.
 
 ## Rules
 
 - **Do exactly the task in the brief.** No bonus refactors, no "while I'm here" cleanups.
 - If you discover work outside scope, write it down as a follow-up task in the report. Do not silently expand.
 - Stay inside `Files likely to edit` unless a real blocker forces otherwise — then explain why in the report.
-- After editing, run the verification command(s) from the brief. If they fail, fix and re-run. If you cannot fix, mark the task `blocked` with a specific reason.
-- Do not edit `.ai/board.md` directly here — propose the status change in the report and let `/sync-board` apply it.
-- Never mark a task `done` if acceptance criteria are not all checked.
+- After editing, run the verification command(s) from the brief. If they fail, fix and re-run. If you cannot fix, mark the task `Blocked: <reason>` annotated inline in the report.
+- Do not edit `tasks.md` directly here — propose the inline status update in the report and let `/sync-board` apply it.
+- Never mark a task `[x]` / done if acceptance criteria are not all checked.
 
 ## Workflow
 
@@ -67,9 +67,8 @@ If the task ID is missing, already `Validated`, or not in status `Approved for e
 - Command: `<cmd>`
 - Result: passed | failed | not run (with reason)
 
-### Suggested board update
-Status: In progress → Needs review | Blocked
-(if Blocked) Reason: <specific>
+### Suggested tasks.md status update
+Status: `[~]` In progress → `[~]` Needs review | `[ ]` Blocked: <specific reason>
 Validation state: not started
 
 ### Follow-up tasks discovered

@@ -1,95 +1,65 @@
 # AGENTS.md
 
-Operating rules for any agent (Codex, Claude Code, or otherwise) working in this repo. Mirror of the workflow encoded in `.claude/skills/`, so the system stays portable.
+Operating rules for any agent (Codex, Claude Code, or otherwise) working on
+`{{appName}}`. The workflow is encoded in `.claude/skills/`, so the system stays
+portable across tools.
 
 <!-- SPEC:START -->
-## Spec workflow
+## Spec workspace
 
-For proposals/specs/plans, new capabilities, breaking changes, architecture shifts, or behavior-changing perf/security work, keep the source of truth in this project's `.ai/` artifacts first. If the project later adopts formal spec deltas, place them under `docs/spec/changes/<id>-YYYY-MM-DD/`; truth specs after archive live under `docs/spec/specs/`.
+This project plans and tracks its work in a `docs/spark/` spec workspace. Read
+`docs/spark/AGENTS.md` for how it works. In short: the **truth** is in
+`docs/spark/specs/<capability>/spec.md` (EARS `### Requirement:` + `#### Scenario:`),
+each iteration you validate lives in `docs/spark/changes/<id>-YYYY-MM-DD/`
+(`proposal.md` + optional `design.md` + `tasks.md` + spec deltas), and the durable
+product visual language is `docs/spark/design.md`. If an answer isn't in the
+workspace, ask the user — do not invent it.
 <!-- SPEC:END -->
 
 ## Operating model
 
-This project runs a **planner / implementer / evaluator** loop. The same agent should not plan, build, and grade its own work. Use a strong reasoning model (Opus 4.7 / GPT-5.5) for planning and review; use a faster executor (Sonnet 4.6 / GPT-5 family) for routine implementation.
+A **planner / implementer / evaluator** loop. The agent that plans or grades should
+not be the one that writes the code it grades. Use a strong reasoning model
+(Opus 4.7 / GPT-5.5) for planning, review, and risk; a faster executor
+(Sonnet 4.6 / GPT-5 family) for routine implementation. High-risk work (auth,
+payments, migrations, security) uses a planning-quality model for both build and review.
 
 ## Source of truth
 
-The truth is in repo artifacts, not in chat:
+- `docs/spark/project.md` — product north star (vision, user, core loop, non-goals).
+- `docs/spark/design.md` — durable product-wide visual language.
+- `docs/spark/specs/<capability>/spec.md` — what the product does (EARS truth).
+- `docs/spark/changes/<id>/` — the active iteration: `proposal.md`, optional `design.md`,
+  `tasks.md` (the single source of truth for progress), and EARS deltas.
 
-- `.ai/product-spec.md` — what the MVP is. Source of acceptance criteria and non-goals.
-- `.ai/architecture.md` — the stack and the cutline (what we are NOT building yet).
-- `.ai/ux-theme.md` — visual direction. Empty / loading / error patterns live here.
-- `.ai/board.md` — every task, with status, dependencies, owners, validation state, linked PR.
-- `.ai/decision-log.md` — locked-in decisions and the reasoning.
-- `.ai/execution-log.md` — append-only history of state changes.
+There is no `.ai/` directory and no stored board file — the build-status view is
+rendered from `tasks.md` on demand.
 
-If an answer is not in these files, ask the user — do not invent it.
+## Three stages
 
-## Workflow phases
+1. **Propose** (`/start`) — grill the idea, then write the change (proposal → design →
+   EARS specs → tasks). Stops at the approval gate; no application code yet.
+2. **Build** (`/build-loop`) — once approved, implement each task and test it against its
+   `#### Scenario` steps, updating `tasks.md` status until the change's scenarios pass.
+3. **Archive** — fold a shipped change's EARS deltas into `docs/spark/specs/` as new truth.
 
-1. **Grill the idea** until it is buildable. Max 5 questions per round. Only questions that change scope or architecture.
-2. **Write the spec.** One MVP slice. Non-goals are mandatory.
-3. **Cut the architecture.** Boring stack > clever stack. Every choice has a "not building yet" sibling.
-4. **Theme the UX.** One vibe, one reference product, concrete tokens.
-5. **Build the board.** Tasks sized for one focused session. Declare `Depends on:` and `Parallel-safe:`.
-6. **Review the board.** Approval gate between planning and execution. No task starts until it is `Approved for execution`.
-7. **Brief each task** before execution. Self-contained, with files-to-inspect, acceptance criteria verbatim, and a verification command.
-8. **Execute one task at a time.** Stay inside the declared file list. No bonus refactors.
-9. **Review independently.** A separate pass checks the diff against acceptance criteria, security, and scope.
-10. **QA-verify** by actually running the app and walking the core user journey.
-11. **Sync the board** from git reality. Trust git, not claims.
-
-## Board statuses
-
-`Clarifying` → `Approved for planning` → `Approved for execution` → `In progress` → `Needs review` → `Validated`
-
-Side states: `Blocked`, `Cut from MVP`.
-
-`Validated` requires both a `/code-review` pass and a `/qa-verify` pass for user-facing changes. Execution never grades itself.
+`/capture-feedback` turns live-app feedback into appended `tasks.md` items or a new change.
 
 ## Hard rules
 
-- Do not edit files outside the current task's declared scope. New discoveries become new tasks in `Clarifying`, not silent edits.
-- Do not pick a stack outside `.ai/architecture.md`. Propose a decision-log update first.
-- Do not mark tasks `Validated` without independent review.
-- Do not move a task to `Approved for execution` from execution skills. Only board-review can.
-- Treat the `Non-goals` section of the spec and the `What we are NOT building yet` section of architecture as a `do-not-build` list. Violations are scope creep, not features.
-- Verification commands must actually run. Type-check passing is not the same as feature working.
+- Don't edit files outside the current task's scope. New discoveries become new `- [ ]`
+  tasks in `tasks.md`, not silent edits.
+- Don't pick a stack outside the active change's `design.md`; propose a change first.
+- A task isn't `- [x]` / `Validated` without an independent `/code-review` + `/qa-verify`
+  (for user-facing work). Execution never grades itself.
+- The `Non-goals` in `project.md` and any proposal are a do-not-build list. Violations
+  are scope creep, not features.
+- Verification commands must actually run. A passing type-check is not a working feature.
 - When `git status` and a self-report disagree, trust git.
 
-## Skill / command equivalents
+## Skills & packs
 
-Claude Code skills live in `.claude/skills/`. The same operations on Codex should be triggered through the matching workflow names:
-
-| Stage | Skill |
-| --- | --- |
-| Grill | `mvp-grill`, `idea-sharpen` |
-| Spec | `mvp-spec` |
-| Architecture | `architecture-cutline` |
-| Theme | `ux-theme` |
-| Board | `mvp-board`, `board-review` |
-| Schedule | `parallel-execution`, `next-task` |
-| Execute | `implementation-brief`, `execute-task` |
-| Evaluate | `code-review`, `qa-verify` |
-| Sync | `sync-board` |
-| Watch | `risk-check` |
-
-## Model assignment defaults
-
-- Planning / reviewing / scoping: **Opus 4.7** or **GPT-5.5**.
-- Routine execution: **Sonnet 4.6** or a GPT-5 family executor.
-- High-risk tasks (auth, payments, migrations, security): planning-quality model for both build and review.
-
-## Conventions
-
-- Stable task IDs (e.g. `AUTH-001`). Never renumber.
-- Append to `.ai/decision-log.md` whenever a non-obvious choice is made, with: decision, context, alternatives considered, why, risk, revisit condition.
-- Append to `.ai/execution-log.md` one line per state change in `.ai/board.md`.
-- Do not delete board tasks. Move them to `Cut from MVP` with a reason.
-
-## Packs
-
-Feature packs are installed with the `spark` CLI.
-Use `pack-resolve` to choose the scaffold and pack set, `pack-add` to dry-run
-and install declarative pack changes, then `sync-board` to reconcile `.ai/board.md`
-with the installed capabilities and current repository state.
+Skills live in `.claude/skills/` (mirrored to `.codex/skills/`); see the table in
+`docs/spark/AGENTS.md`. Capabilities (auth, db, payments, email, UI, AI, deploy) are
+added with the `spark` CLI — `pack-resolve` to choose, `pack-add` to install,
+`spark check` to report drift — never hand-rolled.

@@ -1,6 +1,6 @@
 ---
 name: next-task
-description: Pick the next best board task to work on, with the reasoning. Use when the user says "what should I do next?", "what's next?", or after `/sync-board` finishes. Do NOT use to plan a whole batch — that is `/parallel-execution`.
+description: Pick the next best task from `tasks.md` to work on, with the reasoning. Use when the user says "what should I do next?", "what's next?", or after `/sync-board` finishes. Do NOT use to plan a whole batch — that is `/parallel-execution`.
 # Generated from .claude/skills/next-task/SKILL.md — DO NOT EDIT directly
 ---
 
@@ -8,7 +8,7 @@ description: Pick the next best board task to work on, with the reasoning. Use w
 
 ## Goal
 
-Recommend the single next task (or smallest parallel batch) the user should execute now, based on the current state of the board.
+Recommend the single next task (or smallest parallel batch) the user should execute now, based on the current state of `tasks.md`.
 
 ## Recommended model
 
@@ -18,13 +18,12 @@ Opus 4.7 or GPT-5.5. Picking the next move is a planning call.
 
 Read these (required):
 
-- `.ai/board.md`
-- `.ai/product-spec.md`
+- The active change's `docs/spark/changes/<id>-YYYY-MM-DD/tasks.md`
+- `docs/spark/project.md`
 
 Read if available:
 
-- `.ai/architecture.md`
-- `.ai/execution-log.md`
+- The active change's `docs/spark/changes/<id>-YYYY-MM-DD/design.md`
 
 ## Rules
 

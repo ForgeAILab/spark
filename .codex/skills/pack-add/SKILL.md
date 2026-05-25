@@ -1,6 +1,6 @@
 ---
 name: pack-add
-description: Safely install feature packs by dry-running `spark add`, showing the plan, waiting for explicit approval, running the real install, and syncing the board. Use when the user asks to add one or more packs.
+description: Safely install feature packs by dry-running `spark add`, showing the plan, waiting for explicit approval, running the real install, and reconciling `tasks.md`. Use when the user asks to add one or more packs.
 # Generated from .claude/skills/pack-add/SKILL.md — DO NOT EDIT directly
 ---
 
@@ -8,7 +8,7 @@ description: Safely install feature packs by dry-running `spark add`, showing th
 
 ## Goal
 
-Install packs through the board-aware workflow: dry-run first, show the plan, get explicit confirmation, install, then sync the board so seeded tasks appear.
+Install packs through the workspace-aware workflow: dry-run first, show the plan, get explicit confirmation, install, then reconcile `tasks.md` so seeded tasks appear.
 
 ## Recommended model
 
@@ -19,8 +19,8 @@ Sonnet 4.6 or GPT-5 family executor.
 Read these if present:
 
 - `spark.config.json`
-- `.ai/architecture.md`
-- `.ai/board.md`
+- The active change's `docs/spark/changes/<id>-YYYY-MM-DD/design.md`
+- The active change's `docs/spark/changes/<id>-YYYY-MM-DD/tasks.md`
 - `.spark/state.json`
 
 The user must provide one or more pack names. If no pack is named, stop and ask for the pack list or recommend `/pack-resolve`.
@@ -33,7 +33,7 @@ The user must provide one or more pack names. If no pack is named, stop and ask 
 - If the dry-run fails, stop. Do not attempt the real install.
 - If the user declines or gives an ambiguous answer, stop with no filesystem changes.
 - On approval, run `spark add <pack...>` with the same pack arguments as the dry-run.
-- After a successful install, invoke `/sync-board` so seeded tasks are reflected in `.ai/board.md`.
+- After a successful install, invoke `/sync-board` so seeded tasks are reflected in the active change's `tasks.md`.
 - Do not mark any seeded task `Approved for execution` or `Validated`; board-review and review skills own those transitions.
 
 ## Workflow

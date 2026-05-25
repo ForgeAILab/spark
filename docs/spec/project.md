@@ -1,6 +1,6 @@
 # Project Overview
 
-`spark` is a board-driven AI MVP pipeline: a minimal AI-ready scaffold plus a composable feature-pack registry. Founders start with `create-spark`, get a bare Next.js + TypeScript app already wired with `AGENTS.md`, `CLAUDE.md`, `.ai/` artifacts, and `.claude/` / `.codex/` skill packs, then add capabilities (auth, db, payments, email, UI, etc.) by installing **packs** through a small Rust CLI.
+`spark` is a spec-driven AI MVP pipeline: a minimal AI-ready scaffold plus a composable feature-pack registry. Founders start with `create-spark`, get a bare Next.js + TypeScript app already wired with `AGENTS.md`, `CLAUDE.md`, a `docs/spark/` spec workspace, and `.claude/` / `.codex/` skill packs, then add capabilities (auth, db, payments, email, UI, etc.) by installing **packs** through the `spark` CLI.
 
 The system mirrors the operating model documented in `docs/deep-research-pipeline.md` (planner / implementer / evaluator) and the scaffold thinking in `docs/deep-research-scaffold.md`, but rejects the batteries-included template approach in favor of pick-what-you-need composition.
 
@@ -18,7 +18,7 @@ The system mirrors the operating model documented in `docs/deep-research-pipelin
 
 - Code style: `oxlint` + `oxfmt` for TS/JS; `rustfmt` + `clippy` for Rust
 - Tests: Bun's built-in test runner for TS; `cargo test` for Rust; Playwright for end-to-end
-- The board (`.ai/board.md`) is the source of truth. Chat steers; the board decides.
+- A generated project's `docs/spark/` workspace is the source of truth; each change's `docs/spark/changes/<id>/tasks.md` (inline `- [ ]` / `- [~]` / `- [x]` status) holds the tasks, and the build-status view is rendered from it — never stored. (This repo plans its own work under `docs/spec/`.) Chat steers; the workspace decides.
 - Status flow is `Clarifying → Approved for planning → Approved for execution → In progress → Needs review → Validated`, with `Blocked` and `Cut from MVP` as side states.
 - Skills are authored once and mirrored. The canonical copy lives in `.claude/skills/`; `.codex/skills/` is generated from it.
 - Packs are units of capability, not units of code organization. A pack is allowed to ship code, env requirements, board tasks, and skills together.

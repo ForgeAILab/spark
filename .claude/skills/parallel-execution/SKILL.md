@@ -1,6 +1,6 @@
 ---
 name: parallel-execution
-description: Decide which board tasks can safely run at the same time and group them into execution batches. Use when the user says "what can run in parallel?", "batch the board", "can I spin up multiple agents?", or after `.ai/board.md` is built. Do NOT use as a license to fan out everything — the output may be one batch.
+description: Decide which `tasks.md` tasks can safely run at the same time and group them into execution batches. Use when the user says "what can run in parallel?", "batch the tasks", "can I spin up multiple agents?", or after `tasks.md` is built. Do NOT use as a license to fan out everything — the output may be one batch.
 allowed-tools:
   - Read
   - Write
@@ -10,7 +10,7 @@ allowed-tools:
 
 ## Goal
 
-Read the board and produce ordered execution batches where every task inside a batch is safe to run in parallel. Conflicts are detected up front, not at merge time.
+Read `tasks.md` and produce ordered execution batches where every task inside a batch is safe to run in parallel. Conflicts are detected up front, not at merge time.
 
 ## Recommended model
 
@@ -20,8 +20,8 @@ Opus 4.7 or GPT-5.5. This is dependency analysis — do not rush it.
 
 Read these (required):
 
-- `.ai/board.md`
-- `.ai/architecture.md`
+- The active change's `docs/spark/changes/<id>-YYYY-MM-DD/tasks.md`
+- The active change's `docs/spark/changes/<id>-YYYY-MM-DD/design.md`
 
 ## Rules
 

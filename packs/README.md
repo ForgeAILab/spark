@@ -9,7 +9,7 @@ packs/<name>/
 ├── pack.toml         # manifest (REQUIRED)
 ├── files/            # tree of files to copy into the project (optional)
 ├── skills/           # SKILL.md folders shipped with this pack (optional)
-└── tasks.yaml        # board tasks seeded into .ai/board.md on install (optional)
+└── tasks.yaml        # board tasks seeded into docs/spark/changes/pack-install-YYYY-MM-DD/tasks.md on install (optional)
 ```
 
 ## `pack.toml`
@@ -70,7 +70,7 @@ The two enums are separate and never overlap. Adding a new value requires a regi
 
 ## What is NOT allowed
 
-- `post_install`, `hooks`, `pre_add`, `scripts` — packs MUST be declarative. If your pack needs a setup step that can't be expressed in `[[files]]`, ship it as a seeded board task the user runs manually.
+- `post_install`, `hooks`, `pre_add`, `scripts` — packs MUST be declarative. If your pack needs a setup step that can't be expressed in `[[files]]`, ship it as a seeded `tasks.md` task the user runs manually.
 - Pack-name conflicts (`conflicts = ["other-pack-name"]`). Use capability tags only.
 - Cross-pack file ownership. Two packs MUST NOT write the same `to` path with `create` mode.
 

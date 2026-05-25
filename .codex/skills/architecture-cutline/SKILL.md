@@ -1,6 +1,6 @@
 ---
 name: architecture-cutline
-description: Pick the simplest architecture that can ship the MVP. Use after `.ai/product-spec.md` exists, when the user says "what stack?", "design the architecture", or before scaffolding code. Do NOT use for greenfield exploration without a spec — run `/mvp-spec` first.
+description: Pick the simplest architecture that can ship the change, and write it as the active change's technical `design.md` (stack, repo structure, data model, API surface, non-goals, and a `## Pack plan` with the exact `spark add` command). Use after the active change's `proposal.md` exists, when the user says "what stack?", "design the architecture", or before scaffolding code. Do NOT use without a proposal — run `/mvp-spec` first.
 # Generated from .claude/skills/architecture-cutline/SKILL.md — DO NOT EDIT directly
 ---
 
@@ -8,7 +8,10 @@ description: Pick the simplest architecture that can ship the MVP. Use after `.a
 
 ## Goal
 
-Produce `.ai/architecture.md` — the smallest viable technical plan that can ship the spec. Your job is to **aggressively cut**, not to design a beautiful system.
+Produce the active change's `docs/spark/changes/<id>-YYYY-MM-DD/design.md` — the smallest
+viable technical plan that can ship the proposal. Your job is to **aggressively cut**, not to
+design a beautiful system. The durable one-line stack summary belongs in `docs/spark/project.md`;
+the per-change "how" lives here.
 
 ## Recommended model
 
@@ -18,8 +21,8 @@ Opus 4.7 or GPT-5.5.
 
 Read these (required):
 
-- `.ai/product-spec.md`
-- `.ai/decision-log.md`
+- the active change's `proposal.md` and its `specs/<capability>/spec.md`
+- `docs/spark/project.md` (existing stack summary, if any)
 
 Read these if present:
 
@@ -27,48 +30,39 @@ Read these if present:
 - `packs/*/pack.toml`
 - `presets/*.toml`
 
-If `product-spec.md` is missing, stop and tell the user to run `/mvp-spec` first.
+If the proposal is missing, stop and tell the user to run `/mvp-spec` first.
 
 ## Rules
 
 - **Default to boring.** Pick the stack the user already knows over the one that scores higher on Twitter.
-- **One database.** No microservices. No event bus. No queues unless the spec literally requires async work.
+- **One database.** No microservices, no event bus, no queues unless the spec literally requires async work.
 - For every decision, also write what you are **NOT building yet**. This is the cutline.
 - If the spec implies something exotic (realtime collab, ML inference, search, multi-tenancy), call it out and propose a faked version for v1.
-- Respect prior choices in `.ai/decision-log.md` unless they conflict with the spec.
-- Choose a scaffold template before choosing packs. Prefer `nextjs` for v1 unless the spec clearly fits a registered planned template; if a planned template is the right destination, name it as planned and give the `nextjs` interim path.
+- Respect prior decisions recorded in earlier proposals / design docs unless they conflict with the spec.
+- Choose a scaffold template before choosing packs. Prefer `nextjs` for v1 unless the spec clearly fits a registered template.
 - Recommend only packs that exist in `packs/*/pack.toml`. Do not recommend a capability if no v1 pack provides it.
-- If the spec implies a capability with no v1 pack, name the gap explicitly in the pack plan and suggest `/new-pack` to author one.
+- If the spec implies a capability with no v1 pack, name the gap explicitly in the `## Pack plan` and suggest `/new-pack`.
 
 ## Output format
 
-Write `.ai/architecture.md` with these sections:
+Write `design.md` with these sections:
 
 ````md
-# Architecture — <name>
+# Design — <change name>
 
 ## Decision summary
 <one paragraph: the shape of the system in plain English>
 
 ## Stack
-- Frontend:
-- Backend / API:
-- Database:
-- Auth:
-- Storage:
-- Payments:
-- Deployment:
-- Testing:
-
-For each, one line on WHY this choice over the obvious alternative.
+- Frontend / Backend / Database / Auth / Storage / Payments / Deployment / Testing
+  (one line each, with WHY this over the obvious alternative)
 
 ## Pack plan
-- Chosen scaffold: <template name> (<stable | planned, not yet implemented; use nextjs as interim>)
+- Chosen scaffold: <template> (<stable | planned — use nextjs interim>)
 - Recommended packs:
   - <pack-name>: provides <capability tag(s)>; satisfies <spec need>
 - Gaps:
-  - <capability tag>: no v1 pack exists — run `/new-pack` to author one
-  - none
+  - <capability tag>: no v1 pack — run `/new-pack` | none
 
 ```sh
 spark add <pack-1> <pack-2>
@@ -78,17 +72,17 @@ spark add <pack-1> <pack-2>
 <tree of top-level folders only>
 
 ## Data model (concrete)
-<tables/collections with columns and types — short>
+<tables / collections with columns and types — short>
 
 ## API surface (concrete)
 <routes or actions, grouped by feature>
 
-## What we are NOT building yet
+## Non-goals (the cutline)
 - <thing>: <reason — "fake with X for MVP" or "v2">
-(at least 5 entries; this is the cutline)
 
 ## Risks and rollback
 <2–4 risks with a simpler fallback for each>
 ````
 
-After writing, append the key choices to `.ai/decision-log.md` and recommend `/ux-theme` or `/mvp-board` next.
+After writing, update the one-line stack summary in `docs/spark/project.md` and recommend
+`/ux-theme` (if UI is in scope) or `/mvp-board`.

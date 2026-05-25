@@ -13,7 +13,10 @@ bun dev
 
 ## Next Steps
 
-Read `AGENTS.md`, fill in the `.ai/` planning files, and keep `.ai/board.md` current before implementing. Add capabilities only when the board calls for them:
+Run `/start` to plan your product — it interviews you and writes the `docs/spark/`
+spec workspace (`project.md`, `design.md`, EARS `specs/`, and a change's `tasks.md`).
+Read `AGENTS.md` and `docs/spark/AGENTS.md` for how the workspace works. Add
+capabilities only when an approved change calls for them:
 
 ```sh
 spark add <pack>

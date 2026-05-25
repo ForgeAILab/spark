@@ -30,14 +30,13 @@ async function setupProject() {
   const projectRoot = join(root, 'project');
   const registryRoot = join(root, 'registry');
   const packRoot = join(registryRoot, 'packs', 'demo-pack');
-  await mkdir(join(projectRoot, '.ai'), { recursive: true });
+  await mkdir(projectRoot, { recursive: true });
   await mkdir(join(packRoot, 'files', 'lib'), { recursive: true });
   await mkdir(join(packRoot, 'skills', 'demo-skill'), { recursive: true });
 
   await writeFile(join(projectRoot, 'spark.config.json'), '{"template":"nextjs","appName":"demo"}\n');
   await writeFile(join(projectRoot, '.env.example'), '');
   await writeFile(join(projectRoot, '.env.local'), '');
-  await writeFile(join(projectRoot, '.ai', 'board.md'), '# Board\n');
   await writeFile(join(projectRoot, 'package.json'), '{}\n');
   await writeFile(join(projectRoot, 'README.md'), 'base\n');
 

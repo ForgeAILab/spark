@@ -1,6 +1,6 @@
 ---
 name: code-review
-description: Review a completed task's implementation against its acceptance criteria as an independent evaluator, not the implementer. Use after `/execute-task`, when the user says "review this", "is this done?", or before marking a task `Validated`. Do NOT use to fix code — propose patches; only edit when the user explicitly asks.
+description: Review a completed task's implementation against its acceptance criteria and linked `#### Scenario` as an independent evaluator, not the implementer. Use after `/execute-task`, when the user says "review this", "is this done?", or before marking a task Validated / `[x]`. Do NOT use to fix code — propose patches; only edit when the user explicitly asks.
 # Generated from .claude/skills/code-review/SKILL.md — DO NOT EDIT directly
 ---
 
@@ -8,7 +8,7 @@ description: Review a completed task's implementation against its acceptance cri
 
 ## Goal
 
-Act as the independent reviewer in the planner/implementer/evaluator loop. The implementer is too generous about its own output — your job is to catch what they missed before a task moves to `Validated`.
+Act as the independent reviewer in the planner/implementer/evaluator loop. The implementer is too generous about its own output — your job is to catch what they missed before a task moves to Validated / `[x]`.
 
 ## Recommended model
 
@@ -18,15 +18,14 @@ Opus 4.7 or GPT-5.5 for high-risk tasks (auth, payments, data migrations, schema
 
 Read these (required):
 
-- `.ai/board.md` — locate the task and its acceptance criteria
-- `.ai/product-spec.md`
-- `.ai/architecture.md`
+- The active change's `docs/spark/changes/<id>-YYYY-MM-DD/tasks.md` — locate the task and its acceptance criteria
+- The active change's `docs/spark/changes/<id>-YYYY-MM-DD/proposal.md`
+- The active change's `docs/spark/changes/<id>/specs/<capability>/spec.md` — linked `#### Scenario` WHEN/THEN steps
 - the actual diff: `git diff` for unstaged, `git diff --staged`, or `git diff <base>...HEAD`
 
 Read if relevant:
 
-- `.ai/ux-theme.md` for UI tasks
-- `.ai/decision-log.md`
+- `docs/spark/design.md` for UI tasks
 
 ## Rules
 
@@ -68,6 +67,6 @@ Pass | Needs changes
 ### Security / boundary check
 - <finding or "no issues found">
 
-### Recommended board update
-Status: review → Validated | review → In progress (needs changes)
+### Recommended tasks.md update
+Status: `[~]` Needs review → `[x]` Validated | `[~]` Needs review → `[~]` In progress (needs changes)
 ```

@@ -64,6 +64,6 @@ to = "lib/example-client.ts"
 [skills]
 copy = ["skills/example-db-patterns"]
 
-# Board tasks seeded into .ai/board.md during installation.
+# Board tasks seeded into docs/spark/changes/pack-install-YYYY-MM-DD/tasks.md during installation.
 [tasks]
 file = "tasks.yaml"
