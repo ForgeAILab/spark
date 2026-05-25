@@ -41,6 +41,13 @@ jobs:
 
       # npm trusted publishing (OIDC) needs the npm CLI >= 11.5.1. `bun publish`
       # does not support OIDC yet (oven-sh/bun#22423), so publish with npm.
+      # setup-node provides a recent Node and a user-writable global prefix (so
+      # `npm i -g` needs no sudo). No registry-url => no token .npmrc to conflict
+      # with OIDC; npm defaults to registry.npmjs.org.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
       - name: Upgrade npm for trusted publishing
         run: npm install -g npm@latest
 
