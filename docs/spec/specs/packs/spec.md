@@ -9,7 +9,7 @@ A pack SHALL be a directory containing a `pack.toml` manifest, an optional `file
 
 - `name` — string, must equal the directory name
 - `version` — semver string
-- `category` — string from the closed category enum (`db`, `auth`, `payments`, `email`, `ui`, `ai`, `infra`, `testing`, `deploy`, `analytics`, `storage`)
+- `category` — string from the closed category enum (`db`, `auth`, `payments`, `email`, `ui`, `ai`, `infra`, `testing`, `deploy`, `analytics`, `storage`, `admin`)
 - `description` — one-line string
 - `provides` — array of pack-capability tags from the closed pack-capability enum
 - `requires` — array of pack-capability tags
@@ -60,17 +60,19 @@ The manifest MUST NOT contain any `post_install` field or any other mechanism fo
 
 ### Requirement: Pack-Capability Enum and Exclusivity
 
-The v1 pack-capability enum SHALL be closed and equal to: `db`, `auth`, `payments`, `email`, `ui-kit`, `local-runtime`, `deploy-target`, `e2e`, `ai-sdk`, `blob-storage`, `analytics`, `sync`. Each capability MUST be classified as either **exclusive** (only one pack may provide it in a project) or **non-exclusive** (any number of packs may provide it). The classification for v1 is:
+The v1 pack-capability enum SHALL be closed and equal to: `db`, `auth`, `payments`, `email`, `ui-kit`, `local-runtime`, `deploy-target`, `e2e`, `ai-sdk`, `blob-storage`, `analytics`, `data-api`, `admin`. Each capability MUST be classified as either **exclusive** (only one pack may provide it in a project) or **non-exclusive** (any number of packs may provide it). The classification for v1 is:
 
-- **Exclusive:** `db`, `auth`, `payments`, `ui-kit`, `sync`
+- **Exclusive:** `db`, `auth`, `payments`, `ui-kit`, `data-api`, `admin`
 - **Non-exclusive:** `ai-sdk`, `analytics`, `email`, `blob-storage`, `e2e`, `deploy-target`, `local-runtime`
 
-`sync` is exclusive because a project can sensibly have only one client-sync engine driving the data layer. The resolver MUST enforce exclusivity at install time. Adding a new pack-capability tag, changing its classification, or adding a new value requires a registry-wide change.
+`data-api` is exclusive because a project can sensibly have only one client/server data-layer contract — realtime sync (e.g. Zero), typed RPC (e.g. tRPC), or any future GraphQL/REST equivalent — driving the wire format and the typed client. `admin` is exclusive because a project has a single canonical admin/back-office surface; allowing two admin packs would mean two competing `/admin` route trees and gating models. The resolver MUST enforce exclusivity at install time. Adding a new pack-capability tag, changing its classification, or adding a new value requires a registry-wide change.
+
+The previous capability name `sync` is no longer accepted; any manifest declaring `sync` in `provides`, `requires`, or `conflicts` MUST be rejected with an error naming the unknown capability tag.
 
 #### Scenario: Two exclusive providers cannot coexist
 
-- **WHEN** `db-supabase` is installed (it provides the exclusive capability `db`)
-- **AND** the user runs `spark add db-drizzle-postgres` (which also provides `db`)
+- **WHEN** `sync-zero` is installed (it provides the exclusive capability `data-api`)
+- **AND** the user runs `spark add api-trpc` (which also provides `data-api`)
 - **THEN** the install aborts before writing any file
 - **AND** the error names both packs and the exclusive capability they both provide
 - **AND** suggests the user run `git reset` or remove the existing pack via revert before installing the alternative
@@ -81,6 +83,20 @@ The v1 pack-capability enum SHALL be closed and equal to: `db`, `auth`, `payment
 - **AND** the user runs `spark add ai-openai` (which also provides `ai-sdk`)
 - **THEN** both installs succeed
 - **AND** the resolver does not flag a conflict on `ai-sdk`
+
+#### Scenario: Legacy `sync` capability is rejected
+
+- **WHEN** the CLI parses a manifest declaring `provides = ["sync"]`
+- **THEN** the manifest is rejected with an error naming the unknown capability tag `sync`
+- **AND** the error message points the user at `data-api` as the replacement
+- **AND** no filesystem changes are made
+
+#### Scenario: Two admin providers cannot coexist
+
+- **WHEN** `admin-dashboard` is installed (it provides the exclusive capability `admin`)
+- **AND** the user runs `spark add <another-admin-pack>` (which also provides `admin`)
+- **THEN** the install aborts before writing any file
+- **AND** the error names both packs and the exclusive capability `admin`
 
 ### Requirement: Conflicts Use Capability Tags
 
@@ -173,15 +189,16 @@ A pack MAY include a `skills/` directory containing one or more skill folders in
 
 ### Requirement: Pack-Seeded Board Tasks
 
-A pack MAY include a `tasks.yaml` declaring board tasks to seed into `.ai/board.md` at install time. Each task MUST have a stable ID, a title, acceptance criteria, and an initial status. Seeded tasks SHALL be inserted into `.ai/board.md` with status `Clarifying` and a `requires_pack:` field referencing the installing pack's name.
+A pack MAY include a `tasks.yaml` declaring tasks to seed into the spark workspace at install time. Each task MUST have a stable ID, a title, acceptance criteria, and an initial status. Seeded tasks SHALL be inserted into a `docs/spark/changes/pack-install-YYYY-MM-DD/tasks.md` as `- [ ]` items annotated `Status: Clarifying` and `requires_pack: <name>` referencing the installing pack's name. Seeding MUST NOT write to any `.ai/board.md` file, which no longer exists.
 
-#### Scenario: Tasks are seeded into the board on install
+#### Scenario: Tasks are seeded into the workspace on install
 
 - **WHEN** `payments-stripe` declares two tasks `PAY-001` and `PAY-002`
 - **AND** the user installs `payments-stripe`
-- **THEN** `.ai/board.md` contains entries for both tasks under the appropriate epic
-- **AND** both tasks have status `Clarifying`
-- **AND** both tasks have a `requires_pack: payments-stripe` field
+- **THEN** a `docs/spark/changes/pack-install-YYYY-MM-DD/tasks.md` contains `- [ ]` entries for both tasks
+- **AND** both tasks are annotated `Status: Clarifying`
+- **AND** both tasks carry a `requires_pack: payments-stripe` annotation
+- **AND** no `.ai/board.md` file is created or modified
 
 ### Requirement: Presets
 
@@ -201,3 +218,48 @@ The system SHALL support **presets** — named bundles of packs defined as TOML 
 - **AND** the user runs `spark preset saas-classic` whose `compatible_scaffolds = ["nextjs"]`
 - **THEN** the preset install aborts before any pack is applied
 - **AND** the error names the active template and the preset's compatible templates
+
+### Requirement: data-api Provider Pack Shape
+
+A pack providing the `data-api` capability SHALL ship a typed router or sync engine that exposes a single fetch handler suitable for mounting on the active template's server runtime. The pack MUST declare `requires = ["db", ...]` because every data-api provider is read/write over the project's database, and MUST declare `conflicts = ["data-api"]` so the resolver names the conflict cleanly when a second provider is attempted.
+
+#### Scenario: api-trpc declares the contract
+
+- **WHEN** the CLI parses `packs/api-trpc/pack.toml`
+- **THEN** `provides` includes `"data-api"`
+- **AND** `requires` includes `"db"`
+- **AND** `conflicts` includes `"data-api"`
+- **AND** the pack ships at least one file under `files/server/` that exports a fetch-compatible handler
+
+#### Scenario: sync-zero declares the contract after rename
+
+- **WHEN** the CLI parses `packs/sync-zero/pack.toml`
+- **THEN** `provides` includes `"data-api"` and does not include `"sync"`
+- **AND** `requires` includes `"db"`
+- **AND** `conflicts` includes `"data-api"`
+
+### Requirement: Admin Capability Provider Pack Shape
+
+A pack providing the `admin` capability SHALL ship an internal admin surface — at minimum a `/admin` route group with a server-side access guard and a users table — built from the project's installed `ui-kit`. Because the admin surface reads and edits authenticated users out of the database, the pack MUST declare `requires = ["auth", "ui-kit", "db"]` and MUST declare `conflicts = ["admin"]` so the resolver names the conflict cleanly when a second provider is attempted. Access control MUST be enforced **server-side before the admin layout renders**: a request from a non-admin user MUST NOT receive admin markup. The pack MUST NOT edit the auth pack's user-schema files directly; the `role`/admin field and the first-admin promotion MUST be delivered as seeded tasks.
+
+#### Scenario: admin-dashboard declares the contract
+
+- **WHEN** the CLI parses `packs/admin-dashboard/pack.toml`
+- **THEN** `provides` includes `"admin"`
+- **AND** `requires` includes `"auth"`, `"ui-kit"`, and `"db"`
+- **AND** `conflicts` includes `"admin"`
+- **AND** `requires_runtime` includes `"server"`
+- **AND** the pack ships a server-side admin guard file and at least one file under an `app/admin/` route group
+
+#### Scenario: Non-admin is blocked before the admin layout renders
+
+- **WHEN** a request reaches an `/admin` route from a user whose `role` is not admin (or from an unauthenticated request)
+- **THEN** the server-side guard redirects or returns a 403 before producing any admin layout markup
+- **AND** no admin-only data is sent to the client
+
+#### Scenario: Role field and first admin arrive as seeded tasks
+
+- **WHEN** `admin-dashboard` is installed
+- **THEN** the seeded tasks include adding a `role` column to the user schema with a migration
+- **AND** the seeded tasks include promoting the first admin (via `ADMIN_EMAILS` or the database)
+- **AND** the install does not modify any auth-pack-owned user-schema file

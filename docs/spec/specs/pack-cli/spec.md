@@ -96,13 +96,13 @@ The CLI SHALL maintain `.spark/state.json` recording, per installed pack, the pa
 
 ### Requirement: `check` Subcommand
 
-`spark check` SHALL audit the current project against `.spark/state.json` and report drift: missing files that were recorded as installed, env vars declared by installed packs that are missing from `.env.local`, and tasks seeded into `.ai/board.md` that have been deleted by hand. `check` MUST NOT attempt to repair drift; it only reports.
+`spark check` SHALL audit the current project against `.spark/state.json` and report drift: missing files that were recorded as installed, env vars declared by installed packs that are missing from `.env.local`, and tasks seeded into the spark workspace's `tasks.md` (under `docs/spark/changes/<id>/tasks.md`) that have been deleted by hand. `check` MUST NOT attempt to repair drift; it only reports.
 
 #### Scenario: Clean project produces an OK report
 
 - **WHEN** every recorded file is present
 - **AND** every required env var is present in `.env.local`
-- **AND** every seeded task is still present in `.ai/board.md`
+- **AND** every seeded task is still present in its `docs/spark/changes/<id>/tasks.md`
 - **THEN** `spark check` exits 0 with an "OK" summary
 
 #### Scenario: Missing env var is surfaced
