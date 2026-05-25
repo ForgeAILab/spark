@@ -1,6 +1,6 @@
 ---
 name: scaffold
-description: Stand up the approved change's stack — read its `design.md` Pack plan, install the packs with `spark add`, and verify the app boots. The bridge between approval and building. Use right after `/board-review` approves a change, when the user says "set it up", "install the stack", "scaffold it", or before the first `/build-loop`. Do NOT choose packs here (that's `/architecture-cutline` / `/pack-resolve`) or build feature code (that's `/build-loop`).
+description: Stand up the approved change's stack — read its `design.md` Pack plan, install the packs with `spark add`, and verify the app boots. The bridge between approval and building. Use right after `/board-review` approves a change, when the user says "set it up", "install the stack", "scaffold it", or before the first `/build-loop`. Do NOT choose packs here (that's `/start`'s architecture / pack-resolve phase) or build feature code (that's `/build-loop`).
 allowed-tools:
   - Read
   - Bash
@@ -32,7 +32,7 @@ Read these (required):
 - `.spark/state.json` if present — packs already installed (so this is idempotent)
 
 If the change is not approved (no `/board-review` approval banner in `tasks.md`), stop
-and route to `/start`. If there is no `## Pack plan`, route to `/architecture-cutline`.
+and route to `/start`. If there is no `## Pack plan`, hand back to `/start` (its architecture phase).
 
 ## Rules
 
@@ -54,8 +54,8 @@ and route to `/start`. If there is no `## Pack plan`, route to `/architecture-cu
 ## Workflow
 
 1. Read the active change's `design.md` Pack plan and `spark.config.json`.
-2. If no Pack plan exists, route to `/architecture-cutline`; if packs aren't chosen,
-   `/pack-resolve`.
+2. If no Pack plan exists, hand back to `/start`, which owns the architecture and
+   pack-resolve phases.
 3. Check the template matches the plan; flag a mismatch and stop if so.
 4. Install the stack via `/pack-add` (runs the `spark add …` from the plan).
 5. Run `spark check` to confirm no drift (missing files / env / tasks).

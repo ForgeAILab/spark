@@ -1,6 +1,6 @@
 ---
 created_at: 2026-05-24T23:39:11Z
-updated_at: 2026-05-25T18:38:53Z
+updated_at: 2026-05-25T18:56:46Z
 completed_at:
 ---
 
@@ -60,3 +60,12 @@ completed_at:
 - [x] 7.2 Continuity across the gate: once the approval banner is present, `/start` continues automatically through `/scaffold` (install Pack plan + verify boot) → `/build-loop`, pausing only on a blocker (failed install/boot, a decision) or user interruption. `scaffold` hands back to `/start`; `build-loop` keeps moving through batches (live preview each batch) instead of waiting for a manual kickoff.
 - [x] 7.3 Update the agent-workflow delta requirement to "Start Skill Conducts the Full Pipeline" (post-approval continuity, blocker pause, unapproved-does-not-build, phase-skills-route-through-conductor).
 - [x] 7.4 `bun run scripts/sync-skills.ts` + `check:skills` green (22 skills in sync).
+
+## 8. Consolidate planning skills into the conductor (2026-05-25)
+
+- [x] 8.1 `sync-skills.ts`: mirror a skill's whole folder (not just `SKILL.md`) into `.codex/skills/` so `start/references/*` propagate; added a verbatim-reference-mirroring test (86 pass).
+- [x] 8.2 Author `start/references/{spec,architecture,visual,tasks,pack-resolve}.md` from the five planning skills' guidance; rewrite `start` to load the phase reference instead of invoking a separate skill, and add a "Phase references" section.
+- [x] 8.3 Delete the standalone `mvp-spec`, `architecture-cutline`, `ux-theme`, `mvp-board`, `pack-resolve` skills (22 → 17). Re-point every remaining reference (board-review, scaffold, mvp-grill, idea-sharpen, sync-board, pack-add) to `/start`'s phases.
+- [x] 8.4 Truth deltas: scaffold "Scaffold Carries Canonical Skills" enumeration (17 + references) and new agent-workflow "Planning Phases Are Conductor References" requirement.
+- [x] 8.5 Docs/counts: root + both template `AGENTS.md` skill tables, `README.md` (17), `marketplace.json`, `docs/skill-authoring.md`.
+- [x] 8.6 `bun test` (86 pass) + `check:skills` green; `.codex/skills` has 17 skills with `start/references/` mirrored.

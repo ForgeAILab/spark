@@ -1,6 +1,6 @@
 ---
 name: board-review
-description: Sanity-check the active change's `tasks.md` (against its proposal + specs) before the change moves to `Approved for execution`. The approval gate between planning and building. Use after `/mvp-board`, when the user says "is the plan good?", "review the plan", or before kicking off coding. Do NOT skip this gate — it is the plan/review/approve boundary the whole system depends on.
+description: Sanity-check the active change's `tasks.md` (against its proposal + specs) before the change moves to `Approved for execution`. The approval gate between planning and building. Use after `/start` drafts the tasks, when the user says "is the plan good?", "review the plan", or before kicking off coding. Do NOT skip this gate — it is the plan/review/approve boundary the whole system depends on.
 # Generated from .claude/skills/board-review/SKILL.md — DO NOT EDIT directly
 ---
 

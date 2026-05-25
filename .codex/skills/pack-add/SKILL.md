@@ -23,7 +23,7 @@ Read these if present:
 - The active change's `docs/spark/changes/<id>-YYYY-MM-DD/tasks.md`
 - `.spark/state.json`
 
-The user must provide one or more pack names. If no pack is named, stop and ask for the pack list or recommend `/pack-resolve`.
+The user must provide one or more pack names. If no pack is named, stop and ask for the pack list or route to `/start` (its pack-resolve phase).
 
 ## Rules
 

@@ -89,21 +89,19 @@ review → Validated`, plus side states `Blocked` and `Cut`.
 | Build loop | `build-loop` |
 | Feedback | `capture-feedback` |
 | Grill | `mvp-grill`, `idea-sharpen` |
-| Spec | `mvp-spec` |
-| Architecture | `architecture-cutline` |
-| Visual design | `ux-theme` |
-| Plan tasks | `mvp-board`, `board-review` |
+| Plan (proposal → architecture → visual → specs → tasks) | `start` (conductor; phase guidance in `start/references/`) |
+| Approve | `board-review` |
 | Scaffold stack | `scaffold` |
 | Schedule | `parallel-execution`, `next-task` |
 | Execute | `implementation-brief`, `execute-task` |
 | Evaluate | `code-review`, `qa-verify` |
 | Sync | `sync-board` |
 | Watch | `risk-check` |
-| Packs | `pack-resolve`, `pack-add`, `new-pack` |
+| Packs | `pack-add`, `new-pack` (pack selection is a `start` phase) |
 
 ## Packs
 
 Capabilities (auth, db, payments, email, UI, AI, deploy) are added with the `spark`
-CLI, not hand-rolled. `pack-resolve` picks the set, `pack-add` dry-runs and installs,
-`spark check` reports drift. A pack may seed its own tasks into a
+CLI, not hand-rolled. `/start` picks the set (its pack-resolve phase), `pack-add` dry-runs
+and installs, `spark check` reports drift. A pack may seed its own tasks into a
 `changes/pack-install-YYYY-MM-DD/tasks.md` as `- [ ]` items tagged `requires_pack:`.

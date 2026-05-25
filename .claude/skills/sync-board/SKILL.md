@@ -1,6 +1,6 @@
 ---
 name: sync-board
-description: Update the active change's `tasks.md` to reflect actual code progress — apply inline status changes from execution reports, add discovered tasks, and recommend the next batch. Use after `/execute-task`, at the end of a working session, or when the user says "update the board", "sync progress", "what's next?". Do NOT use to create the initial tasks.md — that is `/mvp-board`.
+description: Update the active change's `tasks.md` to reflect actual code progress — apply inline status changes from execution reports, add discovered tasks, and recommend the next batch. Use after `/execute-task`, at the end of a working session, or when the user says "update the board", "sync progress", "what's next?". Do NOT use to create the initial tasks.md — that is `/start`'s tasks phase.
 allowed-tools:
   - Read
   - Write

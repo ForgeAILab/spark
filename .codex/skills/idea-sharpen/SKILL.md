@@ -1,6 +1,6 @@
 ---
 name: idea-sharpen
-description: Turn a weak or broad product idea into 2–3 sharper MVP angles and recommend one. Use when the user has an idea but is unsure of the angle, says "is this a good idea?", "what's the best version of this?", or "should I do X or Y?". Do NOT use after the angle is already chosen — switch to `/mvp-grill` or `/mvp-spec`.
+description: Turn a weak or broad product idea into 2–3 sharper MVP angles and recommend one. Use when the user has an idea but is unsure of the angle, says "is this a good idea?", "what's the best version of this?", or "should I do X or Y?". Do NOT use after the angle is already chosen — switch to `/mvp-grill` or `/start`.
 # Generated from .claude/skills/idea-sharpen/SKILL.md — DO NOT EDIT directly
 ---
 

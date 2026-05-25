@@ -1,6 +1,6 @@
 import { mkdtemp, mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
-import { join, relative, resolve, sep } from "node:path";
+import { dirname, join, relative, resolve, sep } from "node:path";
 import { tmpdir } from "node:os";
 import {
   parseSkillFrontmatter,
@@ -8,9 +8,15 @@ import {
   toCodexFrontmatter,
 } from "../packages/spark/src/internal/skill-utils.ts";
 
+type SkillFile = {
+  relPath: string;
+  content: string;
+};
+
 type SkillOutput = {
   name: string;
-  content: string;
+  skillMd: string;
+  files: SkillFile[];
 };
 
 type Diff =
@@ -41,6 +47,31 @@ export function transformSkillMarkdown(markdown: string, skillName: string): str
   return `---\n${outputFrontmatter}\n---\n${body}`;
 }
 
+async function collectExtraFiles(skillDir: string): Promise<SkillFile[]> {
+  const files: SkillFile[] = [];
+
+  async function walk(dir: string): Promise<void> {
+    const entries = await readdir(dir, { withFileTypes: true });
+    for (const entry of entries.sort((a, b) => a.name.localeCompare(b.name))) {
+      const absolutePath = join(dir, entry.name);
+      if (entry.isDirectory()) {
+        await walk(absolutePath);
+        continue;
+      }
+      if (entry.isFile()) {
+        const relPath = relative(skillDir, absolutePath).split(sep).join("/");
+        if (relPath === "SKILL.md") {
+          continue;
+        }
+        files.push({ relPath, content: await readFile(absolutePath, "utf8") });
+      }
+    }
+  }
+
+  await walk(skillDir);
+  return files;
+}
+
 async function collectSkillOutputs(root: string): Promise<SkillOutput[]> {
   const sourceRoot = join(root, ".claude", "skills");
   const entries = await readdir(sourceRoot, { withFileTypes: true });
@@ -52,7 +83,8 @@ async function collectSkillOutputs(root: string): Promise<SkillOutput[]> {
     }
 
     const skillName = entry.name;
-    const sourceFile = join(sourceRoot, skillName, "SKILL.md");
+    const skillDir = join(sourceRoot, skillName);
+    const sourceFile = join(skillDir, "SKILL.md");
     if (!existsSync(sourceFile)) {
       continue;
     }
@@ -60,7 +92,8 @@ async function collectSkillOutputs(root: string): Promise<SkillOutput[]> {
     const source = await readFile(sourceFile, "utf8");
     outputs.push({
       name: skillName,
-      content: transformSkillMarkdown(source, skillName),
+      skillMd: transformSkillMarkdown(source, skillName),
+      files: await collectExtraFiles(skillDir),
     });
   }
 
@@ -74,7 +107,13 @@ async function writeOutputs(targetRoot: string, outputs: SkillOutput[]): Promise
   for (const output of outputs) {
     const skillDir = join(targetRoot, output.name);
     await mkdir(skillDir, { recursive: true });
-    await writeFile(join(skillDir, "SKILL.md"), output.content, "utf8");
+    await writeFile(join(skillDir, "SKILL.md"), output.skillMd, "utf8");
+
+    for (const file of output.files) {
+      const destination = join(skillDir, file.relPath);
+      await mkdir(dirname(destination), { recursive: true });
+      await writeFile(destination, file.content, "utf8");
+    }
   }
 }
 

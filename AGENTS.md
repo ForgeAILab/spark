@@ -79,17 +79,15 @@ Claude Code skills live in `.claude/skills/`. The same operations on Codex shoul
 | Build loop | `build-loop` |
 | Feedback | `capture-feedback` |
 | Grill | `mvp-grill`, `idea-sharpen` |
-| Spec | `mvp-spec` |
-| Architecture | `architecture-cutline` |
-| Visual design | `ux-theme` |
-| Plan tasks | `mvp-board`, `board-review` |
+| Plan (proposal → architecture → visual → specs → tasks) | `start` (conductor; phase guidance in `start/references/`) |
+| Approve | `board-review` |
 | Scaffold stack | `scaffold` |
 | Schedule | `parallel-execution`, `next-task` |
 | Execute | `implementation-brief`, `execute-task` |
 | Evaluate | `code-review`, `qa-verify` |
 | Sync | `sync-board` |
 | Watch | `risk-check` |
-| Packs | `pack-resolve`, `pack-add`, `new-pack` |
+| Packs | `pack-add`, `new-pack` (pack selection is a `start` phase) |
 
 ## Model assignment defaults
 
@@ -106,7 +104,7 @@ Claude Code skills live in `.claude/skills/`. The same operations on Codex shoul
 ## Packs
 
 Feature packs are documented in `docs/pack-spec.md` and live under `packs/`.
-Use `pack-resolve` to choose the scaffold and pack set, `pack-add` to dry-run
-and install declarative pack changes, then `sync-board` to reconcile the active
+`/start` resolves the scaffold + pack set (its pack-resolve phase); `pack-add` dry-runs
+and installs declarative pack changes; then `sync-board` reconciles the active
 change's `tasks.md` with the installed capabilities and current repository state.
 A pack may seed its own tasks into a `docs/spark/changes/pack-install-YYYY-MM-DD/tasks.md`.

@@ -1,6 +1,6 @@
 ---
 name: mvp-grill
-description: Grill a rough product idea with sharp questions until it is buildable. Use when the user says "I want to build X", "help me make an MVP", "is this idea good?", or hands over a vague concept. Do NOT use once the active change's `proposal.md` already exists — switch to `/mvp-spec` or `/architecture-cutline` instead.
+description: Grill a rough product idea with sharp questions until it is buildable. Use when the user says "I want to build X", "help me make an MVP", "is this idea good?", or hands over a vague concept. Do NOT use once the active change's `proposal.md` already exists — hand back to `/start`, which owns the spec and architecture phases, instead.
 allowed-tools:
   - Read
   - Write

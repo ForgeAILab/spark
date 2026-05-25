@@ -1,5 +1,5 @@
 import { mkdtemp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { tmpdir } from "node:os";
 import { afterEach, expect, test } from "bun:test";
 import { transformSkillMarkdown } from "./sync-skills";
@@ -73,6 +73,23 @@ test("--check mode exits 0 when in sync", async () => {
 
   expect(result.exitCode).toBe(0);
   expect(result.stdout).toContain(".codex/skills is in sync");
+});
+
+test("mirrors non-SKILL.md files in a skill folder verbatim", async () => {
+  const root = await createTempProject();
+  await writeSkill(root, "sample-skill", "Has references.");
+  const refPath = join(root, ".claude", "skills", "sample-skill", "references", "guide.md");
+  await mkdir(dirname(refPath), { recursive: true });
+  await writeFile(refPath, "# Reference\nVerbatim content.\n", "utf8");
+
+  expect((await runSync(root)).exitCode).toBe(0);
+
+  const mirrored = await readFile(
+    join(root, ".codex", "skills", "sample-skill", "references", "guide.md"),
+    "utf8",
+  );
+  expect(mirrored).toBe("# Reference\nVerbatim content.\n");
+  expect((await runSync(root, "--check")).exitCode).toBe(0);
 });
 
 async function createTempProject(): Promise<string> {

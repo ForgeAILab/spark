@@ -16,9 +16,11 @@ Be the **conductor** of the whole pipeline: take a raw idea to a running app in 
 continuous flow with a single human gate (approval). A spark project ships the full
 planner / implementer / evaluator loop but no obvious entry point — this skill removes
 both the "which skill do I run now?" friction *and* the stop-and-go of confirming every
-phase. You own the orchestration, the ordering, and the `proposal.md`; the named skills
-do the deep authoring and building. **The pipeline order lives here and nowhere else** —
-phase skills hand control back to you; they do not name the next skill.
+phase. You own the orchestration, the ordering, and the planning docs — you author them yourself
+from the bundled `references/` (see below); the standalone skills handle interactive input
+(`/mvp-grill`, `/idea-sharpen`), the approval gate (`/board-review`), and building
+(`/scaffold`, `/build-loop`). **The pipeline order lives here and nowhere else** — those
+skills hand control back to you; they do not name the next skill.
 
 ## The conductor contract (how you drive)
 
@@ -97,12 +99,12 @@ Walk top to bottom; act on the first row that is not yet satisfied, then continu
 | --- | --- |
 | Idea is vague or has 2+ directions | run `/idea-sharpen` — **pause** for the user's pick |
 | `project.md` empty / idea not grilled | run `/mvp-grill` — **pause** for answers |
-| Grilled, no active change or `proposal.md` empty | draft `proposal.md` here, then run `/mvp-spec` |
-| Proposal drafted, EARS `specs/` deltas empty | run `/mvp-spec` |
-| Stack undecided, change `design.md` empty | run `/architecture-cutline` |
-| UI in scope, product `design.md` empty | run `/ux-theme` |
-| Design names a capability with no installed pack | run `/pack-resolve` (plan only — install is `/scaffold`'s job) |
-| Specs + required design docs done, `tasks.md` empty | run `/mvp-board` |
+| Grilled, no active change or `proposal.md` empty | draft `proposal.md`, then specs — follow `references/spec.md` |
+| Proposal drafted, EARS `specs/` deltas empty | author specs — follow `references/spec.md` |
+| Stack undecided, change `design.md` empty | write the technical design + Pack plan — follow `references/architecture.md` |
+| UI in scope, product `design.md` empty | write the visual language — follow `references/visual.md` |
+| Design names a capability with no installed pack | resolve packs, plan only — follow `references/pack-resolve.md` |
+| Specs + required design docs done, `tasks.md` empty | break down tasks — follow `references/tasks.md` |
 | `tasks.md` drafted, change not approved | **STOP** → hand to `/board-review` (the approval gate) |
 | Change approved, stack not stood up | run `/scaffold` — install the Pack plan + verify boot, then continue |
 | Stack scaffolded (app boots) | run `/build-loop` — build toward the scenarios |
@@ -113,6 +115,20 @@ Rows above the gate are documents-only and auto-chain; rows marked **pause** wai
 user; the gate is the one hard **STOP**, for approval. Once the approval banner is present,
 the rows below the gate auto-run too — the build flows from approval to a running app,
 pausing only on a blocker.
+
+## Phase references (loaded on demand)
+
+The documents-only planning phases are bundled with this skill as references — load the one
+for the phase you're in and author the doc yourself (these were formerly separate skills):
+
+- `references/spec.md` — `proposal.md` + EARS `specs/` deltas
+- `references/architecture.md` — the change's technical `design.md` + `## Pack plan`
+- `references/visual.md` — the product visual `docs/spark/design.md` (UI in scope)
+- `references/pack-resolve.md` — resolve the scaffold template + concrete pack set (planning only)
+- `references/tasks.md` — the executable `tasks.md` breakdown
+
+Read only the reference for the current phase; do not preload them all. The build phases
+remain standalone skills (`/scaffold`, `/build-loop`) that you drive after approval.
 
 ## Output format
 

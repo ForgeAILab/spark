@@ -86,6 +86,22 @@ Once the active change carries the approval banner, `start` SHALL continue the b
 - **AND** it does not itself name the next skill to run
 - **AND** `/start` selects the next unsatisfied phase from its routing table
 
+### Requirement: Planning Phases Are Conductor References
+
+The documents-only planning procedures — authoring the proposal/specs, the technical design + Pack plan, the product visual design, the task breakdown, and pack resolution — SHALL be packaged as reference documents under the `start` skill (loaded on demand when the conductor reaches that phase) rather than as separately-invokable top-level skills. The standalone skill set MUST therefore exclude `mvp-spec`, `architecture-cutline`, `ux-theme`, `mvp-board`, and `pack-resolve` as discrete skills. Skills that serve a distinct standalone user intent (e.g. `mvp-grill`, `board-review`, `code-review`, `qa-verify`, `risk-check`, `capture-feedback`, the pack-install skills) remain separate. The project-wide skill mirror MUST copy a skill's full folder (including any `references/`) into `.codex/skills/`, not only its `SKILL.md`.
+
+#### Scenario: Conductor loads a phase reference
+
+- **WHEN** `/start` reaches the spec-authoring phase
+- **THEN** it follows `references/spec.md` bundled with the `start` skill
+- **AND** there is no separately-invokable `/mvp-spec` skill
+
+#### Scenario: Reference files are mirrored to Codex
+
+- **WHEN** the skill mirror runs for a skill that has files under `references/`
+- **THEN** each reference file is copied verbatim into the matching `.codex/skills/<name>/references/` path
+- **AND** `--check` mode reports out-of-sync if a reference file is missing or differs
+
 ### Requirement: Build Loop Converges on the Spec
 
 The `build-loop` skill SHALL, once a change is approved, build toward its specs as the goal: for each `tasks.md` item it implements the work, tests it against the linked `#### Scenario` WHEN/THEN steps, updates the task's inline status, and repeats until the change's spec scenarios pass. It MUST keep a dev preview available for user-facing work, MUST reconcile `tasks.md` with actual results, and MUST stop on a blocker with a specific reason rather than thrash.

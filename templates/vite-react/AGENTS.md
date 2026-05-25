@@ -61,5 +61,5 @@ rendered from `tasks.md` on demand.
 
 Skills live in `.claude/skills/` (mirrored to `.codex/skills/`); see the table in
 `docs/spark/AGENTS.md`. Capabilities (auth, db, payments, email, UI, AI, deploy) are
-added with the `spark` CLI — `pack-resolve` to choose, `pack-add` to install,
-`spark check` to report drift — never hand-rolled.
+added with the `spark` CLI — `/start` chooses the set (its pack-resolve phase), `pack-add`
+installs, `spark check` reports drift — never hand-rolled.

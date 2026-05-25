@@ -80,14 +80,13 @@ the most work. Every existing skill follows the same three-part shape:
 3. **`Do NOT use …` → sibling skill** — the negative boundary, pointing at the
    skill that *should* handle the excluded case.
 
-Example (`mvp-board`):
+Example (`qa-verify`):
 
-> Convert the active change's proposal and design into an executable `tasks.md`
-> — numbered sections of one-session tasks with inline status checkboxes, each
-> linked to the `#### Scenario` it satisfies. Use when the user says "build the
-> board", "break this into tasks", "what should I build first?", or after the
-> proposal + specs exist. Do NOT use to update an existing tasks.md after code
-> changes — that is `/sync-board`.
+> Verify the app actually runs and the feature works end-to-end, not just that
+> code compiles. Use after a feature batch lands, before a demo, when the user
+> says "does this actually work?", "run it and check", or before flipping a task
+> to Validated / `[x]`. Do NOT use as a substitute for `/code-review` — they
+> cover different failure modes.
 
 The `Do NOT` clause prevents adjacent skills from fighting over the same prompt.
 When you add a skill near an existing one, update *both* descriptions so the
@@ -128,16 +127,16 @@ Numbered steps from input to output.
 ## Output format
 The exact shape of what the skill returns — usually a fenced ```md block the
 user can paste into a `docs/spark/` artifact (`proposal.md`, `design.md`, a spec
-delta, or `tasks.md`). End procedural skills with a **Next** line that names the
-next skill to run.
+delta, or `tasks.md`). End a pipeline phase by handing control back to the
+conductor (`/start`) — do not name the next skill; the order lives in `/start`.
 ```
 
 After these, add skill-specific sections as needed. Two common patterns:
 
-- **Pipeline skills** append the literal scaffold of the artifact they produce
-  (e.g. `architecture-cutline` has `## Stack`, `## Data model (concrete)`,
-  `## What we are NOT building yet`; `mvp-board` embeds the per-task block
-  template).
+- **Pipeline phases** (now `start/references/*`) append the literal scaffold of
+  the artifact they produce (e.g. `references/architecture.md` has `## Stack`,
+  `## Data model (concrete)`, `## Non-goals (the cutline)`; `references/tasks.md`
+  embeds the per-task block template).
 - **Pack skills** replace `Workflow`/`Output format` with domain sections —
   e.g. `## Prompt Patterns`, `## Streaming UX`, `## Cost Controls`,
   `## Safety and Privacy`, `## Common Pitfalls`, `## Verification`. They read as
