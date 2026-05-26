@@ -10,9 +10,10 @@ description: The live build-test-iterate cycle that converges on the spec. Once 
 
 Make execution feel like Manus's visible production line, with the spec as the
 finish line: the app is running, one batch of work lands at a time, each task is
-verified against its acceptance scenario, and after each batch the user sees the
-live result and decides what happens next. This skill conducts the existing
-execution and evaluation skills — it does not replace them or invent build logic.
+verified against its acceptance scenario, and the line **keeps moving** — a one-line
+progress note per batch, the full live result and build-status view only when it stops
+(blocker, done, or the user steers). This skill conducts the existing execution and
+evaluation skills — it does not replace them or invent build logic.
 
 ## Recommended model
 
@@ -65,35 +66,46 @@ If the change is not approved, stop and route to `/start`. Approval is owned by
    `#### Scenario` WHEN/THEN steps. Mark `[x]` only if they pass; else `[~]` /
    `Blocked:` with the failing step noted.
 5. **Reconcile** with `/sync-board` so `tasks.md` matches git reality.
-6. **Show the result:** render the build-status view (from `/start`) and the live
-   URL, and summarize what changed this batch.
-7. **Show the live result, then keep going.** Continue to the next batch automatically;
-   route any plain-English feedback through `/capture-feedback`. Pause only on a blocker
-   or when the user interjects, then loop from step 1.
-8. Stop when the user stops, or when every task in the change is `[x]` and each
-   linked scenario passes — then report the change **ready to archive**.
+6. **Mark progress, don't hand off.** Between batches emit a **single progress line**
+   (`✅ batch <n>: <ids> — scenarios pass · <live URL> → batch <n+1>`) and continue
+   immediately. Do **not** render the full build-status view, the live-preview block, or a
+   "your move" menu here — that shape reads as a turn boundary and stalls the loop. The
+   heavy render is reserved for a real stop (step 8).
+7. **Keep going automatically.** Take the next batch (loop from step 1). Route any
+   plain-English feedback through `/capture-feedback`.
+8. **Stop only on a real boundary,** and only then render the full status view (see Output
+   format): a blocker, an out-of-scope / feedback request, an explicit user interruption,
+   or every task `[x]` with each linked scenario passing — in which case report the change
+   **ready to archive**.
 
 ## Output format
 
-After each batch:
+**Between batches (the loop is still running)** — one line, then keep going. No status
+table, no live-preview block, no menu; that shape ends the turn and stalls the loop:
 
 ```md
-## <Project> — batch <n> done
+✅ batch <n>: `<id>` <title>, `<id>` <title> — scenarios pass · http://localhost:<port> → starting batch <n+1>
+```
 
-### Built this batch
-- `<id>` <title> — <scenario passed ✅ | needs changes | Blocked> (<one line>)
+**Only when you actually stop** (a blocker, every task `[x]`, an out-of-scope request, or
+the user interjects) render the full handoff:
+
+```md
+## <Project> — <paused | blocked | ready to archive>
+
+### This session
+- `<id>` <title> — <scenario passed ✅ | needs changes | ⛔ Blocked: <failing step>>
 
 ### Live preview
 http://localhost:<port> — <what to look at>
 
 <build-status view from /start>
 
-### Continuing
-- Next batch starting automatically — watch the live preview above.
+### Your move
+- ⛔ blocker → <the specific decision or fix needed>
 - "change <x>" / "add <y>" / "<z> is broken" → I'll capture it via `/capture-feedback`
 - "stop" → I'll pause, leave `tasks.md` synced, and note the server here
 ```
 
-When the last task is `[x]` and all scenarios pass, replace "Your move" with a
-note that the change is ready to archive (fold its EARS deltas into
-`docs/spark/specs/`).
+When the last task is `[x]` and all scenarios pass, the heading is **ready to archive** and
+"Your move" becomes a note to fold the change's EARS deltas into `docs/spark/specs/`.
