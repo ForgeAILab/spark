@@ -33,6 +33,15 @@ async function writeTasksFile(changeId: string, content: string): Promise<void> 
   await writeFile(join(dir, 'tasks.md'), content);
 }
 
+function makeTask(
+  id: string,
+  title: string,
+  status: BoardTaskStatus,
+  changeId: string,
+): AggregatedTask {
+  return { id, title, status, changeId, description: '', raw: '', startLine: 1, endLine: 1 };
+}
+
 // ---------------------------------------------------------------------------
 // parseTasksMarkdown
 // ---------------------------------------------------------------------------
@@ -120,15 +129,6 @@ describe('parseTasksMarkdown', () => {
 // ---------------------------------------------------------------------------
 
 describe('renderBuildStatus', () => {
-  function makeTask(
-    id: string,
-    title: string,
-    status: BoardTaskStatus,
-    changeId: string,
-  ): AggregatedTask {
-    return { id, title, status, changeId, description: '', raw: '', startLine: 1, endLine: 1 };
-  }
-
   test('summary counts and sections', () => {
     const result = renderBuildStatus([
       makeTask('PAY-001', 'Checkout', BoardTaskStatus.Done, 'pack-install-2026-05-24'),
@@ -179,7 +179,7 @@ describe('seedTasks', () => {
     ]);
 
     const tasks = await readAllChangeTasks(tmpRoot);
-    expect(tasks.map((t) => t.id).sort()).toEqual(['PAY-001', 'PAY-002']);
+    expect(tasks.map((t) => t.id).toSorted()).toEqual(['PAY-001', 'PAY-002']);
 
     const raw = await readFile(join(changeDir(packInstallChangeId()), 'tasks.md'), 'utf8');
     expect(raw.startsWith('---\n')).toBe(true);
@@ -248,7 +248,7 @@ describe('readAllChangeTasks', () => {
     await writeTasksFile('feat-auth-2026-05-23', '## auth\n- [ ] AUTH-001: Login\n');
     await writeTasksFile('feat-pay-2026-05-24', '## pay\n- [ ] PAY-001: Checkout\n');
     const tasks = await readAllChangeTasks(tmpRoot);
-    expect(tasks.map((t) => t.id).sort()).toEqual(['AUTH-001', 'PAY-001']);
+    expect(tasks.map((t) => t.id).toSorted()).toEqual(['AUTH-001', 'PAY-001']);
     expect(tasks.find((t) => t.id === 'AUTH-001')?.changeId).toBe('feat-auth-2026-05-23');
   });
 
@@ -280,6 +280,6 @@ describe('updateStatus', () => {
   test('throws when the task id is not found', async () => {
     await writeTasksFile('feat-x-2026-05-24', '## Section\n- [ ] PAY-001: Checkout\n');
     const path = join(changeDir('feat-x-2026-05-24'), 'tasks.md');
-    await expect(updateStatus(path, 'NOPE-001', BoardTaskStatus.Done)).rejects.toThrow(/not found/);
+    expect(updateStatus(path, 'NOPE-001', BoardTaskStatus.Done)).rejects.toThrow(/not found/);
   });
 });

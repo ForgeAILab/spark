@@ -52,7 +52,7 @@ async function collectExtraFiles(skillDir: string): Promise<SkillFile[]> {
 
   async function walk(dir: string): Promise<void> {
     const entries = await readdir(dir, { withFileTypes: true });
-    for (const entry of entries.sort((a, b) => a.name.localeCompare(b.name))) {
+    for (const entry of entries.toSorted((a, b) => a.name.localeCompare(b.name))) {
       const absolutePath = join(dir, entry.name);
       if (entry.isDirectory()) {
         await walk(absolutePath);
@@ -77,7 +77,7 @@ async function collectSkillOutputs(root: string): Promise<SkillOutput[]> {
   const entries = await readdir(sourceRoot, { withFileTypes: true });
   const outputs: SkillOutput[] = [];
 
-  for (const entry of entries.sort((a, b) => a.name.localeCompare(b.name))) {
+  for (const entry of entries.toSorted((a, b) => a.name.localeCompare(b.name))) {
     if (!entry.isDirectory()) {
       continue;
     }
@@ -127,7 +127,7 @@ async function collectTree(root: string): Promise<Map<string, TreeEntry>> {
   async function walk(dir: string): Promise<void> {
     const entries = await readdir(dir, { withFileTypes: true });
 
-    for (const entry of entries.sort((a, b) => a.name.localeCompare(b.name))) {
+    for (const entry of entries.toSorted((a, b) => a.name.localeCompare(b.name))) {
       const absolutePath = join(dir, entry.name);
       const relativePath = relative(root, absolutePath).split(sep).join("/");
 
@@ -153,7 +153,7 @@ async function collectTree(root: string): Promise<Map<string, TreeEntry>> {
 async function diffTrees(expectedRoot: string, actualRoot: string): Promise<Diff[]> {
   const expected = await collectTree(expectedRoot);
   const actual = await collectTree(actualRoot);
-  const paths = Array.from(new Set([...expected.keys(), ...actual.keys()])).sort();
+  const paths = Array.from(new Set([...expected.keys(), ...actual.keys()])).toSorted();
   const diffs: Diff[] = [];
 
   for (const path of paths) {

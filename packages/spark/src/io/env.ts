@@ -18,7 +18,7 @@ async function readExisting(path: string): Promise<string | undefined> {
 }
 
 function escapeRegex(value: string): string {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return value.replaceAll(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 function hasEnvVar(content: string, key: string): boolean {
@@ -51,7 +51,7 @@ export async function appendEnvVars(
   projectRoot: string,
   vars: readonly string[],
 ): Promise<EnvApplyResult[]> {
-  const uniqueVars = [...new Set(vars)].sort();
+  const uniqueVars = [...new Set(vars)].toSorted();
   const results: EnvApplyResult[] = [];
 
   for (const file of ['.env.example', '.env.local']) {

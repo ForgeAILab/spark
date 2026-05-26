@@ -52,6 +52,6 @@ describe('spark-state', () => {
     await mkdir(join(projectRoot, '.spark'), { recursive: true });
     await writeFile(statePath, '{"schema_version": 1,');
 
-    await expect(readState(projectRoot)).rejects.toThrow(statePath);
+    expect(readState(projectRoot)).rejects.toThrow(statePath);
   });
 });

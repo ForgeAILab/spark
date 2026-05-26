@@ -6,7 +6,7 @@ export type DependencyCommand = {
 export type DependencyRunner = (command: DependencyCommand) => Promise<void>;
 
 function uniqueSorted(values: readonly string[]): string[] {
-  return [...new Set(values)].sort();
+  return [...new Set(values)].toSorted();
 }
 
 export const defaultDependencyRunner: DependencyRunner = async ({ args, cwd }) => {

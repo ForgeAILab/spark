@@ -107,7 +107,9 @@ function restoreAll(): void {
   }
 }
 
-process.on('exit', () => restoreAll());
+process.on('exit', () => {
+  restoreAll();
+});
 process.on('SIGINT', () => {
   restoreAll();
   process.exit(130);

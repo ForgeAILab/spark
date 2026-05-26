@@ -80,7 +80,7 @@ function assertStatus(status: BoardTaskStatus, path: string): BoardTaskStatus {
 }
 
 function escapeRegex(value: string): string {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return value.replaceAll(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 /**
@@ -242,7 +242,7 @@ export async function readAllChangeTasks(projectRoot: string): Promise<Aggregate
     changeIds = dirents
       .filter((d) => d.isDirectory() && d.name !== 'archive')
       .map((d) => d.name)
-      .sort();
+      .toSorted();
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === 'ENOENT') return [];
     throw error;
@@ -288,7 +288,7 @@ export function renderBuildStatus(tasks: readonly AggregatedTask[]): string {
   function renderGroup(label: string, group: readonly AggregatedTask[]): void {
     if (group.length === 0) return;
     lines.push(`\n### ${label}`);
-    const sorted = [...group].sort((a, b) =>
+    const sorted = [...group].toSorted((a, b) =>
       a.changeId === b.changeId ? a.id.localeCompare(b.id) : a.changeId.localeCompare(b.changeId),
     );
     for (const task of sorted) {
@@ -328,8 +328,8 @@ function buildFrontmatter(): string {
 function generatedTaskId(packName: string, index: number): string {
   const prefix = packName
     .toUpperCase()
-    .replace(/[^A-Z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
+    .replaceAll(/[^A-Z0-9]+/g, '-')
+    .replaceAll(/^-+|-+$/g, '');
   return `${prefix || 'PACK'}-${String(index + 1).padStart(3, '0')}`;
 }
 
@@ -354,7 +354,7 @@ function formatSeedTask(task: Required<SeedTask>, packName: string): string {
   const lines = [`- [${statusMarkers[task.status]}] ${task.id}: ${task.title}`];
   lines.push('  - Status: Clarifying');
   lines.push(`  - requires_pack: ${packName}`);
-  const description = task.description.replace(/\r\n/g, '\n').replace(/\n$/u, '');
+  const description = task.description.replaceAll(/\r\n/g, '\n').replace(/\n$/u, '');
   if (description.trim().length > 0) {
     lines.push(...description.split('\n').map((l) => `  ${l}`));
   }

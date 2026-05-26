@@ -1,7 +1,6 @@
 import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { join } from 'node:path';
 import { describe, expect, test } from 'bun:test';
 import { PLANNED_TEMPLATE_MESSAGE } from '../src/cli.ts';
 
@@ -67,7 +66,7 @@ async function runCli(templateName: string, templatesDir: string): Promise<{
   stderr: string;
   stdout: string;
 }> {
-  const cliPath = join(dirname(fileURLToPath(import.meta.url)), '..', 'src', 'cli.ts');
+  const cliPath = join(import.meta.dirname, '..', 'src', 'cli.ts');
   const workspace = await mkdtemp(join(tmpdir(), 'create-spark-run-'));
 
   try {

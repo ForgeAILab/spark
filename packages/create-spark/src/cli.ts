@@ -364,5 +364,5 @@ const main = defineCommand({
 });
 
 if (import.meta.main) {
-  runMain(main);
+  void runMain(main);
 }

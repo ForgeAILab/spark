@@ -33,7 +33,7 @@ async function fileExists(path: string): Promise<boolean> {
 }
 
 function escapeRegex(value: string): string {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return value.replaceAll(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 function hasEnvVar(content: string, key: string): boolean {
@@ -59,9 +59,9 @@ export async function runCheck(
   const state = await readState(projectRoot);
   const recordedFiles = [
     ...new Set(state.installed_packs.flatMap((pack) => pack.files)),
-  ].sort();
-  const recordedEnv = [...new Set(state.installed_packs.flatMap((pack) => pack.env))].sort();
-  const recordedTasks = [...new Set(state.installed_packs.flatMap((pack) => pack.tasks))].sort();
+  ].toSorted();
+  const recordedEnv = [...new Set(state.installed_packs.flatMap((pack) => pack.env))].toSorted();
+  const recordedTasks = [...new Set(state.installed_packs.flatMap((pack) => pack.tasks))].toSorted();
 
   const missingFiles: string[] = [];
   for (const file of recordedFiles) {

@@ -144,7 +144,7 @@ export async function seedBoardTasks(
     packName,
     tasks
       .filter((task) => missing.has(task.id))
-      .sort((left, right) => left.id.localeCompare(right.id))
+      .toSorted((left, right) => left.id.localeCompare(right.id))
       .map((task) => ({
         id: task.id,
         title: task.title,
@@ -154,7 +154,7 @@ export async function seedBoardTasks(
   );
 
   const missingAfter = new Set(await missingBoardTasks(projectRoot, taskIds));
-  return missingBefore.filter((taskId) => !missingAfter.has(taskId)).sort();
+  return missingBefore.filter((taskId) => !missingAfter.has(taskId)).toSorted();
 }
 
 export async function missingBoardTasks(
@@ -163,5 +163,5 @@ export async function missingBoardTasks(
 ): Promise<string[]> {
   if (taskIds.length === 0) return [];
   const existingIds = new Set((await readAllChangeTasks(projectRoot)).map((task) => task.id));
-  return taskIds.filter((id) => !existingIds.has(id)).sort();
+  return taskIds.filter((id) => !existingIds.has(id)).toSorted();
 }

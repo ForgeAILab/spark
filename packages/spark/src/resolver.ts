@@ -111,7 +111,7 @@ function findProviders(
     }
   }
 
-  return providers.sort();
+  return providers.toSorted();
 }
 
 function firstScaffoldError(
@@ -232,7 +232,7 @@ function sortInstallNames(
     }
 
     state.set(name, 'visiting');
-    const deps = [...(dependencies.get(name) ?? [])].sort();
+    const deps = [...(dependencies.get(name) ?? [])].toSorted();
     for (const dependency of deps) {
       const cycle = visit(dependency, [...path, dependency]);
       if (cycle) {

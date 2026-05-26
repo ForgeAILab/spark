@@ -24,7 +24,7 @@ async function walkFiles(root: string): Promise<string[]> {
     }
   }
 
-  return files.sort();
+  return files.toSorted();
 }
 
 async function directoryExists(path: string): Promise<boolean> {
@@ -124,5 +124,5 @@ export async function copyPackSkills(
     written.push(...record.claudeFiles, ...record.codexFiles);
   }
 
-  return [...new Set(written)].sort();
+  return [...new Set(written)].toSorted();
 }

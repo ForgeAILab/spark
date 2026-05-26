@@ -34,7 +34,7 @@ function rawBlocks(frontmatter: Record<string, unknown>): FrontmatterBlockMap | 
 }
 
 function splitFrontmatter(source: string): { frontmatter: string; body: string } {
-  const normalized = source.replace(/\r\n/g, '\n');
+  const normalized = source.replaceAll(/\r\n/g, '\n');
   const lines = normalized.split('\n');
 
   if (lines[0] !== '---') {

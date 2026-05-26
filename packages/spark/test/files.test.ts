@@ -44,7 +44,7 @@ describe('file operation modes', () => {
     await writeFile(join(packRoot, 'files', 'new.txt'), 'from pack\n');
     await writeFile(join(projectRoot, 'new.txt'), 'already here\n');
 
-    await expect(
+    expect(
       applyFileOperation(
         {
           projectRoot,
@@ -80,7 +80,7 @@ describe('file operation modes', () => {
       },
     );
 
-    await expect(readFile(join(projectRoot, 'package.json'), 'utf8')).resolves.toBe(
+    expect(readFile(join(projectRoot, 'package.json'), 'utf8')).resolves.toBe(
       '{\n  "a": {\n    "b": 2,\n    "z": 1\n  },\n  "m": 3,\n  "z": 1\n}\n',
     );
   });
@@ -103,7 +103,7 @@ describe('file operation modes', () => {
       },
     );
 
-    await expect(readFile(join(projectRoot, 'client.ts'), 'utf8')).resolves.toBe(
+    expect(readFile(join(projectRoot, 'client.ts'), 'utf8')).resolves.toBe(
       'export const name = "demo";\n',
     );
   });

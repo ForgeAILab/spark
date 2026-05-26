@@ -19,7 +19,7 @@ export async function readConfig(projectRoot: string): Promise<AppSkillsConfig> 
     raw = await readFile(configPath, 'utf8');
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
-      throw new Error('not in an spark project: missing spark.config.json');
+      throw new Error('not in an spark project: missing spark.config.json', { cause: error });
     }
     throw error;
   }

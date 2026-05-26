@@ -11,7 +11,7 @@ async function snapshotTree(root: string): Promise<Record<string, string>> {
 
   async function walk(dir: string): Promise<void> {
     const entries = await readdir(dir, { withFileTypes: true });
-    for (const entry of entries.sort((left, right) => left.name.localeCompare(right.name))) {
+    for (const entry of entries.toSorted((left, right) => left.name.localeCompare(right.name))) {
       const path = join(dir, entry.name);
       if (entry.isDirectory()) {
         await walk(path);
@@ -177,7 +177,7 @@ describe('add idempotency', () => {
     const originalIsTTY = process.stdin.isTTY;
     Object.defineProperty(process.stdin, 'isTTY', { value: false, configurable: true });
     try {
-      await expect(
+      expect(
         runAdd(['demo-pack'], {
           projectRoot,
           registry,

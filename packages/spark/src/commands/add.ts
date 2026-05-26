@@ -100,10 +100,10 @@ function renderPlan(
   }
 
   if (runtimeDependencies.length > 0) {
-    lines.push(`runtime deps: ${[...new Set(runtimeDependencies)].sort().join(', ')}`);
+    lines.push(`runtime deps: ${[...new Set(runtimeDependencies)].toSorted().join(', ')}`);
   }
   if (devDependencies.length > 0) {
-    lines.push(`dev deps: ${[...new Set(devDependencies)].sort().join(', ')}`);
+    lines.push(`dev deps: ${[...new Set(devDependencies)].toSorted().join(', ')}`);
   }
 
   return lines.join('\n');
@@ -181,7 +181,7 @@ function stateEntryForPack(
   return {
     name: packName,
     version,
-    files: [...new Set(fileTargets)].sort(),
+    files: [...new Set(fileTargets)].toSorted(),
     appended_blocks: fileRecords
       .filter((record) => record.marker)
       .map((record) => ({
@@ -189,8 +189,8 @@ function stateEntryForPack(
         marker: record.marker ?? '',
         content_hash: record.contentHash,
       })),
-    env: [...new Set(envVars)].sort(),
-    tasks: [...new Set(taskIds)].sort(),
+    env: [...new Set(envVars)].toSorted(),
+    tasks: [...new Set(taskIds)].toSorted(),
   };
 }
 

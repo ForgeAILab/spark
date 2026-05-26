@@ -19,20 +19,16 @@
       {
         "vars": "all",
         "args": "after-used",
-        "ignoreRestSiblings": true
-      }
-    ],
-    "quotes": [
-      "error",
-      "single",
-      {
-        "avoidEscape": true,
-        "allowTemplateLiterals": true
+        "ignoreRestSiblings": true,
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_",
+        "caughtErrorsIgnorePattern": "^_"
       }
     ],
     "@typescript-eslint/consistent-type-imports": "error",
     "@typescript-eslint/no-explicit-any": "error",
-    "@typescript-eslint/no-floating-promises": "error"
+    "@typescript-eslint/no-floating-promises": "error",
+    "typescript/no-unsafe-type-assertion": "warn"
   },
-  "ignorePatterns": ["node_modules/**", "dist/**", "coverage/**"]
+  "ignorePatterns": ["node_modules/**", "dist/**", "coverage/**", "packs/**", "reference/**", "templates/**", ".codex/**"]
 }

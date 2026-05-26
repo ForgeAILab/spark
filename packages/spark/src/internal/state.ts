@@ -13,14 +13,14 @@ function initialState(): StateFile {
 }
 
 function uniqueSorted(values: readonly string[]): string[] {
-  return [...new Set(values)].sort();
+  return [...new Set(values)].toSorted();
 }
 
 function normalizeInstalledPack(pack: StateInstalledPack): StateInstalledPack {
   return {
     ...pack,
     files: uniqueSorted(pack.files),
-    appended_blocks: [...pack.appended_blocks].sort((left, right) =>
+    appended_blocks: [...pack.appended_blocks].toSorted((left, right) =>
       `${left.to}:${left.marker}`.localeCompare(`${right.to}:${right.marker}`),
     ),
     env: uniqueSorted(pack.env),
@@ -35,7 +35,7 @@ function normalizeState(state: StateFile): StateFile {
     schema_version: 1,
     installed_packs: [...parsed.installed_packs]
       .map(normalizeInstalledPack)
-      .sort((left, right) => left.name.localeCompare(right.name)),
+      .toSorted((left, right) => left.name.localeCompare(right.name)),
   };
 }
 

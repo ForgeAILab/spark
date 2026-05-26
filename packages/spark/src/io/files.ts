@@ -101,7 +101,7 @@ function sortJson(value: unknown): unknown {
   }
 
   const sorted: Record<string, unknown> = {};
-  for (const key of Object.keys(value).sort()) {
+  for (const key of Object.keys(value).toSorted()) {
     sorted[key] = sortJson(value[key]);
   }
 
@@ -119,11 +119,25 @@ function lookupTemplateValue(config: AppSkillsConfig, key: string): string {
     current = current[segment];
   }
 
-  return current === undefined || current === null ? '' : String(current);
+  if (current === undefined || current === null) {
+    return '';
+  }
+
+  switch (typeof current) {
+    case 'string':
+      return current;
+    case 'number':
+    case 'boolean':
+    case 'bigint':
+    case 'symbol':
+      return String(current);
+    default:
+      return JSON.stringify(current) ?? '';
+  }
 }
 
 export function renderTemplate(template: string, config: AppSkillsConfig): string {
-  return template.replace(/{{\s*([A-Za-z0-9_.-]+)\s*}}/g, (_match, key: string) =>
+  return template.replaceAll(/{{\s*([A-Za-z0-9_.-]+)\s*}}/g, (_match, key: string) =>
     lookupTemplateValue(config, key),
   );
 }

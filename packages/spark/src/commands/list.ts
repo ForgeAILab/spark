@@ -54,12 +54,12 @@ export async function runList(projectRoot = process.cwd(), output: ListOutput = 
     return;
   }
 
-  for (const [category, names] of [...byCategory.entries()].sort(([left], [right]) =>
+  for (const [category, names] of [...byCategory.entries()].toSorted(([left], [right]) =>
     left.localeCompare(right),
   )) {
     output.log(pc.bold(category));
     output.log('pack                 status      scaffold');
-    for (const name of names.sort()) {
+    for (const name of names.toSorted()) {
       const status = installed.has(name) ? pc.green('installed') : 'available';
       const annotation = scaffoldAnnotation(registry, config.template, name);
       output.log(`${name.padEnd(20)} ${status.padEnd(11)} ${annotation}`);

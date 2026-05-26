@@ -43,7 +43,7 @@ async function readChildDirectories(root: string): Promise<string[]> {
     return entries
       .filter((entry) => entry.isDirectory())
       .map((entry) => entry.name)
-      .sort();
+      .toSorted();
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
       return [];
@@ -63,9 +63,15 @@ async function readToml(path: string): Promise<string | undefined> {
   }
 }
 
-function unwrapParseResult<T>(result: ReturnType<typeof parsePackToml> | ReturnType<typeof parsePresetToml> | ReturnType<typeof parseTemplateToml>, path: string): T {
+function unwrapParseResult(result: ReturnType<typeof parsePackToml>, path: string): PackManifest;
+function unwrapParseResult(result: ReturnType<typeof parsePresetToml>, path: string): PresetManifest;
+function unwrapParseResult(result: ReturnType<typeof parseTemplateToml>, path: string): TemplateManifest;
+function unwrapParseResult(
+  result: ReturnType<typeof parsePackToml> | ReturnType<typeof parsePresetToml> | ReturnType<typeof parseTemplateToml>,
+  path: string,
+): PackManifest | PresetManifest | TemplateManifest {
   if (result.ok) {
-    return result.data as T;
+    return result.data;
   }
 
   const details = result.error.issues?.length ? `\n${result.error.issues.join('\n')}` : '';
@@ -84,7 +90,7 @@ async function readTemplates(root: string): Promise<Map<string, TemplateRegistry
       continue;
     }
 
-    const manifest = unwrapParseResult<TemplateManifest>(parseTemplateToml(raw), manifestPath);
+    const manifest = unwrapParseResult(parseTemplateToml(raw), manifestPath);
     if (manifest.name !== dirName) {
       throw new Error(`${manifestPath}: template name "${manifest.name}" must match directory "${dirName}"`);
     }
@@ -119,7 +125,7 @@ async function readPacks(
       continue;
     }
 
-    const manifest = unwrapParseResult<PackManifest>(parsePackToml(raw), manifestPath);
+    const manifest = unwrapParseResult(parsePackToml(raw), manifestPath);
     if (manifest.name !== dirName) {
       throw new Error(`${manifestPath}: pack name "${manifest.name}" must match directory "${dirName}"`);
     }
@@ -155,7 +161,7 @@ async function readPresets(root: string): Promise<Map<string, PresetRegistryEntr
 
       const file = join(presetsRoot, entry.name);
       const raw = await readFile(file, 'utf8');
-      const manifest = unwrapParseResult<PresetManifest>(parsePresetToml(raw), file);
+      const manifest = unwrapParseResult(parsePresetToml(raw), file);
       const name = manifest.name ?? parsePath(entry.name).name;
 
       if (manifest.name && manifest.name !== parsePath(entry.name).name) {

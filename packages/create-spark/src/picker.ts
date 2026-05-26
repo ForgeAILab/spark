@@ -117,6 +117,8 @@ export function orderedForCategory(
     case 'testing':
       return orderByName(packs, ['testing-playwright']);
   }
+
+  return [];
 }
 
 export function filterAuthByDb(
@@ -180,6 +182,8 @@ export function recommendedFor(category: PickerCategory, dbPick?: DbPick): strin
     case 'infra':
       return undefined;
   }
+
+  return undefined;
 }
 
 export function parsePacksFlag(raw: string | undefined): string[] {

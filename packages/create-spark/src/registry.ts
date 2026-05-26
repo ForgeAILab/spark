@@ -52,5 +52,5 @@ export async function loadTemplateRegistry(
     }),
   );
 
-  return templates.sort((left, right) => left.name.localeCompare(right.name));
+  return templates.toSorted((left, right) => left.name.localeCompare(right.name));
 }

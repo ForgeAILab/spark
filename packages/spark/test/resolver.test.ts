@@ -31,7 +31,7 @@ function manifest(
 
 function registry(entries: readonly PackRegistryEntry[]): ResolverRegistry {
   return {
-    packs: new Map(entries.map((entry) => [entry.name, entry])),
+    packs: new Map(entries.map((registryEntry) => [registryEntry.name, registryEntry])),
   };
 }
 

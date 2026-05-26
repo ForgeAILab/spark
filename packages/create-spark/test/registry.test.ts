@@ -66,7 +66,7 @@ describe('loadTemplateRegistry', () => {
 
     try {
       const registry = await loadTemplateRegistry(root);
-      expect(registry.map((template) => template.name).sort()).toEqual([
+      expect(registry.map((template) => template.name).toSorted()).toEqual([
         'astro',
         'astro-starlight',
         'nextjs',
