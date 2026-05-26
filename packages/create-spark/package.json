@@ -1,6 +1,6 @@
 {
   "name": "@forgeailab/create-spark",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "description": "Interactive scaffolder for spark projects with guided pack picker.",
   "repository": {
     "type": "git",
