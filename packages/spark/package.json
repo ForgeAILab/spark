@@ -1,6 +1,6 @@
 {
   "name": "@forgeailab/spark",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "CLI for managing feature packs in an spark-scaffolded project.",
   "repository": {
     "type": "git",
