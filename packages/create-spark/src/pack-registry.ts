@@ -1,6 +1,6 @@
 import { readdir, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { parsePackToml, type ParseError, type RuntimePackageBlock } from '@forgeailab/spark-schema';
+import { parsePackToml, type ParseError } from '@forgeailab/spark-schema';
 import { findMonorepoRoot } from './paths.ts';
 import type { PickerPack } from './picker.ts';
 
@@ -20,7 +20,7 @@ async function readChildDirectories(root: string): Promise<string[]> {
   return entries
     .filter((entry) => entry.isDirectory() && !entry.name.startsWith('_'))
     .map((entry) => entry.name)
-    .sort();
+    .toSorted();
 }
 
 async function readToml(path: string): Promise<string | undefined> {
@@ -36,11 +36,11 @@ async function readToml(path: string): Promise<string | undefined> {
 
 export async function loadPackRegistry(packsDir: string = getPacksDir()): Promise<PackMetadata[]> {
   const entries = await Promise.all(
-    (await readChildDirectories(packsDir)).map(async (dirName) => {
+    (await readChildDirectories(packsDir)).map(async (dirName): Promise<PackMetadata | null> => {
       const manifestPath = join(packsDir, dirName, 'pack.toml');
       const raw = await readToml(manifestPath);
       if (raw === undefined) {
-        return undefined;
+        return null;
       }
 
       const parsed = parsePackToml(raw);
@@ -60,12 +60,12 @@ export async function loadPackRegistry(packsDir: string = getPacksDir()): Promis
         description: manifest.description ?? '',
         provides: manifest.provides,
         requires: manifest.requires,
-        runtimePackage: manifest.runtime_package as RuntimePackageBlock | undefined,
+        runtimePackage: manifest.runtime_package,
       };
     }),
   );
 
   return entries
-    .filter((pack): pack is PackMetadata => pack !== undefined)
-    .sort((left, right) => left.name.localeCompare(right.name));
+    .filter((pack): pack is PackMetadata => pack !== null)
+    .toSorted((left, right) => left.name.localeCompare(right.name));
 }

@@ -67,6 +67,17 @@ export const PackTasksSchema = z
   })
   .strict();
 
+// A `hybrid` pack points at a companion workspace helper via a `[runtime_package]`
+// table (e.g. package = "@forgeailab/spark-<name>", version = "^0.1"). The version is a
+// dependency range, not a strict semver, so it is a plain non-empty string.
+export const RuntimePackageSchema = z
+  .object({
+    package: z.string().min(1),
+    version: z.string().min(1),
+  })
+  .strict();
+export type RuntimePackageBlock = z.infer<typeof RuntimePackageSchema>;
+
 export const PackManifestSchema = z
   .object({
     name: PackName,
@@ -83,6 +94,7 @@ export const PackManifestSchema = z
     files: z.array(PackFileOperationSchema).optional(),
     skills: PackSkillsSchema.optional(),
     tasks: PackTasksSchema.optional(),
+    runtime_package: RuntimePackageSchema.optional(),
   })
   .strict();
 

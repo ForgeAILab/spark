@@ -225,4 +225,47 @@ extra = true
       expect(result.error.issues?.join('\n')).toContain('extra');
     }
   });
+
+  test('hybrid runtime_package block parses', () => {
+    const result = parsePackToml(`
+name = "payments-stripe"
+version = "1.0.0"
+category = "payments"
+provides = ["payments"]
+requires = []
+conflicts = []
+requires_runtime = ["server"]
+
+[runtime_package]
+package = "@forgeailab/spark-payments-stripe"
+version = "^0.1"
+`);
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data.runtime_package).toEqual({
+        package: '@forgeailab/spark-payments-stripe',
+        version: '^0.1',
+      });
+    }
+  });
+
+  test('unknown key inside runtime_package rejected', () => {
+    const result = parsePackToml(`
+name = "payments-stripe"
+version = "1.0.0"
+category = "payments"
+provides = ["payments"]
+requires = []
+conflicts = []
+requires_runtime = ["server"]
+
+[runtime_package]
+package = "@forgeailab/spark-payments-stripe"
+version = "^0.1"
+extra = true
+`);
+
+    expect(result.ok).toBe(false);
+  });
 });
