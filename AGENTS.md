@@ -29,6 +29,8 @@ The truth is in the generated project's `docs/spark/` workspace, not in chat:
 - `docs/spark/design.md` — durable product-wide **visual** design language.
 - `docs/spark/specs/<capability>/spec.md` — what the product does, in EARS form
   (`### Requirement:` SHALL + `#### Scenario:` WHEN/THEN). Updated only at archive time.
+- `docs/spark/specs/capabilities.md` — the adopt-time capability map (one line per capability,
+  no scenarios); counts as shipped truth until a full `spec.md` is written lazily on first touch.
 - `docs/spark/changes/<id>-YYYY-MM-DD/` — the active iteration: `proposal.md` (Why/What/
   Impact, the doc the founder validates), optional `research.md` (explore/research findings
   when an unknown had to be resolved first), optional technical `design.md`, `tasks.md`
@@ -37,12 +39,23 @@ The truth is in the generated project's `docs/spark/` workspace, not in chat:
 There is no `.ai/` directory and no stored board file — the build-status view is rendered
 from `tasks.md` on demand. If an answer is not in the workspace, ask the user — do not invent it.
 
-## Iteration vs cold start
+## Entry modes: cold start, adopt, iteration
 
-The phases below describe a **cold start** — a fresh idea with no shipped truth. Detect the
-mode from the workspace; the founder never declares it. When `project.md` already carries a
-real north star **and** `specs/` holds shipped truth (or `changes/` has an archived change),
-the agent is in **iteration mode**: the MVP was already grilled and the stack is fixed.
+The phases below describe a **cold start** — a fresh idea with no shipped truth and no
+existing code. Detect the mode from the workspace **and the repo around it**; the founder
+never declares it.
+
+- **Adopt** — an existing codebase spark did not build: real dependencies and source, but no
+  `docs/spark/` workspace. Run a one-time **adopt bootstrap** — explore the code, infer
+  `project.md` (north star + conventions + the *detected* stack), write
+  `specs/capabilities.md` (a one-line capability map, no scenarios), and record the stack as
+  already-installed — then stop **once** for the founder to confirm the inferred baseline. It
+  never back-fills full specs and never re-stands-up the stack; after confirmation the project
+  is an iteration. Detection is conservative — a bare `create-spark` scaffold is a cold start,
+  not an adopt. (`/start` → `references/adopt.md`; mirrors OpenSpec `init` in an existing repo.)
+- **Iteration** — `project.md` carries a real north star **and** `specs/` holds shipped truth:
+  a per-capability `spec.md`, the adopt-time `capabilities.md` map, or an archived `changes/`.
+  The MVP was already grilled (or adopted) and the stack is fixed.
 
 In iteration mode, take the **light route** for bug / polish / feature work — open a change
 and write `proposal.md` + the open EARS spec deltas + `tasks.md` (the spec-proposal shape),

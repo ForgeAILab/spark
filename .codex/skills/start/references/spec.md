@@ -30,6 +30,12 @@ grilled, the conductor grills first — do not invent answers.
 - Acceptance criteria live as `#### Scenario:` WHEN/THEN steps, not prose.
 - Prefer `## ADDED Requirements` for new capability slices; use `## MODIFIED` only to change
   existing behavior, pasting the whole updated requirement block.
+- **First touch of an adopted capability = capture before you change.** If this change is the
+  first to touch a capability that exists only as a line in the adopt-time
+  `specs/capabilities.md` map (no `specs/<capability>/spec.md` yet), first write that
+  capability's `spec.md` capturing the **current behavior** as EARS truth (read the code, do
+  not guess), then record the requested change as a delta against it. The map line is an index
+  entry, not a prior spec — don't treat it as one.
 - Do not pick a stack here — that is the architecture phase. Do not write tasks — that is the
   tasks phase.
 

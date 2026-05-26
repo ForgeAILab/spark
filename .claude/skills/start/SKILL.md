@@ -61,6 +61,8 @@ Read whatever exists in `docs/spark/` (none are required — absence is signal):
 - `docs/spark/project.md` — product north star (vision, user, core loop, non-goals)
 - `docs/spark/design.md` — product visual language (filled when UI is in scope)
 - `docs/spark/specs/<capability>/spec.md` — EARS truth that has shipped
+- `docs/spark/specs/capabilities.md` — the adopt-time capability map (one line per capability;
+  counts as shipped truth for iteration detection even before any `spec.md` is written)
 - `docs/spark/changes/<id>-YYYY-MM-DD/` — the active change: `proposal.md`,
   optional `research.md` (explore/research findings), optional technical `design.md`,
   `tasks.md` (the source of truth for task status)
@@ -93,17 +95,26 @@ is what flips the project from planning to building.
 - If the user gave an idea but `project.md` / `proposal.md` is empty, capture the idea
   verbatim in your summary and grill before drafting — do not invent scope.
 
-## Two entry modes (detect from the workspace — never ask)
+## Three entry modes (detect from the workspace — never ask)
 
-Before routing, read `docs/spark/` and decide which mode you are in. The user never names
-it; you infer it from shipped truth:
+Before routing, read `docs/spark/` **and** the repo around it, then decide which mode you
+are in. The user never names it; you infer it:
 
-- **Cold start** — no real `project.md` and no shipped `specs/`. A fresh idea. Run the
-  **full chain** (the first routing table): grill → proposal → architecture → visual →
-  specs → tasks → gate → scaffold → build.
+- **Cold start** — no real `project.md`, no shipped `specs/`, **and no substantive product
+  code** (an empty repo or a bare scaffold). A fresh idea. Run the **full chain** (the first
+  routing table): grill → proposal → architecture → visual → specs → tasks → gate → scaffold
+  → build.
+- **Adopt** — no spark workspace (no real `project.md`, no shipped `specs/` / `capabilities.md`)
+  **but substantive existing source code spark did not build** (real dependencies plus
+  `src/` / `app/` / `server/`). Run the **adopt bootstrap** (the third routing table): a
+  one-time reverse-engineer of the baseline that ends in iteration. Detection is
+  conservative — **confirm before adopting** so a bare `create-spark` scaffold is never
+  mistaken for a real app — follow `references/adopt.md`.
 - **Iteration** — `project.md` carries a real north star **and** `specs/` holds shipped
-  truth (or `changes/` has an archived change). The MVP already shipped, was already
-  grilled, and the stack is fixed. Take the **light route** (the second routing table).
+  truth: either a per-capability `specs/<capability>/spec.md`, the adopt-time
+  `specs/capabilities.md` map, or an archived `changes/`. The MVP already shipped (or was
+  adopted), was already grilled, and the stack is fixed. Take the **light route** (the
+  second routing table).
 
 In iteration mode, classify the ask the way `/capture-feedback` does —
 **bug / polish / feature / scope-change** — and route by class:
@@ -167,12 +178,33 @@ The technical `design.md` is **not** authored here — the stack was cut at MVP 
 inherited. If a modification truly needs a new stack choice, that is a large-scale change:
 escalate to the full chain.
 
+## Routing table — adopt bootstrap (existing project)
+
+Use this table when you are in **adopt** mode (see *Three entry modes*): a real codebase with
+no spark workspace. It is a **one-time bootstrap** that reverse-engineers the baseline so the
+project lands where a shipped MVP sits, then hands off to iteration. It is **read-only until
+the gate** — you never write app code, run `/scaffold`, or re-stand-up the stack here.
+
+| State | Action |
+| --- | --- |
+| Existing code detected, repo not yet explored | explore the codebase (read-only) → `research.md`: stack, scaffold template, conventions, capability surface — follow `references/adopt.md` |
+| Explored, `project.md` empty | draft `project.md` — inferred north star + conventions + the **detected** stack — follow `references/adopt.md` |
+| `project.md` drafted, `specs/capabilities.md` missing | draft the capability map (one line per capability, **no scenarios**) — follow `references/adopt.md` |
+| Baseline drafted, stack not recorded as installed | record the detected template + present packs in `spark.config.json` / `.spark/state.json` — follow `references/adopt.md` |
+| Baseline drafted, adoption not confirmed | **STOP** → present the inferred north star + conventions; the user confirms spark should adopt this codebase (the one gate). If they say it is actually a fresh start, fall to **cold start** |
+| Adoption confirmed | switch to **iteration** — handle the user's actual request via the light-route table |
+
+Adopt does **not** back-fill full EARS specs; a capability's `spec.md` is written lazily by
+the first iteration that touches it (see `references/spec.md`). Its one gate is the founder
+confirming the inferred baseline — not `/board-review`, because nothing is being built yet.
+
 ## Phase references (loaded on demand)
 
 The documents-only planning phases are bundled with this skill as references — load the one
 for the phase you're in and author the doc yourself (these were formerly separate skills):
 
 - `references/research.md` — conditional explore/research → `research.md` (only on a real unknown)
+- `references/adopt.md` — the adopt bootstrap for an existing codebase (explore → north star → capability map → record stack → one gate)
 - `references/spec.md` — `proposal.md` + EARS `specs/` deltas
 - `references/architecture.md` — the change's technical `design.md` + `## Pack plan`
 - `references/visual.md` — the product visual `docs/spark/design.md` (UI in scope)
@@ -209,6 +241,9 @@ markers. On a fresh project the Features list is empty and the first stop is the
 was skipped (no real unknown) — it is conditional in both modes. On the **light route**
 (iteration), render Grill / Architecture / Visual / Scaffolded as `n/a` — they were settled
 when the MVP
-shipped and the stack is inherited. This build-status view is the canonical
+shipped and the stack is inherited. In **adopt** mode the gate render is instead the
+baseline summary from `references/adopt.md` (inferred north star + detected stack + capability
+map); the project enters this build-status view as a normal iteration once adoption is
+confirmed. This build-status view is the canonical
 progress/checklist surface — `/scaffold`, `/build-loop`, and `/capture-feedback` re-render
 it rather than inventing their own.
