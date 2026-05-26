@@ -5,6 +5,8 @@ import { checkCommand } from './commands/check.ts';
 import { infoCommand } from './commands/info.ts';
 import { listCommand } from './commands/list.ts';
 import { presetCommand } from './commands/preset.ts';
+import { statusCommand } from './commands/status.ts';
+import { validateCommand } from './commands/validate.ts';
 
 const subCommands = {
   list: listCommand,
@@ -12,6 +14,8 @@ const subCommands = {
   check: checkCommand,
   add: addCommand,
   preset: presetCommand,
+  status: statusCommand,
+  validate: validateCommand,
 };
 
 const mainCommand = defineCommand({
