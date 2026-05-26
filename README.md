@@ -29,7 +29,7 @@ bunx create-spark my-app --template vite-react --preset lean-cloudflare
 
 | Path | What |
 |---|---|
-| `packages/spark/` | `spark` CLI — `list`, `info`, `check`, `add`, `preset` |
+| `packages/spark/` | `spark` CLI — `list`, `info`, `check`, `add`, `preset`, `validate`, `status` |
 | `packages/create-spark/` | `create-spark` initializer |
 | `packages/spark-schema/` | Shared Zod schemas for `pack.toml`, `template.toml`, `preset.toml`, `state.json` |
 | `templates/` | Base scaffolds. `nextjs` and `vite-react` are stable; `astro`, `astro-starlight`, `one` are registered for follow-up |
@@ -43,9 +43,10 @@ bunx create-spark my-app --template vite-react --preset lean-cloudflare
 
 ## Operating model
 
-- **Specs first.** Significant changes are written as proposals under `docs/spec/changes/` before code lands. See `AGENTS.md` and `docs/spec/AGENTS.md`.
+- **Specs first.** Significant changes are written as proposals under `docs/spec/changes/` before code lands. See `AGENTS.md` and `docs/spec/AGENTS.md`. The spec format and the proposal → delta → archive workflow are adapted from [OpenSpec](https://github.com/Fission-AI/OpenSpec) — spark integrates it as its own board-driven variant (a single founder-facing approval gate, capability packs, and a rendered build-status view on top).
 - **Workspace-driven.** Each change's `docs/spark/changes/<id>/tasks.md` holds the task list (inline `- [ ]` / `- [~]` / `- [x]` status) with a clear status flow (`Clarifying → Approved for planning → Approved for execution → In progress → Needs review → Validated`); the build-status view is rendered from it.
 - **Skill-mediated.** Planning, implementation, review, and risk-check all run through skills under `.claude/skills/`.
+- **One conductor, two modes.** `/start` is the single entry point. It grills a fresh idea once and runs the full plan; for a later change on a shipped MVP it auto-detects *iteration* and takes a lighter route — `proposal.md` + spec deltas + `tasks.md` behind one approval gate, no re-grill or architecture re-cut — escalating to the full flow only for scope-changes or large changes. Either mode first explores/researches any genuine unknown (a bounded `research.md`) before proposing.
 
 ## Why not a batteries-included template?
 

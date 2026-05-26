@@ -30,15 +30,32 @@ The truth is in the generated project's `docs/spark/` workspace, not in chat:
 - `docs/spark/specs/<capability>/spec.md` — what the product does, in EARS form
   (`### Requirement:` SHALL + `#### Scenario:` WHEN/THEN). Updated only at archive time.
 - `docs/spark/changes/<id>-YYYY-MM-DD/` — the active iteration: `proposal.md` (Why/What/
-  Impact, the doc the founder validates), optional technical `design.md`, `tasks.md`
+  Impact, the doc the founder validates), optional `research.md` (explore/research findings
+  when an unknown had to be resolved first), optional technical `design.md`, `tasks.md`
   (the single source of truth for execution), and EARS spec deltas.
 
 There is no `.ai/` directory and no stored board file — the build-status view is rendered
 from `tasks.md` on demand. If an answer is not in the workspace, ask the user — do not invent it.
 
+## Iteration vs cold start
+
+The phases below describe a **cold start** — a fresh idea with no shipped truth. Detect the
+mode from the workspace; the founder never declares it. When `project.md` already carries a
+real north star **and** `specs/` holds shipped truth (or `changes/` has an archived change),
+the agent is in **iteration mode**: the MVP was already grilled and the stack is fixed.
+
+In iteration mode, take the **light route** for bug / polish / feature work — open a change
+and write `proposal.md` + the open EARS spec deltas + `tasks.md` (the spec-proposal shape),
+then stop **once** for approval (phase 6) and go straight to build. Skip the grill (1), the
+architecture cut (3), the UX re-theme (4), and pack-resolve — the stack is inherited; no
+technical `design.md` is authored. Run `/scaffold` only if the change needs a genuinely new
+pack. Escalate back to the full chain below only for a scope-change, a non-goal breach, or a
+large-scale change the founder explicitly asks for. Either way there is exactly one gate.
+
 ## Workflow phases
 
 1. **Grill the idea** until it is buildable. Max 5 questions per round. Only questions that change scope or architecture.
+   - *Conditional — explore/research.* Before proposing, resolve any genuine unknown into a short `research.md`: scan the affected code/specs (iteration) or pin a prior-art / rapidly-changing tech fact (cold start). Bounded; skip entirely when nothing is unknown. (`/start` → `references/research.md`; mirrors OpenSpec `explore` + spec-kit Phase 0.)
 2. **Write the proposal + specs.** One MVP slice. Non-goals are mandatory. Acceptance criteria are EARS `#### Scenario` WHEN/THEN steps.
 3. **Cut the architecture.** Boring stack > clever stack — the change's `design.md`, with a `## Pack plan`. Every choice has a "not building yet" sibling.
 4. **Theme the UX.** One vibe, one reference product, concrete tokens — `docs/spark/design.md`.
