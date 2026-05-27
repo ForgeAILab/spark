@@ -5,6 +5,12 @@ on:
     tags:
       - 'v*'
 
+# Serialize release runs for a given tag so two runs never race on `npm publish`
+# (the loser hits a 403 "cannot publish over previously published version").
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   publish:
     runs-on: ubuntu-latest
