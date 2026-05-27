@@ -22,32 +22,66 @@ if (!version || !/^\d+\.\d+\.\d+(-[\w.]+)?$/.test(version)) {
   process.exit(1);
 }
 
+const newVersion = `${version}`;
 const root = process.cwd();
 const targets: string[] = [
   join(root, 'packages/spark-schema/package.json'),
   join(root, 'packages/spark/package.json'),
   join(root, 'packages/create-spark/package.json'),
+  join(root, '.claude-plugin/plugin.json'),
 ];
 
 let changed = 0;
+let total = 0;
 for (const path of targets) {
   const pkg = JSON.parse(readFileSync(path, 'utf8')) as { name: string; version?: string };
-  if (pkg.version === version) {
-    console.log(`= ${pkg.name} already at ${version}`);
+  total += 1;
+  if (pkg.version === newVersion) {
+    console.log(`= ${pkg.name} already at ${newVersion}`);
     continue;
   }
-  pkg.version = version;
+  pkg.version = newVersion;
   writeFileSync(path, `${JSON.stringify(pkg, null, 2)}\n`);
-  console.log(`✓ ${pkg.name} -> ${version}`);
+  console.log(`✓ ${pkg.name} -> ${newVersion}`);
   changed += 1;
 }
 
-console.log(`\nBumped ${changed} of ${targets.length} package.json files to ${version}.`);
+const marketplacePath = join(root, '.claude-plugin/marketplace.json');
+const marketplace = JSON.parse(readFileSync(marketplacePath, 'utf8')) as {
+  plugins?: Array<{ name?: string; version?: string }>;
+};
+
+if (!Array.isArray(marketplace.plugins) || marketplace.plugins.length === 0) {
+  throw new Error(`${marketplacePath} must contain a non-empty plugins array.`);
+}
+
+let marketplaceChanged = false;
+for (const plugin of marketplace.plugins) {
+  if (typeof plugin.name !== 'string' || plugin.name.length === 0) {
+    throw new Error(`${marketplacePath} contains a plugin without a name.`);
+  }
+
+  total += 1;
+  if (plugin.version === newVersion) {
+    console.log(`= ${plugin.name} already at ${newVersion}`);
+    continue;
+  }
+  plugin.version = newVersion;
+  marketplaceChanged = true;
+  console.log(`✓ ${plugin.name} -> ${newVersion}`);
+  changed += 1;
+}
+
+if (marketplaceChanged) {
+  writeFileSync(marketplacePath, `${JSON.stringify(marketplace, null, 2)}\n`);
+}
+
+console.log(`\nBumped ${changed} of ${total} version targets to ${newVersion}.`);
 
 if (!tagFlag) {
   console.log('Next: review the diff, then commit + tag manually:');
-  console.log(`  git commit -am 'release v${version}'`);
-  console.log(`  git tag v${version}`);
+  console.log(`  git commit -am 'release v${newVersion}'`);
+  console.log(`  git tag v${newVersion}`);
   console.log('  git push --follow-tags');
   process.exit(0);
 }
@@ -62,6 +96,6 @@ function run(cmd: string, ...rest: string[]): void {
 }
 
 run('git', 'add', '-A');
-run('git', 'commit', '-m', `release v${version}`);
-run('git', 'tag', `v${version}`);
-console.log(`\nTagged v${version}. Run \`git push --follow-tags\` to release.`);
+run('git', 'commit', '-m', `release v${newVersion}`);
+run('git', 'tag', `v${newVersion}`);
+console.log(`\nTagged v${newVersion}. Run \`git push --follow-tags\` to release.`);
