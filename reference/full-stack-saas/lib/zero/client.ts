@@ -18,7 +18,9 @@ export function createZeroOptions(options: ZeroClientOptions = {}): AppZeroOptio
   return {
     cacheURL: process.env.NEXT_PUBLIC_ZERO_URL ?? DEFAULT_ZERO_URL,
     schema,
-    userID: options.authData?.sub ?? 'anon',
+    // Omit userID entirely for logged-out clients (per Zero's auth guidance);
+    // passing a sentinel like 'anon' is deprecated and churns client groups.
+    userID: options.authData?.sub,
     auth: typeof options.authToken === 'string' ? options.authToken : undefined,
     mutators: createMutators(options.authData),
   };

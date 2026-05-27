@@ -32,6 +32,12 @@ const posts = table('posts')
 
 export const schema = createSchema({
   tables: [users, posts],
+  // Register ad-hoc `createBuilder(schema)` queries (e.g. the posts panel's
+  // `useQuery(zql.posts...)`) as durable server-synced queries against
+  // zero-cache. Without this, Zero 1.5 skips the legacy query registration, so
+  // an optimistic mutation is rebased on server-ack with no synced snapshot to
+  // replace it — and the row silently never appears in the live query.
+  enableLegacyQueries: true,
 });
 export const zql = createBuilder(schema);
 

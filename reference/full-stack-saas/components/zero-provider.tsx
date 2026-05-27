@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { ZeroOptions } from '@rocicorp/zero';
 import { ZeroProvider as RocicorpZeroProvider } from '@rocicorp/zero/react';
 import { createZeroOptions } from '@/lib/zero/client';
@@ -13,17 +13,14 @@ type ZeroProviderProps = {
 
 export function ZeroProvider({ authData, children }: ZeroProviderProps) {
   const [token, setToken] = useState<string>();
-  const [isLoadingToken, setIsLoadingToken] = useState(Boolean(authData));
 
   useEffect(() => {
     if (!authData) {
       setToken(undefined);
-      setIsLoadingToken(false);
       return;
     }
 
     let isCancelled = false;
-    setIsLoadingToken(true);
 
     async function loadToken() {
       try {
@@ -33,8 +30,6 @@ export function ZeroProvider({ authData, children }: ZeroProviderProps) {
         if (!isCancelled) setToken(data.token);
       } catch {
         if (!isCancelled) setToken(undefined);
-      } finally {
-        if (!isCancelled) setIsLoadingToken(false);
       }
     }
 
@@ -45,18 +40,25 @@ export function ZeroProvider({ authData, children }: ZeroProviderProps) {
     };
   }, [authData]);
 
-  // Always wrap with a provider so `useZero()` is safe to call. While the JWT
-  // is loading we mount with no auth/mutators; once the token arrives we
-  // remount via `key` so Zero re-initializes with the authenticated client.
-  const zeroOptions = createZeroOptions(
-    token ? { authToken: token, authData } : {},
+  // Let `ZeroProvider` own the Zero instance's lifecycle: it (re)creates the
+  // client when `userID`/`auth` change. We treat the user as authenticated only
+  // once both the session and its JWT are in hand, so there is exactly one
+  // logged-out -> logged-in transition and no `anon` client group churn (which
+  // otherwise desyncs the CVR and triggers ClientNotFound reload loops).
+  // Pass `userID` as soon as the session is known (even before the JWT loads),
+  // so there is a single, stable Zero client / client group from first paint;
+  // only the `auth` token is deferred until the fetch resolves, and ZeroProvider
+  // applies it to that same client. Spinning up a throwaway logged-out ("anon")
+  // client first and swapping to an authed one churns the client group, which
+  // desyncs the CVR — leaving the live query empty (the optimistic insert is
+  // rebased away after the server ack with no synced row to replace it).
+  const zeroOptions = useMemo(
+    () => createZeroOptions(authData ? { authData, authToken: token } : {}),
+    [authData, token],
   );
 
   return (
-    <RocicorpZeroProvider
-      key={token ?? 'anon'}
-      {...(zeroOptions as unknown as ZeroOptions)}
-    >
+    <RocicorpZeroProvider {...(zeroOptions as unknown as ZeroOptions)}>
       {children}
     </RocicorpZeroProvider>
   );
