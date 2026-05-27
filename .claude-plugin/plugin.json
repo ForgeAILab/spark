@@ -1,6 +1,6 @@
 {
   "name": "spark",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "description": "spark's board-driven AI MVP workflow as Claude Code skills. Run /spark:start to plan a docs/spark spec workspace, /spark:build-loop to build toward its EARS scenarios, plus the full planner / implementer / evaluator pipeline (grill, spec, architecture, design, tasks, review, QA, packs).",
   "author": {
     "name": "ForgeAILab"
