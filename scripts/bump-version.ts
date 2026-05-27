@@ -97,5 +97,7 @@ function run(cmd: string, ...rest: string[]): void {
 
 run('git', 'add', '-A');
 run('git', 'commit', '-m', `release v${newVersion}`);
-run('git', 'tag', `v${newVersion}`);
+// Annotated (not lightweight) so `git push --follow-tags` actually pushes it —
+// --follow-tags ignores lightweight tags, which silently skips the release tag.
+run('git', 'tag', '-a', `v${newVersion}`, '-m', `release v${newVersion}`);
 console.log(`\nTagged v${newVersion}. Run \`git push --follow-tags\` to release.`);
