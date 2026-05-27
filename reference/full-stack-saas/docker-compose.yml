@@ -29,7 +29,7 @@ services:
     image: rocicorp/zero:latest
     container_name: spark-ref-zero
     environment:
-      ZERO_UPSTREAM_DB: postgres://spark:spark@postgres:5432/spark
+      ZERO_UPSTREAM_DB: postgres://spark:spark@postgres:5432/${ZERO_E2E_DB:-spark}
       ZERO_CVR_DB: postgres://spark:spark@postgres:5432/spark_cvr
       ZERO_CHANGE_DB: postgres://spark:spark@postgres:5432/spark_change
       ZERO_REPLICA_FILE: /zero/replica.db

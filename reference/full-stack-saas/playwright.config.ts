@@ -1,6 +1,6 @@
 import { defineConfig, devices } from '@playwright/test';
 
-const PORT = Number(process.env.PORT ?? 3000);
+const PORT = Number(process.env.PORT ?? 3010);
 const BASE_URL = `http://localhost:${PORT}`;
 
 export default defineConfig({
@@ -12,6 +12,7 @@ export default defineConfig({
   expect: { timeout: 10_000 },
   reporter: process.env.CI ? 'list' : 'list',
   globalSetup: './e2e/global-setup.ts',
+  globalTeardown: './e2e/global-teardown.ts',
   use: {
     baseURL: BASE_URL,
     trace: 'retain-on-failure',
@@ -24,12 +25,13 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'bun run dev',
+    command: 'bun e2e/dev-server.ts',
     url: BASE_URL,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
     env: {
-      DATABASE_URL: process.env.DATABASE_URL ?? 'file:./.data/e2e.db',
+      PORT: String(PORT),
+      DATABASE_URL: process.env.DATABASE_URL ?? 'postgres://spark:spark@localhost:5432/spark_e2e',
       BETTER_AUTH_SECRET:
         process.env.BETTER_AUTH_SECRET ??
         'reference-dev-secret-change-me-reference-dev-secret-change-me',

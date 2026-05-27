@@ -1,6 +1,6 @@
 # Full Stack SaaS Reference
 
-This is the Phase 0 reference app for `add-runtime-packages-2026-05-21`. It integrates Next.js 15 App Router, React 19, strict TypeScript, Tailwind v4, shadcn-style Button/Card/login UI, Drizzle ORM on SQLite (via `bun:sqlite`), Better Auth email/password plus GitHub OAuth, Zero schema/client wiring, Stripe Checkout/portal/webhook handlers, Resend transactional email, and an Anthropic SSE chat endpoint.
+This is the Phase 0 reference app for `add-runtime-packages-2026-05-21`. It integrates Next.js 15 App Router, React 19, strict TypeScript, Tailwind v4, shadcn-style Button/Card/login UI, Drizzle ORM on Postgres (via `postgres` / `drizzle-orm/postgres-js`), Better Auth email/password plus GitHub OAuth, Zero schema/client wiring, Stripe Checkout/portal/webhook handlers, Resend transactional email, and an Anthropic SSE chat endpoint.
 
 The **visible UI surface is intentionally tiny** — a public landing and one authed page — because the reference app exists to prove the hybrid pack stack composes. Every other integration stays wired as API routes and `lib/` helpers so Phases 5-8 can extract them into `libs/` packages without UI churn.
 
@@ -45,14 +45,16 @@ Unit / helper smoke tests (bun's built-in runner; filtered to `./test`):
 bun test
 ```
 
-End-to-end via Playwright (drives the real Next.js dev server against an isolated SQLite file):
+End-to-end via Playwright (requires Docker; drives the real Next.js dev server against an isolated Postgres database, `spark_e2e`, plus zero-cache):
 
 ```sh
 bunx playwright install chromium   # one-time browser download
 bunx playwright test
 ```
 
-`e2e/global-setup.ts` deletes `./.data/e2e.db`, recreates the Drizzle schema with raw DDL (no migration step required), and Playwright's `webServer` boots `bun dev` with `DATABASE_URL=file:./.data/e2e.db`. The single spec covers:
+The e2e harness starts the Docker compose Postgres service, drops and recreates the Drizzle schema in the `spark_e2e` database with raw DDL (no migration step required), deploys Zero permissions to that same database, and starts zero-cache before Next.js accepts traffic. Playwright's `webServer` boots the app on port `3010` against `DATABASE_URL=postgres://spark:spark@localhost:5432/spark_e2e` with `NEXT_PUBLIC_ZERO_URL=http://localhost:4848`; `e2e/global-teardown.ts` removes the compose stack and volumes when the run finishes.
+
+When the host Postgres port is already occupied, pass a temporary compose override with `E2E_DOCKER_COMPOSE_FILES=/tmp/<override>.yml` and override `DATABASE_URL` to match the remapped host port. Do not create `docker-compose.override.yml` in this repo. The single spec covers:
 
 1. Public landing renders with the Sign in link.
 2. `/login` renders the email + password + GitHub form.
