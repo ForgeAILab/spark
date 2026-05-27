@@ -20,7 +20,7 @@ The pack manager CLI SHALL be implemented as a TypeScript package in `packages/c
 
 ### Requirement: CLI Subcommands
 
-The CLI SHALL expose exactly the following subcommands in v1: `list`, `info <pack>`, `check`, `add <pack...> [--dry-run]`, `preset <name>`. There MUST NOT be a `remove`, `uninstall`, or `update` subcommand. Users who want to undo a pack install revert via git.
+The CLI SHALL expose exactly the following subcommands in v1: `list`, `info <pack>`, `check`, `add <pack...> [--dry-run]`, `preset <name>`, `validate [path]`, `status [--change <id>]`. There MUST NOT be a `remove`, `uninstall`, or `update` subcommand. Users who want to undo a pack install revert via git. The `validate` and `status` subcommands operate on the `docs/spark/` spec workspace (not on packs) and their behavior is specified by the `spec-cli` capability.
 
 #### Scenario: `list` shows installed and available packs
 
@@ -41,6 +41,11 @@ The CLI SHALL expose exactly the following subcommands in v1: `list`, `info <pac
 - **WHEN** the user runs `spark remove db-sqlite`
 - **THEN** the CLI exits non-zero with an "unknown subcommand" error
 - **AND** the error message names git as the supported way to undo a pack install
+
+#### Scenario: Workspace subcommands are recognized
+
+- **WHEN** the user runs `spark validate` or `spark status` in a scaffolded project
+- **THEN** the CLI dispatches to the corresponding workspace command rather than printing an "unknown subcommand" error
 
 ### Requirement: Idempotent Install
 

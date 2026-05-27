@@ -172,3 +172,143 @@ The `capture-feedback` skill SHALL convert plain-English feedback on the running
 - **WHEN** feedback contradicts a non-goal recorded in `project.md` or a proposal
 - **THEN** the skill flags the conflict and names the non-goal
 - **AND** does not create a task until the user resolves it
+
+### Requirement: Conductor Detects Cold Start vs Iteration
+
+The `start` conductor SHALL determine, from the `docs/spark/` workspace alone and without
+asking the user, whether a request is a **cold start** (no real `project.md` and no shipped
+`specs/`) or an **iteration** on a shipped MVP (`project.md` carries a north star AND `specs/`
+holds shipped truth, or `changes/` contains an archived change). In iteration mode the
+conductor SHALL classify the request as bug / polish / feature / scope-change and, for
+bug / polish / feature, take a **light route**: open a change and author `proposal.md`, the
+open EARS `specs/<capability>/spec.md` deltas, and `tasks.md`, then stop once at
+`/board-review`. On the light route it MUST NOT re-grill scope and MUST NOT author a technical
+`design.md` (the stack is inherited from the shipped MVP) — this carves an explicit exception
+to the full-pipeline authoring sequence. The conductor SHALL escalate to the full chain
+(grill + architecture) only when the request is a scope-change, breaches a documented
+non-goal, or is a large-scale change the user explicitly asks for. Both modes preserve exactly
+one approval gate.
+
+#### Scenario: Iteration is detected and the grill is skipped
+
+- **WHEN** `/start` receives a "change/add/tune X" request in a project whose `project.md` has a north star and whose `specs/` holds shipped truth
+- **THEN** the conductor treats it as an iteration and does not re-run `/mvp-grill`
+- **AND** it routes the request through the light-route table
+
+#### Scenario: Light route stops at one gate without a technical design
+
+- **WHEN** a bug / polish / feature request is taken on the light route
+- **THEN** the conductor authors `proposal.md`, the open `specs/` deltas, and `tasks.md`
+- **AND** it does not author a technical `design.md`
+- **AND** it stops at exactly one `/board-review` gate before any task is executable
+
+#### Scenario: Scope-change escalates to the full chain
+
+- **WHEN** an iteration request contradicts a documented non-goal or redefines product scope
+- **THEN** the conductor escalates to the full chain, grilling the new scope and cutting/extending the architecture before the gate
+- **AND** it does not silently absorb the change as a light-route task
+
+#### Scenario: Cold start still runs the full chain
+
+- **WHEN** `/start` receives a fresh idea with no real `project.md` and no shipped `specs/`
+- **THEN** the conductor runs the full chain (grill → proposal → architecture → visual → specs → tasks → gate)
+
+### Requirement: Conductor Resolves Unknowns via Conditional Research
+
+Before authoring the proposal, the `start` conductor SHALL resolve genuine unknowns into a
+bounded `research.md` in the active change folder
+(`docs/spark/changes/<id>-YYYY-MM-DD/research.md`). This phase is **conditional**: the
+conductor MUST run it only when a real unknown blocks the proposal or architecture — prior
+art or a convention, a rapidly-changing technology/API choice (cold start), or existing
+code/specs the agent has not read (iteration) — and MUST skip it when nothing is genuinely
+unknown. `research.md` MUST tie every finding to a named unknown and a resulting decision or
+an open question carried into the proposal, and MUST NOT pick the stack (that is the
+architecture phase) or write tasks. The rendered build-status view SHALL show `Research` as
+`n/a` when the phase was skipped.
+
+#### Scenario: Research runs for a real unknown
+
+- **WHEN** a grilled idea depends on a rapidly-changing API whose surface the grill could not settle
+- **THEN** `/start` produces a `research.md` whose findings each resolve a named unknown into a decision or an open question
+- **AND** it does not pick the stack or write tasks in that file
+
+#### Scenario: Research is skipped when nothing is unknown
+
+- **WHEN** a request introduces no unknown the proposal or architecture would otherwise guess at
+- **THEN** `/start` does not create a `research.md`
+- **AND** the build-status view shows `Research` as `n/a`
+
+#### Scenario: Iteration explores existing code before proposing
+
+- **WHEN** a light-route modification touches source files or specs the agent has not read
+- **THEN** `/start` scans the affected files into `research.md` (with `path:line` notes) before drafting the proposal
+- **AND** the proposal extends the existing behavior rather than assuming it
+
+### Requirement: Conductor Detects and Adopts an Existing Project
+
+The `start` conductor SHALL recognize a third entry mode — **adopt** — for an existing
+codebase that spark did not build: substantive source code is present (real dependencies and
+application source such as `src/`, `app/`, or `server/`) but there is no spark workspace (no
+real `project.md`, and no shipped `specs/` including `specs/capabilities.md`). Because this
+condition otherwise matches a cold start, detection MUST be conservative — the conductor SHALL
+confirm with the user before adopting, so a freshly initialized `create-spark` scaffold (files
+present but no product code) is not mistaken for a brownfield app. On adopt the conductor SHALL
+NOT re-grill the product as a fresh idea and SHALL NOT run `/scaffold` to stand up the existing
+stack.
+
+Adopt is a one-time **bootstrap**: the conductor SHALL explore the codebase (reusing the
+conditional research phase), then author `docs/spark/project.md` (an inferred north star plus
+conventions and the *detected* stack) and `docs/spark/specs/capabilities.md` (a one-line index
+of the detected capabilities, with no scenarios). It MUST NOT back-fill full EARS `spec.md`
+files for untouched capabilities. The conductor SHALL record the detected scaffold template and
+present packs in `spark.config.json` / `.spark/state.json` so the inherited stack reads as
+already-installed. Adopt SHALL stop at **exactly one** approval gate: the user confirms the
+inferred north star and conventions before the project is considered onboarded.
+
+#### Scenario: Existing project is adopted, not cold-started
+
+- **WHEN** `/start` runs in a repo that has real dependencies and application source but no `docs/spark/` workspace
+- **THEN** the conductor detects an existing project and, after confirming with the user, runs the adopt bootstrap
+- **AND** it does not re-grill the product as a fresh idea
+- **AND** it does not run `/scaffold` to re-stand-up the existing stack
+
+#### Scenario: Adopt captures a capability map, not full specs
+
+- **WHEN** the adopt bootstrap completes for a codebase with several capabilities
+- **THEN** `docs/spark/project.md` carries an inferred north star, conventions, and the detected stack
+- **AND** `docs/spark/specs/capabilities.md` lists each detected capability as a single line with no scenarios
+- **AND** no per-capability `specs/<capability>/spec.md` is written at adopt time
+
+#### Scenario: Fresh scaffold is not mistaken for a brownfield app
+
+- **WHEN** `/start` runs in a directory that holds only a freshly initialized `create-spark` scaffold with no product code
+- **THEN** the conductor does not silently adopt it
+- **AND** it treats the project as a cold start (or confirms intent before doing anything irreversible)
+
+#### Scenario: Adopt stops at exactly one gate
+
+- **WHEN** the adopt bootstrap has authored `project.md` and `specs/capabilities.md` and recorded the stack
+- **THEN** the conductor stops once for the user to confirm the inferred north star and conventions
+- **AND** it does not proceed to build before that confirmation
+
+### Requirement: Adopted Workspace Behaves as an Iteration
+
+After a project has been adopted, the `start` conductor SHALL treat the workspace as an
+**iteration**: a real north star in `project.md` together with `docs/spark/specs/capabilities.md`
+counts as shipped truth, so the next request resolves to the light route rather than falling
+back to cold start. Because lazy capture leaves capabilities with only a map entry, the **first**
+light-route change that touches an un-specced capability SHALL create that capability's
+`specs/<capability>/spec.md` from the current behavior (the EARS truth of what exists today)
+alongside the change's spec delta, rather than assuming a prior spec already exists.
+
+#### Scenario: Post-adopt request takes the light route
+
+- **WHEN** a "change/add/tune X" request arrives in a workspace that was adopted (north star in `project.md` plus a populated `specs/capabilities.md`)
+- **THEN** the conductor classifies it as an iteration and routes it through the light-route table
+- **AND** it does not re-run the cold-start chain
+
+#### Scenario: First change to a mapped capability writes its spec from current behavior
+
+- **WHEN** a light-route change is the first to touch a capability that exists only in `specs/capabilities.md`
+- **THEN** the conductor first writes `specs/<capability>/spec.md` capturing the current behavior as EARS truth
+- **AND** it records the requested change as a delta against that newly captured spec
